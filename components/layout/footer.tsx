@@ -8,11 +8,17 @@ const footerLinks = {
   Produk: [
     { label: "Fitur", href: "/#features" },
     { label: "Harga", href: "/#pricing" },
+    { label: "Use Cases", href: "/use-cases" },
+    { label: "Perbandingan", href: "/compare" },
     { label: "Komponen UI", href: "/docs/components" },
     { label: "Changelog", href: "/changelog" },
+    { label: "Roadmap", href: "/roadmap" },
+    { label: "Status", href: "/status" },
   ],
   Sumber: [
     { label: "Blog", href: "/blog" },
+    { label: "Open Startup", href: "/open" },
+    { label: "Afiliasi", href: "/affiliates" },
     { label: "Tentang Kami", href: "/about" },
     { label: "Kontak", href: "/contact" },
   ],

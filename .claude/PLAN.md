@@ -181,6 +181,35 @@ Each phase is independently shippable. Phase 4a must complete before any other.
 
 ---
 
+## Phase 6 — Marketing Funnel Pages
+
+> Started: 2026-03-16
+> Focus: Full marketing funnel — awareness → consideration → conversion → post-purchase
+
+### 6a. Top of Funnel (Awareness)
+- [ ] `/use-cases` — 4 use case cards (SaaS, marketplace, agency, startup)
+- [ ] `/compare` — feature comparison table vs alternatives
+- [ ] `/open` — Open Startup metrics (MRR, users, revenue chart)
+- [ ] `/status` — system uptime / service status
+- [ ] `/roadmap` — public product roadmap (planned / shipped)
+
+### 6b. Middle of Funnel (Consideration)
+- [ ] `/affiliates` — affiliate/partner program landing
+- [ ] `/waitlist` — pre-launch email capture with Supabase `waitlist` table
+
+### 6c. Bottom of Funnel (Conversion)
+- [ ] `/checkout` — one-page checkout wired to existing Midtrans flow
+- [ ] `/order/[id]` — order confirmation / thank-you page
+
+### 6d. Auth Flow Polish
+- [ ] `/auth/verify-email` — post-signup "check your inbox" gate
+
+### 6e. Navigation & Footer
+- [ ] Add new pages to footer links
+- [ ] Update `marketingNav` where appropriate
+
+---
+
 ## Notes
 
 - Skip `src/` folder migration — not necessary, adds churn without benefit
