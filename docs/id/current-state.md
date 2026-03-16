@@ -30,6 +30,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Halaman billing di `/dashboard/billing` dengan tampilan paket dan alur pembayaran (Midtrans/Doku)
 - Notifikasi toast Sonner terhubung secara global
 - Halaman marketing funnel lengkap: `/about`, `/affiliates`, `/changelog`, `/checkout`, `/compare`, `/contact`, `/open`, `/order/[id]`, `/privacy`, `/roadmap`, `/status`, `/terms`, `/use-cases`, `/waitlist`
+- Automated test berbasis Vitest + Testing Library yang mencakup route API, payment provider/webhook, guard AI, helper MDX, hook client, dan form utama
 
 ## Baseline Paket Yang Terpasang
 
@@ -88,6 +89,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Halaman settings di `/dashboard/settings` — profil dan ganti password
 - Halaman billing di `/dashboard/billing` — tampilan paket dan alur pembayaran (Midtrans/Doku)
 - Halaman marketing funnel lengkap (about, affiliates, changelog, checkout, compare, contact, open, order, privacy, roadmap, status, terms, use-cases, waitlist)
+- `npm run test` — menjalankan 72 automated test untuk fitur server-side dan client-side
 
 ## Migrasi Database Siap Diaplikasikan
 
@@ -106,7 +108,6 @@ Semua tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabas
 ## Yang Masih Belum Ada
 
 - Aplikasikan migrasi ke Supabase dan generate TypeScript types
-- Automated test
 - Opsi email provider Sumopod / Mailketing (ke depannya)
 
 ## Langkah Berikutnya

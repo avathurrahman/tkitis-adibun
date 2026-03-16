@@ -15,6 +15,14 @@ Any modern Node.js version compatible with Next.js 16 should work.
 npm install
 ```
 
+## Automated Tests
+
+The repository now includes a Vitest-based test suite with:
+
+- Node-side unit and route handler tests
+- JSDOM component and hook tests via Testing Library
+- Mocked integrations for Supabase, AI providers, Midtrans, Doku, and Resend
+
 ## Environment Variables
 
 ```bash
@@ -168,6 +176,8 @@ Access is controlled by `ADMIN_EMAILS`. If the env var is not set, any authentic
 | `npm run build` | Create a production build |
 | `npm run start` | Start the production server after build |
 | `npm run lint` | Run ESLint across the repo |
+| `npm run test` | Run the full automated test suite once |
+| `npm run test:watch` | Run the test suite in watch mode |
 
 ## Local Development Flow
 

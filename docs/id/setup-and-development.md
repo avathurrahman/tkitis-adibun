@@ -15,6 +15,14 @@ Versi Node.js modern apapun yang kompatibel dengan Next.js 16 seharusnya bisa di
 npm install
 ```
 
+## Automated Test
+
+Repository ini sekarang sudah punya test suite berbasis Vitest dengan:
+
+- Unit test dan route handler test di environment Node
+- Test hook dan komponen di JSDOM lewat Testing Library
+- Integrasi yang dimock untuk Supabase, AI provider, Midtrans, Doku, dan Resend
+
 ## Environment Variable
 
 ```bash
@@ -168,6 +176,8 @@ Akses dikontrol oleh `ADMIN_EMAILS`. Kalau env var tidak diset, semua user yang 
 | `npm run build` | Buat production build |
 | `npm run start` | Jalankan production server setelah build |
 | `npm run lint` | Jalankan ESLint di seluruh repo |
+| `npm run test` | Jalankan seluruh automated test sekali |
+| `npm run test:watch` | Jalankan test suite dalam mode watch |
 
 ## Alur Development Lokal
 

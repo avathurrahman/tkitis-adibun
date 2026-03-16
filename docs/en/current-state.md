@@ -29,6 +29,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Settings page at `/dashboard/settings` with profile display and password change
 - Billing page at `/dashboard/billing` with plan display and payment flow (Midtrans/Doku)
 - Sonner toast notifications wired globally
+- Automated tests via Vitest + Testing Library covering API routes, payment providers/webhooks, AI guards, MDX helpers, auth/client hooks, and key forms
 
 ## Current Installed Baseline
 
@@ -84,6 +85,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Blog post detail at `/blog/[slug]` — renders MDX content with Tailwind Typography prose styles
 - `getAllPosts()` and `getPostBySlug()` in `lib/mdx.ts` — file-system MDX helpers
 - Two sample posts in `content/blog/` (in Bahasa Indonesia)
+- `npm run test` — runs 72 automated tests across server-side and client-side feature coverage
 
 ## Database Migrations Ready To Apply
 
@@ -102,12 +104,11 @@ All tables include Row Level Security policies. They have not been applied to a 
 ## What Is Still Missing
 
 - Apply migrations to Supabase and generate TypeScript types
-- Automated tests
 - Sumopod / Mailketing email provider options (future)
 
 ## Next Immediate Steps
 
-1. Apply the three SQL migrations to your Supabase project
+1. Apply the five SQL migrations to your Supabase project
 2. Run `npx supabase gen types typescript --project-id YOUR_ID > types/database.ts`
 3. Enable Google OAuth in Supabase dashboard (Authentication > Providers)
 4. Add all required keys to `.env.local` (Supabase, Midtrans, Resend, Doku)
