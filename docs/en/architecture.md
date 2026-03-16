@@ -14,6 +14,7 @@
 | `config/` | Centralized site config and navigation definitions |
 | `lib/` | Shared utilities, Supabase client factories, and payment helpers |
 | `lib/payments/` | Payment gateway client and helper functions |
+| `lib/ai/` | AI provider factory, usage tracking, and middleware |
 | `app/api/` | API route handlers (payments, webhooks) |
 | `emails/` | React Email templates |
 | `hooks/` | Client-side React hooks for auth and subscription state |
@@ -87,6 +88,8 @@
 | `/api/webhooks/doku` | POST | Verifies notification, updates payment + subscription |
 | `/api/contact` | POST | Contact form submission handler |
 | `/api/waitlist` | POST | Waitlist sign-up handler |
+| `/api/ai/chat` | POST | Streaming chat (auth + plan-gated) |
+| `/api/ai/generate` | POST | One-shot text generation (auth + plan-gated) |
 
 ### App-Level Files
 
@@ -218,6 +221,7 @@ Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ra
 | `hooks/use-auth.ts` | Subscribes to `onAuthStateChange`; returns `{ user, loading }` |
 | `hooks/use-subscription.ts` | Fetches subscription row for current user; returns `{ subscription, loading, isPro, isActive }` |
 | `hooks/use-payment.ts` | Client-side payment state and Midtrans/Doku flow helpers |
+| `hooks/use-ai-chat.ts` | AI chat state via Vercel AI SDK's `useChat` with `DefaultChatTransport` |
 
 ## Payment Layer
 
@@ -234,6 +238,14 @@ Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ra
 | `emails/welcome.tsx` | Onboarding email template in Bahasa Indonesia |
 | `emails/invoice.tsx` | Payment confirmation email with itemised Rupiah amounts |
 
+## AI Layer
+
+| File | Purpose |
+| --- | --- |
+| `lib/ai/provider.ts` | `getModel()` — resolves the active AI model from `AI_DEFAULT_PROVIDER`; supports OpenAI and Anthropic |
+| `lib/ai/usage.ts` | `trackUsage()` — inserts token counts into `ai_usage`; `getMonthlyUsage()` and `checkUsageLimit()` enforce plan caps |
+| `lib/ai/middleware.ts` | `authorizeAIRequest()` — verifies auth session, checks provider key is set, and enforces token budget before AI routes run |
+
 ## Config Layer
 
 | File | Purpose |
@@ -243,13 +255,14 @@ Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ra
 
 ## Database Schema
 
-Migrations are in `supabase/migrations/`. Three tables are defined:
+Migrations are in `supabase/migrations/`. Four tables are defined:
 
 | Table | Key Columns | Notes |
 | --- | --- | --- |
 | `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-created on user signup via trigger |
 | `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Starts as FREE; auto-created on signup via trigger |
 | `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Supports Midtrans and Doku |
+| `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens` | Tracks per-user AI token usage; indexed by (user_id, created_at) |
 
 All tables have Row Level Security enabled with user-scoped read policies.
 

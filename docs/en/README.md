@@ -20,6 +20,7 @@ The repository is currently based on Supabase's `with-supabase` Next.js starter,
 - UI system: shadcn/ui with the `new-york` style
 - Auth and backend integration: Supabase SSR + browser client
 - Theme support: `next-themes`
+- AI integration: Vercel AI SDK (OpenAI + Anthropic)
 - Git remote: `git@github.com:galpratama/kilatkoding-src.git`
 
 ## Scope Of The Current App

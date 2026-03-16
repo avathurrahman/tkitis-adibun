@@ -20,6 +20,7 @@ Repository ini saat ini masih berbasis starter resmi Supabase `with-supabase`, d
 - UI system: shadcn/ui dengan style `new-york`
 - Integrasi auth dan backend: Supabase SSR + browser client
 - Dukungan tema: `next-themes`
+- Integrasi AI: Vercel AI SDK (OpenAI + Anthropic)
 - Git remote: `git@github.com:galpratama/kilatkoding-src.git`
 
 ## Cakupan Aplikasi Saat Ini

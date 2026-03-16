@@ -100,6 +100,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `hooks/use-auth.ts` | State session user di client-side dengan listener `onAuthStateChange` |
 | `hooks/use-payment.ts` | State pembayaran sisi klien dan helper alur Midtrans/Doku |
 | `hooks/use-subscription.ts` | State subscription di client-side; mengekspos helper `isPro` dan `isActive` |
+| `hooks/use-ai-chat.ts` | Hook AI chat client-side yang membungkus `useChat` dengan `DefaultChatTransport` |
 
 ## Library Payment
 
@@ -107,6 +108,14 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | --- | --- |
 | `lib/payments/midtrans.ts` | Inisialisasi Snap + CoreAPI client, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
 | `lib/payments/doku.ts` | HTTP client Doku JOKUL, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
+
+## Library AI
+
+| File | Tujuan |
+| --- | --- |
+| `lib/ai/provider.ts` | `getModel()` — factory model provider-agnostic untuk OpenAI dan Anthropic via Vercel AI SDK |
+| `lib/ai/usage.ts` | `trackUsage()`, `getMonthlyUsage()`, `checkUsageLimit()` — tracking token bulanan per-user |
+| `lib/ai/middleware.ts` | `authorizeAIRequest()` — auth + pengecekan config provider + gating usage untuk AI API route |
 
 ## API Route
 
@@ -117,6 +126,8 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `app/api/webhooks/doku/route.ts` | POST | Memverifikasi notifikasi Doku, update `payments.status`, aktifkan subscription jika berhasil |
 | `app/api/contact/route.ts` | POST | Formulir kontak — menyimpan pengiriman |
 | `app/api/waitlist/route.ts` | POST | Waitlist — menyimpan pendaftaran email |
+| `app/api/ai/chat/route.ts` | POST | Streaming chat dilindungi auth + usage tracking |
+| `app/api/ai/generate/route.ts` | POST | One-shot generation dilindungi auth + usage tracking |
 
 ## Template Email
 
@@ -133,6 +144,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `supabase/migrations/20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + trigger auto-create FREE saat signup |
 | `supabase/migrations/20260316000003_create_payments.sql` | Tabel `payments` + enum (plan, payment_status, payment_provider) |
 | `supabase/migrations/20260316000004_create_waitlist.sql` | Tabel `waitlist` |
+| `supabase/migrations/20260316000005_create_ai_usage.sql` | Tabel `ai_usage` + RLS + index untuk query usage bulanan |
 
 ## Primitive shadcn/ui Yang Terpasang (44 total)
 

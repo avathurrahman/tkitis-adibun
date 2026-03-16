@@ -38,6 +38,11 @@ DOKU_CLIENT_ID=your-doku-client-id
 DOKU_SECRET_KEY=your-doku-secret-key
 
 ADMIN_EMAILS=you@example.com,colleague@example.com
+
+# AI (optional)
+AI_DEFAULT_PROVIDER=openai
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
 ```
 
 Notes:
@@ -49,6 +54,8 @@ Notes:
 - `EMAIL_FROM` defaults to `KilatKoding <noreply@kilatkoding.com>` if not set; set it to match your verified Resend sender domain
 - `DOKU_CLIENT_ID` and `DOKU_SECRET_KEY` are server-only; never prefix them with `NEXT_PUBLIC_`
 - `ADMIN_EMAILS` is a comma-separated list of emails allowed to access `/admin`; if empty, all authenticated users can access it
+- AI vars are optional; AI features are disabled when keys are not set
+- `AI_DEFAULT_PROVIDER` defaults to `openai`; set to `anthropic` to use Claude
 
 ## Supabase Dashboard Setup
 
@@ -90,6 +97,8 @@ npx supabase db push
 # supabase/migrations/20260316000001_create_profiles.sql
 # supabase/migrations/20260316000002_create_subscriptions.sql
 # supabase/migrations/20260316000003_create_payments.sql
+# supabase/migrations/20260316000004_create_waitlist.sql
+# supabase/migrations/20260316000005_create_ai_usage.sql
 ```
 
 ### 4. Generate TypeScript Types

@@ -17,6 +17,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Integrasi payment Doku (JOKUL Checkout + webhook handler)
 - Integrasi email Resend dengan template React Email (welcome, invoice)
 - Hook client-side auth dan subscription (`use-auth`, `use-subscription`)
+- Integrasi AI via Vercel AI SDK (OpenAI + Anthropic, streaming chat + one-shot generation)
 - Admin dashboard di `/admin` dengan statistik payment dan ringkasan subscription
 - Workflow CI GitHub Actions (lint + build di push/PR)
 - Sistem blog MDX di `/blog` dengan dukungan frontmatter, estimasi waktu baca, dan tag
@@ -50,6 +51,10 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 | `next-mdx-remote` | `5.x` |
 | `gray-matter` | `4.x` |
 | `@tailwindcss/typography` | `0.5.x` |
+| `ai` | `6.x` |
+| `@ai-sdk/openai` | `3.x` |
+| `@ai-sdk/anthropic` | `3.x` |
+| `@ai-sdk/react` | `3.x` |
 
 ## Yang Sudah Berfungsi Saat Ini
 
@@ -69,6 +74,12 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - `emails/welcome.tsx` dan `emails/invoice.tsx` — template email siap pakai dalam Bahasa Indonesia
 - `useAuth()` di `hooks/use-auth.ts` — state session user di client-side dengan `onAuthStateChange`
 - `useSubscription()` di `hooks/use-subscription.ts` — state subscription di client-side dengan helper `isPro` / `isActive`
+- `useAIChat()` di `hooks/use-ai-chat.ts` — hook AI chat client-side yang membungkus Vercel AI SDK `useChat`
+- `POST /api/ai/chat` — streaming chat endpoint (dilindungi auth, tracked usage)
+- `POST /api/ai/generate` — endpoint generasi teks one-shot (dilindungi auth, tracked usage)
+- `getModel()` di `lib/ai/provider.ts` — factory model provider-agnostic (OpenAI/Anthropic)
+- `authorizeAIRequest()` di `lib/ai/middleware.ts` — auth + enforcement limit usage untuk AI route
+- `trackUsage()` / `checkUsageLimit()` di `lib/ai/usage.ts` — tracking token bulanan per-user
 - Admin dashboard di `/admin` — statistik payment, jumlah subscription, tabel payment terbaru (dibatasi oleh `ADMIN_EMAILS`)
 - Daftar blog di `/blog` — menampilkan semua post MDX yang dipublikasikan dengan tanggal, estimasi baca, dan tag
 - Detail post blog di `/blog/[slug]` — merender konten MDX dengan prose style Tailwind Typography
@@ -80,7 +91,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 
 ## Migrasi Database Siap Diaplikasikan
 
-Empat file migrasi tersedia di `supabase/migrations/`:
+Lima file migrasi tersedia di `supabase/migrations/`:
 
 | File | Membuat |
 | --- | --- |
@@ -88,6 +99,7 @@ Empat file migrasi tersedia di `supabase/migrations/`:
 | `20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + trigger auto-create tier FREE saat signup |
 | `20260316000003_create_payments.sql` | Tabel `payments` + enum (plan, status, provider) |
 | `20260316000004_create_waitlist.sql` | Tabel `waitlist` |
+| `20260316000005_create_ai_usage.sql` | Tabel `ai_usage` + RLS + index untuk query usage bulanan |
 
 Semua tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabase manapun.
 
@@ -99,7 +111,7 @@ Semua tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabas
 
 ## Langkah Berikutnya
 
-1. Aplikasikan empat migrasi SQL ke project Supabase kamu
+1. Aplikasikan lima migrasi SQL ke project Supabase kamu
 2. Jalankan `npx supabase gen types typescript --project-id YOUR_ID > types/database.ts`
 3. Aktifkan Google OAuth di Supabase dashboard (Authentication > Providers)
 4. Tambahkan semua key yang diperlukan ke `.env.local` (Supabase, Midtrans, Resend, Doku)

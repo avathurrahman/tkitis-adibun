@@ -14,6 +14,7 @@
 | `config/` | Config site dan definisi navigasi terpusat |
 | `lib/` | Utility bersama, factory Supabase client, dan helper payment |
 | `lib/payments/` | Client payment gateway dan helper functions |
+| `lib/ai/` | Factory provider AI, tracking usage, dan middleware |
 | `app/api/` | API route handler (payment, webhook) |
 | `emails/` | Template React Email |
 | `hooks/` | Hook React client-side untuk state auth dan subscription |
@@ -87,6 +88,8 @@
 | `/api/webhooks/doku` | POST | Memverifikasi notifikasi, memperbarui pembayaran + langganan |
 | `/api/contact` | POST | Handler pengiriman formulir kontak |
 | `/api/waitlist` | POST | Handler pendaftaran waitlist |
+| `/api/ai/chat` | POST | Streaming chat dilindungi auth |
+| `/api/ai/generate` | POST | One-shot generation dilindungi auth |
 
 ### File App-Level
 
@@ -218,6 +221,7 @@ Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-r
 | `hooks/use-auth.ts` | Subscribe ke `onAuthStateChange`; mengembalikan `{ user, loading }` |
 | `hooks/use-subscription.ts` | Mengambil baris subscription untuk user saat ini; mengembalikan `{ subscription, loading, isPro, isActive }` |
 | `hooks/use-payment.ts` | State pembayaran sisi klien dan helper alur Midtrans/Doku |
+| `hooks/use-ai-chat.ts` | Hook AI chat client-side yang membungkus `useChat` dengan `DefaultChatTransport` |
 
 ## Layer Payment
 
@@ -234,6 +238,14 @@ Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-r
 | `emails/welcome.tsx` | Template email onboarding dalam Bahasa Indonesia |
 | `emails/invoice.tsx` | Email konfirmasi pembayaran dengan jumlah Rupiah |
 
+## Layer AI
+
+| File | Tujuan |
+| --- | --- |
+| `lib/ai/provider.ts` | `getModel()` — factory model provider-agnostic (OpenAI/Anthropic) via Vercel AI SDK |
+| `lib/ai/usage.ts` | `trackUsage()`, `getMonthlyUsage()`, `checkUsageLimit()` — tracking token bulanan per-user dengan limit per plan |
+| `lib/ai/middleware.ts` | `authorizeAIRequest()` — auth + pengecekan config provider + gating usage untuk AI route |
+
 ## Layer Config
 
 | File | Tujuan |
@@ -243,13 +255,14 @@ Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-r
 
 ## Schema Database
 
-Migrasi ada di `supabase/migrations/`. Tiga tabel sudah didefinisikan:
+Migrasi ada di `supabase/migrations/`. Empat tabel sudah didefinisikan:
 
 | Tabel | Kolom Penting | Catatan |
 | --- | --- | --- |
 | `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-dibuat saat user signup via trigger |
 | `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Mulai sebagai FREE; auto-dibuat saat signup via trigger |
 | `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Mendukung Midtrans dan Doku |
+| `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens`, `created_at` | RLS + index di (user_id, created_at) untuk query usage bulanan |
 
 Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis user.
 

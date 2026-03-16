@@ -17,6 +17,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Doku payment integration (JOKUL Checkout + webhook handler)
 - Resend email integration with React Email templates (welcome, invoice)
 - Client-side auth and subscription hooks (`use-auth`, `use-subscription`)
+- AI integration layer: Vercel AI SDK with OpenAI and Anthropic support, usage tracking, and plan-based gating
 - Admin dashboard at `/admin` with payment stats and subscription overview
 - GitHub Actions CI workflow (lint + build on push/PR)
 - MDX blog system at `/blog` with frontmatter, reading time, and tag support
@@ -49,6 +50,10 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 | `next-mdx-remote` | `5.x` |
 | `gray-matter` | `4.x` |
 | `@tailwindcss/typography` | `0.5.x` |
+| `ai` | `6` |
+| `@ai-sdk/openai` | `3` |
+| `@ai-sdk/anthropic` | `3` |
+| `@ai-sdk/react` | `3` |
 
 ## What Works Today
 
@@ -68,6 +73,12 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - `emails/welcome.tsx` and `emails/invoice.tsx` — ready-to-use email templates in Bahasa Indonesia
 - `useAuth()` in `hooks/use-auth.ts` — client-side user session state with `onAuthStateChange`
 - `useSubscription()` in `hooks/use-subscription.ts` — client-side subscription state with `isPro` / `isActive` helpers
+- `useAIChat()` in `hooks/use-ai-chat.ts` — client-side AI chat hook wrapping Vercel AI SDK's `useChat`
+- `POST /api/ai/chat` — streaming chat endpoint (plan-gated, uses `streamText()`)
+- `POST /api/ai/generate` — one-shot text generation endpoint (plan-gated, uses `generateText()`)
+- `getModel()` in `lib/ai/provider.ts` — provider-agnostic model factory supporting OpenAI and Anthropic
+- `authorizeAIRequest()` in `lib/ai/middleware.ts` — auth + config + usage gate for AI routes
+- `trackUsage()` / `getMonthlyUsage()` / `checkUsageLimit()` in `lib/ai/usage.ts` — token usage tracking against plan limits
 - Admin dashboard at `/admin` — payment stats, subscription counts, recent payments table (gated by `ADMIN_EMAILS`)
 - Blog listing at `/blog` — lists all published MDX posts with date, reading time, and tags
 - Blog post detail at `/blog/[slug]` — renders MDX content with Tailwind Typography prose styles
@@ -76,15 +87,17 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 
 ## Database Migrations Ready To Apply
 
-Three migration files exist under `supabase/migrations/`:
+Five migration files exist under `supabase/migrations/`:
 
 | File | Creates |
 | --- | --- |
 | `20260316000001_create_profiles.sql` | `profiles` table + auto-create trigger |
 | `20260316000002_create_subscriptions.sql` | `subscriptions` table + auto-create FREE tier trigger |
 | `20260316000003_create_payments.sql` | `payments` table + enums (plan, status, provider) |
+| `20260316000004_create_waitlist.sql` | `waitlist` table |
+| `20260316000005_create_ai_usage.sql` | `ai_usage` table + RLS + index on (user_id, created_at) |
 
-All three tables include Row Level Security policies. They have not been applied to a live Supabase project yet.
+All tables include Row Level Security policies. They have not been applied to a live Supabase project yet.
 
 ## What Is Still Missing
 

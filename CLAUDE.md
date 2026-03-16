@@ -42,6 +42,11 @@ Expected variables:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+
+# AI (optional)
+AI_DEFAULT_PROVIDER=        # "openai" or "anthropic"
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
 ```
 
 Reference:
@@ -65,6 +70,12 @@ Reference:
 - `lib/email.ts`: Resend + React Email wrapper
 - `hooks/use-auth.ts`: client-side auth state hook
 - `hooks/use-subscription.ts`: client-side subscription state hook
+- `hooks/use-ai-chat.ts`: client-side AI chat hook (wraps `@ai-sdk/react`)
+- `lib/ai/provider.ts`: AI model factory (OpenAI/Anthropic via Vercel AI SDK)
+- `lib/ai/usage.ts`: token tracking and plan-based usage limits
+- `lib/ai/middleware.ts`: auth + usage gating for AI API routes
+- `app/api/ai/chat/route.ts`: streaming chat endpoint
+- `app/api/ai/generate/route.ts`: one-shot text generation endpoint
 - `components/ui/`: installed shadcn/ui primitives (44 total)
 - `supabase/migrations/`: SQL migration files
 
@@ -77,6 +88,16 @@ Reference:
 - Keep changes consistent with the existing Tailwind and CSS variable system.
 - Keep TypeScript strictness intact.
 - Avoid unnecessary broad refactors in this still-young codebase.
+
+## AI Integration Rules
+
+- Use Vercel AI SDK (`ai`, `@ai-sdk/openai`, `@ai-sdk/anthropic`) — not raw SDK clients.
+- Use `getModel()` from `lib/ai/provider.ts` instead of instantiating providers directly.
+- All AI API routes must use `authorizeAIRequest()` from `lib/ai/middleware.ts` for auth + usage gating.
+- Track token usage via `trackUsage()` from `lib/ai/usage.ts`.
+- AI features are gated by subscription plan (FREE=0, BASIC=10k, PRO=100k, ULTIMATE=unlimited tokens/month).
+- Use `streamText()` for streaming, `generateText()` for one-shot — avoid deprecated `OpenAIStream`/`StreamingTextResponse`.
+- Do NOT use `runtime = 'edge'` on AI routes — Node.js runtime is needed for Supabase server clients.
 
 ## Documentation Rules
 

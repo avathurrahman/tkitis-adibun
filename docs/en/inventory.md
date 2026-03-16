@@ -100,6 +100,7 @@ This file is a practical reference for the important source files currently in t
 | `hooks/use-auth.ts` | Client-side user session state with `onAuthStateChange` listener |
 | `hooks/use-payment.ts` | Client-side payment state and Midtrans/Doku flow helpers |
 | `hooks/use-subscription.ts` | Client-side subscription state; exposes `isPro` and `isActive` helpers |
+| `hooks/use-ai-chat.ts` | Client-side AI chat hook wrapping `useChat` with `DefaultChatTransport` |
 
 ## Payment Library
 
@@ -107,6 +108,14 @@ This file is a practical reference for the important source files currently in t
 | --- | --- |
 | `lib/payments/midtrans.ts` | Snap + CoreAPI client init, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
 | `lib/payments/doku.ts` | Doku JOKUL client, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
+
+## AI Library
+
+| File | Purpose |
+| --- | --- |
+| `lib/ai/provider.ts` | `getModel()` — provider-agnostic model factory; supports OpenAI and Anthropic via Vercel AI SDK |
+| `lib/ai/usage.ts` | `trackUsage()`, `getMonthlyUsage()`, `checkUsageLimit()` — token tracking with plan-based limits |
+| `lib/ai/middleware.ts` | `authorizeAIRequest()` — auth + provider config check + usage gating for AI API routes |
 
 ## API Routes
 
@@ -117,6 +126,8 @@ This file is a practical reference for the important source files currently in t
 | `app/api/webhooks/doku/route.ts` | POST | Verifies Doku notification, updates `payments.status`, activates subscription on success |
 | `app/api/contact/route.ts` | POST | Contact form — saves submission |
 | `app/api/waitlist/route.ts` | POST | Waitlist — saves email sign-up |
+| `app/api/ai/chat/route.ts` | POST | Auth + plan-gated streaming chat using `streamText()` + `toUIMessageStreamResponse()` |
+| `app/api/ai/generate/route.ts` | POST | Auth + plan-gated one-shot text generation using `generateText()` |
 
 ## Email Templates
 
@@ -133,6 +144,7 @@ This file is a practical reference for the important source files currently in t
 | `supabase/migrations/20260316000002_create_subscriptions.sql` | `subscriptions` table + auto-create FREE trigger on signup |
 | `supabase/migrations/20260316000003_create_payments.sql` | `payments` table + enums (plan, payment_status, payment_provider) |
 | `supabase/migrations/20260316000004_create_waitlist.sql` | `waitlist` table |
+| `supabase/migrations/20260316000005_create_ai_usage.sql` | `ai_usage` table + RLS + index on (user_id, created_at) |
 
 ## Installed shadcn/ui Primitives (44 total)
 
