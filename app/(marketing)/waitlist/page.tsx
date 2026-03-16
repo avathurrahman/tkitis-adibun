@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { Loader2, Users, Clock, Zap } from "lucide-react";
 
 const LAUNCH_DATE = new Date("2026-04-01T00:00:00+07:00");
@@ -82,6 +83,8 @@ export default function WaitlistPage() {
   }
 
   return (
+    <>
+      <TemplateBanner description="Kumpulkan early access user sebelum produkmu launch — kustomisasi teks dan tanggal sesuai produkmu" />
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 text-center">
       <div className="max-w-lg w-full space-y-8">
         <div className="space-y-3">
@@ -149,5 +152,6 @@ export default function WaitlistPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -59,6 +60,8 @@ const allOperational = services.every((s) => s.status === "operational");
 
 export default function StatusPage() {
   return (
+    <>
+      <TemplateBanner description="Halaman status untuk produkmu — tambahkan layananmu dan hubungkan ke monitoring system" />
     <div className="max-w-2xl mx-auto px-4 py-16 space-y-10">
       <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Status Layanan</h1>
@@ -136,5 +139,6 @@ export default function StatusPage() {
         </a>
       </div>
     </div>
+    </>
   );
 }

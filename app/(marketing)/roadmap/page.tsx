@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -49,6 +50,8 @@ const columns: { status: RoadmapStatus; label: string; badgeVariant: "default" |
 
 export default function RoadmapPage() {
   return (
+    <>
+      <TemplateBanner description="Halaman roadmap untuk produkmu — isi dengan fitur yang sedang dan akan kamu bangun" />
     <div className="max-w-5xl mx-auto px-4 py-16 space-y-10">
       <div className="space-y-3">
         <Badge variant="secondary">Roadmap</Badge>
@@ -104,5 +107,6 @@ export default function RoadmapPage() {
         Terakhir diperbarui: 16 Maret 2026
       </div>
     </div>
+    </>
   );
 }

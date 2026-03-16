@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, DollarSign, Link2, BarChart2 } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -77,6 +78,8 @@ const faqs = [
 
 export default function AffiliatesPage() {
   return (
+    <>
+      <TemplateBanner description="Halaman program afiliasi untuk produkmu — sesuaikan komisi, tier, dan copy sesuai kebutuhan" />
     <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
       <div className="text-center space-y-4">
         <Badge variant="secondary">Program Afiliasi</Badge>
@@ -171,5 +174,6 @@ export default function AffiliatesPage() {
         </Button>
       </div>
     </div>
+    </>
   );
 }

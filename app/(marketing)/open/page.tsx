@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, Users, CreditCard, Activity } from "lucide-react";
+import { TemplateBanner } from "@/components/ui/template-banner";
+import { TrendingUp, Users, CreditCard, Star } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 const stats = [
   {
-    label: "MRR",
+    label: "Pendapatan Bulan Ini",
     value: "Rp 3.200.000",
     change: "+12% dari bulan lalu",
     positive: true,
@@ -25,18 +26,18 @@ const stats = [
     icon: Users,
   },
   {
-    label: "Pelanggan Berbayar",
+    label: "Lisensi Terjual",
     value: "38",
     change: "13.4% conversion rate",
     positive: true,
     icon: CreditCard,
   },
   {
-    label: "Churn Rate",
-    value: "4.2%",
-    change: "-0.8% dari bulan lalu",
+    label: "Rating Kepuasan",
+    value: "4.8/5",
+    change: "dari 24 ulasan",
     positive: true,
-    icon: Activity,
+    icon: Star,
   },
 ];
 
@@ -71,6 +72,8 @@ export default function OpenPage() {
   const maxMrr = Math.max(...monthlyRevenue.map((m) => m.mrr));
 
   return (
+    <>
+      <TemplateBanner description="Halaman Open Startup untuk produkmu — tampilkan metrik bisnis secara transparan, bangun kepercayaan user" />
     <div className="max-w-4xl mx-auto px-4 py-16 space-y-12">
       <div className="space-y-3">
         <Badge variant="outline" className="border-primary/30 text-primary">
@@ -106,7 +109,7 @@ export default function OpenPage() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Pertumbuhan MRR</h2>
+        <h2 className="text-lg font-semibold">Pendapatan Bulanan</h2>
         <Card className="border-border/50">
           <CardContent className="pt-6">
             <div className="flex items-end gap-2 h-40">
@@ -154,10 +157,11 @@ export default function OpenPage() {
       <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground space-y-1">
         <p className="font-medium text-foreground">Catatan</p>
         <p>
-          Semua angka adalah perkiraan aktual. MRR dihitung dari subscription aktif + one-time purchase yang disetarakan per bulan.
+          Semua angka adalah perkiraan aktual dari penjualan lisensi starter kit (one-time purchase).
           Angka akan diperbarui setiap awal bulan.
         </p>
       </div>
     </div>
+    </>
   );
 }

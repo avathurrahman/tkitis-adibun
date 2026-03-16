@@ -7,24 +7,24 @@ import {
 
 const faqs = [
   {
-    q: "Apakah KilatKoding gratis?",
-    a: "Ada tier gratis untuk eksplorasi dan belajar. Untuk fitur lengkap termasuk integrasi pembayaran dan admin dashboard, tersedia paket Pro.",
+    q: "Apakah ini one-time purchase atau subscription?",
+    a: "One-time purchase. Kamu bayar sekali dan mendapatkan seluruh source code, dokumentasi, dan semua update selamanya. Tidak ada biaya bulanan.",
+  },
+  {
+    q: "Berapa proyek yang bisa dibuat dengan satu lisensi?",
+    a: "Paket Basic untuk 1 proyek pribadi. Paket Pro ke atas bisa dipakai untuk unlimited proyek termasuk proyek klien komersial.",
+  },
+  {
+    q: "Apa bedanya KilatKoding dengan template biasa?",
+    a: "KilatKoding bukan sekadar template visual. Ini adalah production-ready boilerplate dengan auth, payment gateway lokal, email transaksional, database schema, dan dokumentasi lengkap — siap dipakai langsung tanpa konfigurasi berhari-hari.",
   },
   {
     q: "Payment gateway apa yang didukung?",
-    a: "Midtrans Snap dan Doku JOKUL Checkout. Keduanya sudah terintegrasi dengan webhook handler untuk update status pembayaran dan subscription secara otomatis.",
-  },
-  {
-    q: "Apakah bisa digunakan untuk aplikasi komersial?",
-    a: "Ya, KilatKoding adalah boilerplate yang bisa kamu gunakan sebagai fondasi untuk produk komersial. Kamu punya kontrol penuh atas kode yang di-generate.",
+    a: "Midtrans Snap dan Doku JOKUL Checkout. Keduanya sudah terintegrasi dengan webhook handler untuk konfirmasi pembayaran otomatis.",
   },
   {
     q: "Supabase project saya harus di-setup sendiri?",
-    a: "Ya. Kamu perlu membuat Supabase project, menjalankan tiga migration SQL yang sudah tersedia, dan mengisi environment variables. Proses ini biasanya kurang dari 15 menit.",
-  },
-  {
-    q: "Apakah ada dokumentasi?",
-    a: "Ada. Dokumentasi tersedia dalam Bahasa Indonesia dan English di folder docs/. Blog bawaan juga sudah ada dua artikel panduan memulai.",
+    a: "Ya. Kamu perlu membuat Supabase project, menjalankan migration SQL yang sudah tersedia, dan mengisi environment variables. Proses ini biasanya kurang dari 15 menit.",
   },
   {
     q: "Tech stack apa yang digunakan?",

@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -72,6 +73,8 @@ export default async function CheckoutPage({
   const plan = plans[planKey] ?? plans.pro;
 
   return (
+    <>
+      <TemplateBanner description="Halaman checkout untuk produkmu — hubungkan ke Midtrans/Doku dan sesuaikan paket hargamu" />
     <div className="max-w-4xl mx-auto px-4 py-16">
       <div className="mb-8 space-y-1">
         <h1 className="text-2xl font-bold">Checkout</h1>
@@ -184,5 +187,6 @@ export default async function CheckoutPage({
         </div>
       </div>
     </div>
+    </>
   );
 }
