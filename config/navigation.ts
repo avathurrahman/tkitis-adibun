@@ -1,6 +1,7 @@
 export const marketingNav = [
   { label: "Fitur", href: "/#features" },
   { label: "Harga", href: "/#pricing" },
+  { label: "Blog", href: "/blog" },
   { label: "Komponen", href: "/docs/components" },
 ];
 

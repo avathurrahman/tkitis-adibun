@@ -141,6 +141,46 @@ Each phase is independently shippable. Phase 4a must complete before any other.
 
 ---
 
+## Phase 5 — Missing Pages & Polish
+
+> Started: 2026-03-16
+> Source: internal-docs/KilatKoding Landing Page - Comprehensive Plan.md
+
+### 5a. SEO Infrastructure ✅
+- [ ] `app/sitemap.ts` — dynamic, includes blog posts
+- [ ] `app/robots.ts`
+- [ ] Per-page metadata for all new pages
+- [ ] JSON-LD for Organization
+
+### 5b. Error & Loading Pages ✅
+- [ ] `app/not-found.tsx`
+- [ ] `app/error.tsx`
+- [ ] `app/(marketing)/loading.tsx`
+
+### 5c. Legal Pages ✅
+- [ ] `/privacy` — Privacy Policy (Bahasa Indonesia)
+- [ ] `/terms` — Terms of Service (Bahasa Indonesia)
+
+### 5d. About & Contact ✅
+- [ ] `/about` — mission, stack, who built it
+- [ ] `/contact` — form via Resend
+
+### 5e. Changelog ✅
+- [ ] `/changelog` — static version history
+
+### 5f. Landing Page — 4 Missing Sections + 3-tier Pricing ✅
+- [ ] Pain point section ("Tanpa KilatKoding, ini yang bakal kamu hadapi...")
+- [ ] Tech stack logo grid
+- [ ] AI-optimized section (Claude/Copilot/Antigravity)
+- [ ] 7-day timeline section
+- [ ] Update pricing to Basic/Pro/Ultimate
+
+### 5g. Footer Upgrade ✅
+- [ ] 4-column layout: Product, Resources, Legal, Social
+- [ ] Links to all new pages + Discord/Twitter/GitHub
+
+---
+
 ## Notes
 
 - Skip `src/` folder migration — not necessary, adds churn without benefit
