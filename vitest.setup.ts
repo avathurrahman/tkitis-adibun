@@ -13,18 +13,21 @@ vi.mock("next/link", () => ({
     children,
     href,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  }: Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
     children: React.ReactNode;
     href: string | { pathname?: string };
-  }) =>
-    React.createElement(
+  }) => {
+    const resolvedHref = typeof href === "string" ? href : href.pathname ?? "";
+
+    return React.createElement(
       "a",
       {
-        href: typeof href === "string" ? href : href.pathname ?? "",
+        href: resolvedHref,
         ...props,
       },
       children
-    ),
+    );
+  },
 }));
 
 vi.mock("next/navigation", async () => {

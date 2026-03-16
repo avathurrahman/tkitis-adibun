@@ -2,6 +2,9 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
+const testGlobs = ["tests/**/*.test.ts", "tests/**/*.test.tsx"];
+const domTestGlobs = ["tests/**/*.dom.test.ts", "tests/**/*.dom.test.tsx"];
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -11,13 +14,27 @@ export default defineConfig({
   },
   test: {
     clearMocks: true,
-    environment: "node",
-    environmentMatchGlobs: [
-      ["**/*.dom.test.ts", "jsdom"],
-      ["**/*.dom.test.tsx", "jsdom"],
-    ],
     globals: true,
     mockReset: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          environment: "node",
+          exclude: domTestGlobs,
+          include: testGlobs,
+          name: "unit",
+        },
+      },
+      {
+        extends: true,
+        test: {
+          environment: "jsdom",
+          include: domTestGlobs,
+          name: "dom",
+        },
+      },
+    ],
     restoreMocks: true,
     setupFiles: ["./vitest.setup.ts"],
     testTimeout: 10_000,
