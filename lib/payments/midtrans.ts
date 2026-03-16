@@ -35,10 +35,12 @@ export type CreateTransactionParams = {
   customerName: string;
   customerEmail: string;
   items: MidtransItem[];
+  callbackUrl?: string;
+  enabledPayments?: string[];
 };
 
 export async function createSnapTransaction(params: CreateTransactionParams) {
-  const { orderId, amount, customerName, customerEmail, items } = params;
+  const { orderId, amount, customerName, customerEmail, items, callbackUrl, enabledPayments } = params;
 
   const token = await snap.createTransactionToken({
     transaction_details: {
@@ -50,6 +52,8 @@ export async function createSnapTransaction(params: CreateTransactionParams) {
       email: customerEmail,
     },
     item_details: items,
+    ...(callbackUrl && { callbacks: { finish: callbackUrl } }),
+    ...(enabledPayments && { enabled_payments: enabledPayments }),
   });
 
   return token as string;
