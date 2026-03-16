@@ -5,38 +5,54 @@
 | Path | Purpose |
 | --- | --- |
 | `app/` | App Router routes, layouts, route handlers, and global styles |
-| `components/` | Reusable UI and auth-related React components |
-| `components/ui/` | shadcn/ui primitives installed in the project |
-| `components/tutorial/` | Starter tutorial components from the Supabase template |
-| `lib/` | Shared utilities and Supabase client factories |
-| `docs/` | Project documentation for the current repository state |
-| `proxy.ts` | Request-time session refresh and basic auth gating |
+| `app/(marketing)/` | Public-facing pages (landing page) |
+| `app/(dashboard)/` | Auth-gated dashboard pages |
+| `app/auth/` | Authentication flow pages and OTP route handler |
+| `components/` | Reusable UI and auth components |
+| `components/layout/` | Shared `Header` and `Footer` components |
+| `components/ui/` | shadcn/ui primitives |
+| `config/` | Centralized site config and navigation definitions |
+| `lib/` | Shared utilities, Supabase client factories, and payment helpers |
+| `lib/payments/` | Payment gateway client and helper functions |
+| `app/api/` | API route handlers (payments, webhooks) |
+| `emails/` | React Email templates |
+| `supabase/migrations/` | SQL migration files for database schema |
+| `docs/` | Project documentation (English and Indonesian) |
+| `proxy.ts` | Request-time session refresh and auth gating |
 | `tailwind.config.ts` | Tailwind content scanning, theme extensions, and plugin setup |
 | `components.json` | shadcn/ui project configuration |
 
 ## Rendering Model
 
-The project uses a mixed server/client model:
-
 - Server components are the default for route files in `app/`
-- Client components are used for interactive forms and theme switching
+- Client components are used for interactive auth forms and theme switching
 - Supabase server access is done through `lib/supabase/server.ts`
 - Supabase browser access is done through `lib/supabase/client.ts`
-- `Suspense` is used around async auth-aware UI such as `AuthButton` and protected user details
+- `Suspense` is used around async auth-aware UI (`AuthButton`, `DashboardContent`)
 
 ## Route Map
 
-| Route | Type | Purpose |
-| --- | --- | --- |
-| `/` | Page | Starter landing page with auth-aware header and next-step content |
-| `/protected` | Page | Protected example page that reads the authenticated user's claims |
-| `/auth/login` | Page | Email/password sign-in screen |
-| `/auth/sign-up` | Page | Email/password sign-up screen |
-| `/auth/sign-up-success` | Page | Confirmation notice after sign-up submission |
-| `/auth/forgot-password` | Page | Password reset request screen |
-| `/auth/update-password` | Page | New password form after reset flow |
-| `/auth/error` | Page | Error display for auth-related failures |
-| `/auth/confirm` | Route handler | OTP verification route that redirects on success or failure |
+| Route | Group | Type | Purpose |
+| --- | --- | --- | --- |
+| `/` | `(marketing)` | Page | KilatKoding landing page |
+| `/dashboard` | `(dashboard)` | Page | Authenticated user dashboard |
+| `/auth/login` | — | Page | Sign-in screen (password, Google OAuth, Magic Link) |
+| `/auth/sign-up` | — | Page | Registration screen (email/password + Google OAuth) |
+| `/auth/sign-up-success` | — | Page | Confirmation notice after sign-up |
+| `/auth/forgot-password` | — | Page | Password reset request screen |
+| `/auth/update-password` | — | Page | New password form after reset flow |
+| `/auth/error` | — | Page | Error display for auth-related failures |
+| `/auth/confirm` | — | Route handler | OTP/OAuth callback — verifies token, redirects on success or failure |
+| `/api/payments` | — | Route handler | Creates Midtrans Snap token, inserts pending payment record |
+| `/api/webhooks/midtrans` | — | Route handler | Verifies Midtrans signature, updates payment and subscription status |
+
+## Route Groups Explained
+
+Route groups use parentheses in the folder name and do not affect the URL. They exist purely to apply different layouts to different sections of the app.
+
+- `app/(marketing)/` — uses `MarketingLayout` (full-width, `Header` + `Footer`)
+- `app/(dashboard)/` — uses `DashboardLayout` (max-width container, `Header` with auth actions)
+- `app/auth/` — no shared layout; each auth page owns its own centering and card structure
 
 ## Layouts
 
@@ -45,108 +61,114 @@ The project uses a mixed server/client model:
 `app/layout.tsx` is responsible for:
 
 - Loading the Geist font from Google Fonts
-- Defining metadata
-- Injecting the global CSS file
-- Wrapping the application in `ThemeProvider` from `next-themes`
+- Defining global metadata (title: "KilatKoding", `lang="id"`)
+- Injecting `app/globals.css`
+- Wrapping the app in `ThemeProvider` from `next-themes`
 
-### Protected Layout
+### Marketing Layout
 
-`app/protected/layout.tsx` reuses the same starter shell pattern as the landing page:
+`app/(marketing)/layout.tsx`:
 
-- Header with brand link and auth-aware navigation
-- Footer with theme switcher
-- Centered content container for authenticated pages
+- Renders `Header` (site name + auth actions + theme switcher)
+- Renders `Footer` (copyright + theme switcher)
+- Wraps `children` in a `flex-col min-h-screen` container
+
+### Dashboard Layout
+
+`app/(dashboard)/layout.tsx`:
+
+- Same `Header` structure as marketing
+- Wraps `children` in a `max-w-5xl` centered container with padding
 
 ## Styling System
 
-The UI system is based on:
-
 - Tailwind CSS utility classes
 - CSS custom properties in `app/globals.css`
-- shadcn/ui components configured through `components.json`
+- shadcn/ui with the `new-york` style, base color `neutral`
 - `tailwindcss-animate` for animation helpers
-
-Important details:
-
 - Theme switching uses the `class` strategy through `next-themes`
-- The project uses the `new-york` shadcn/ui style
-- Base color is `neutral`
-- Aliases map `@/components`, `@/components/ui`, `@/lib`, and `@/lib/utils`
+- Path aliases: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
 ## Component Layers
 
+### Layout Components
+
+| File | Purpose |
+| --- | --- |
+| `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, and `ThemeSwitcher` |
+| `components/layout/footer.tsx` | Shared footer with copyright and `ThemeSwitcher` |
+
 ### App-Level Components
 
-These shape the current starter experience:
-
-- `auth-button.tsx`
-- `hero.tsx`
-- `theme-switcher.tsx`
-- `deploy-button.tsx`
-- `env-var-warning.tsx`
+| File | Purpose |
+| --- | --- |
+| `components/auth-button.tsx` | Server-side auth-aware nav actions |
+| `components/theme-switcher.tsx` | Light/dark/system mode switcher |
 
 ### Auth Components
 
-These are the main interactive flows already implemented:
+| File | Purpose |
+| --- | --- |
+| `components/login-form.tsx` | Sign-in form: password tab, Magic Link tab, Google OAuth button |
+| `components/sign-up-form.tsx` | Registration form: Google OAuth button + email/password |
+| `components/forgot-password-form.tsx` | Password reset request form |
+| `components/update-password-form.tsx` | Password update form |
+| `components/logout-button.tsx` | Sign-out action button |
 
-- `login-form.tsx`
-- `sign-up-form.tsx`
-- `forgot-password-form.tsx`
-- `update-password-form.tsx`
-- `logout-button.tsx`
+### shadcn/ui Primitives
 
-### Tutorial Components
+Currently installed: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
 
-These exist to guide initial starter usage and can be removed or replaced once product-specific features are added:
+## Payment Layer
 
-- `tutorial/connect-supabase-steps.tsx`
-- `tutorial/fetch-data-steps.tsx`
-- `tutorial/sign-up-user-steps.tsx`
-- `tutorial/tutorial-step.tsx`
-- `tutorial/code-block.tsx`
+| File | Purpose |
+| --- | --- |
+| `lib/payments/midtrans.ts` | Snap + CoreAPI client init, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
 
-### UI Primitives
+## Email Layer
 
-Currently installed shadcn/ui primitives:
+| File | Purpose |
+| --- | --- |
+| `lib/email.ts` | `sendEmail()` — renders React Email template to HTML, sends via Resend |
+| `emails/welcome.tsx` | Onboarding email template in Bahasa Indonesia |
+| `emails/invoice.tsx` | Payment confirmation email with itemised Rupiah amounts |
 
-- `badge`
-- `button`
-- `card`
-- `checkbox`
-- `dropdown-menu`
-- `input`
-- `label`
+## Config Layer
+
+| File | Purpose |
+| --- | --- |
+| `config/site.ts` | `siteConfig` — site name, description, base URL |
+| `config/navigation.ts` | `marketingNav` and `dashboardNav` link arrays |
+
+## Database Schema
+
+Migrations are in `supabase/migrations/`. Three tables are defined:
+
+| Table | Key Columns | Notes |
+| --- | --- | --- |
+| `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-created on user signup via trigger |
+| `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Starts as FREE; auto-created on signup via trigger |
+| `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Supports Midtrans and Doku |
+
+All tables have Row Level Security enabled with user-scoped read policies.
 
 ## Important Config Choices
 
 ### Next.js
 
-`next.config.ts` currently enables:
-
-- `cacheComponents: true`
+`next.config.ts` enables `cacheComponents: true`.
 
 ### TypeScript
 
-`tsconfig.json` currently enables:
-
-- `strict: true`
-- Path alias `@/*`
-- Bundler module resolution
+`tsconfig.json` enables `strict: true`, path alias `@/*`, bundler module resolution.
 
 ### ESLint
 
-`eslint.config.mjs` extends:
+`eslint.config.mjs` extends `next/core-web-vitals` and `next/typescript`, and ignores `.next/**`.
 
-- `next/core-web-vitals`
-- `next/typescript`
+## Current Architectural Gaps
 
-It also ignores generated `.next/**` files to avoid linting route-generated type artifacts.
-
-## Architectural Limits Right Now
-
-The structure is clean, but it is still starter-oriented:
-
-- Landing page content is template content, not product content
-- Protected page shows user claims rather than application data
-- There is no domain layer, service layer, or database query abstraction yet
-- There are no tests or feature modules
+- No TypeScript types generated from Supabase schema yet (needs live project with migrations applied)
+- No domain/service layer (queries live directly in page components for now)
+- No tests
+- Doku payment integration not yet implemented (Phase 3)

@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
+import { hasEnvVars } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
 
 export async function AuthButton() {
+  if (!hasEnvVars) {
+    return <SupabaseEnvNotice compact />;
+  }
+
   const supabase = await createClient();
 
   // You can also use getUser() which will be slower.

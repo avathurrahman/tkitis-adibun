@@ -2,23 +2,20 @@
 
 ## Overview
 
-The current app uses Supabase for authentication and session handling. It is set up for both:
+KilatKoding uses Supabase for authentication, session handling, and database. The auth system supports three sign-in methods:
 
-- Server-side access through `@supabase/ssr`
-- Browser-side access for interactive auth forms
+- **Email/password** — standard credentials flow
+- **Google OAuth** — one-click sign-in via Google
+- **Magic Link** — passwordless, email-based login
 
-The implementation is centered around cookie-based auth so authenticated state is available across the App Router.
+All methods share the same session mechanism: cookie-based auth through `@supabase/ssr`, available across the App Router on both server and client.
 
-## Environment Variables In Use
-
-The app currently reads:
+## Environment Variables
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
 ```
-
-These values are used in both the browser and server client factories.
 
 ## Supabase Client Factories
 
@@ -26,149 +23,191 @@ These values are used in both the browser and server client factories.
 
 File: `lib/supabase/client.ts`
 
-Purpose:
-
-- Creates a Supabase browser client with `createBrowserClient`
-- Used by interactive auth forms such as login, sign up, and password reset
+Used by all interactive auth forms (login, sign up, password reset). Creates a browser client with `createBrowserClient`.
 
 ### Server Client
 
 File: `lib/supabase/server.ts`
 
-Purpose:
-
-- Creates a request-scoped Supabase server client with `createServerClient`
-- Reads and writes cookies via `next/headers`
-- Avoids global client reuse, which is especially important for server environments
+Used by server components and route handlers. Creates a request-scoped client via `createServerClient`, reads/writes cookies through `next/headers`. Never reused globally.
 
 ### Proxy Session Updater
 
 File: `lib/supabase/proxy.ts`
 
-Purpose:
+Runs at request time via `proxy.ts`:
 
-- Refreshes/reads the auth session at request time
-- Synchronizes cookies between the request and response
-- Redirects unauthenticated users away from protected routes
+1. Creates a server-side Supabase client bound to request cookies
+2. Calls `supabase.auth.getClaims()` to refresh the session
+3. Redirects to `/auth/login` if the request targets a protected route and no session exists
+4. Returns a response with synchronized auth cookies
 
-## Request Flow
+## Required Supabase Dashboard Configuration
 
-1. `proxy.ts` runs for matched requests.
-2. `updateSession()` creates a server-side Supabase client bound to the request cookies.
-3. `supabase.auth.getClaims()` is called to ensure session state is available and current.
-4. If the request is not for `/` or `/auth/*` and no authenticated user exists, the request is redirected to `/auth/login`.
-5. The response returned from Supabase is preserved so auth cookies stay in sync.
+### Redirect URLs
 
-If environment variables are missing, the proxy returns early and skips auth/session behavior.
+Add these to **Authentication > URL Configuration** in your Supabase dashboard:
 
-## Current Auth Flows
+**Local development:**
+```
+http://localhost:3000/auth/confirm
+http://localhost:3000/auth/update-password
+```
 
-### Sign Up
+**Production:**
+```
+https://your-domain.com/auth/confirm
+https://your-domain.com/auth/update-password
+```
 
-Component: `components/sign-up-form.tsx`
+### Google OAuth Setup
 
-Behavior:
+1. Go to **Authentication > Providers > Google**
+2. Enable Google provider
+3. Add your Google Client ID and Client Secret (from Google Cloud Console)
+4. Copy the Supabase callback URL shown and add it to your Google OAuth app's authorized redirect URIs
 
-- Collects email, password, and repeat-password values
-- Performs a client-side password match check
-- Calls `supabase.auth.signUp()`
-- Sets `emailRedirectTo` to `${window.location.origin}/protected`
-- Redirects the user to `/auth/sign-up-success` after a successful submission
-
-Current implication:
-
-- The UI assumes email confirmation happens outside the form and then returns the user to the app.
-- The success page is informational only.
+## Auth Flows
 
 ### Sign In
 
 Component: `components/login-form.tsx`
 
-Behavior:
+The login form has three options on a single card:
 
-- Collects email and password
+**Google OAuth:**
+- Calls `supabase.auth.signInWithOAuth({ provider: 'google' })`
+- Redirects to `${origin}/auth/confirm` on return
+
+**Password tab:**
+- Collects email + password
 - Calls `supabase.auth.signInWithPassword()`
-- Redirects to `/protected` after success
+- Redirects to `/dashboard` on success
+
+**Magic Link tab:**
+- Collects email only
+- Calls `supabase.auth.signInWithOtp()` with `emailRedirectTo: ${origin}/auth/confirm`
+- Shows inline confirmation that the link was sent
+
+### Sign Up
+
+Component: `components/sign-up-form.tsx`
+
+Two options:
+
+**Google OAuth:**
+- Same flow as sign-in via Google; Supabase handles new vs. existing accounts
+
+**Email/password:**
+- Collects email, password, and repeat password
+- Client-side password match check before calling `supabase.auth.signUp()`
+- `emailRedirectTo` points to `/auth/confirm`
+- Redirects to `/auth/sign-up-success` on submission
 
 ### Forgot Password
 
 Component: `components/forgot-password-form.tsx`
 
-Behavior:
-
-- Collects email
 - Calls `supabase.auth.resetPasswordForEmail()`
-- Sets `redirectTo` to `${window.location.origin}/auth/update-password`
-- Shows an inline success state after email submission
+- `redirectTo` set to `${origin}/auth/update-password`
+- Shows inline success state after email is sent
 
 ### Update Password
 
 Component: `components/update-password-form.tsx`
 
-Behavior:
-
-- Collects a new password
+- Collects new password
 - Calls `supabase.auth.updateUser({ password })`
-- Redirects to `/protected` after success
+- Redirects to `/dashboard` on success
 
 ### Logout
 
 Component: `components/logout-button.tsx`
 
-Behavior:
-
-- Signs the user out through Supabase
-- Returns the app to an unauthenticated state
+- Calls `supabase.auth.signOut()`
+- Returns the app to unauthenticated state
 
 ### Auth Status In The Header
 
 Component: `components/auth-button.tsx`
 
-Behavior:
-
-- Runs on the server
+- Server component
 - Calls `supabase.auth.getClaims()`
-- If a user exists, shows their email and a logout button
-- If no user exists, shows sign-in and sign-up buttons
+- Shows user email + logout button when authenticated
+- Shows sign-in and sign-up buttons when unauthenticated
 
-## Confirm Route
+## Confirm Route (OTP + OAuth Callback)
 
 File: `app/auth/confirm/route.ts`
 
-This route:
+All email-based verification (Magic Link, email confirmation, password reset) and OAuth redirects go through this route:
 
-- Reads `token_hash`, `type`, and optional `next` from the query string
-- Calls `supabase.auth.verifyOtp()`
-- Redirects to `next` on success
-- Redirects to `/auth/error` on failure
+1. Reads `token_hash`, `type`, and optional `next` from query string
+2. Calls `supabase.auth.verifyOtp()`
+3. Redirects to `next` (defaults to `/`) on success
+4. Redirects to `/auth/error` on failure
 
-This gives the project a dedicated OTP verification endpoint even though the starter UI also uses direct redirect targets in other auth flows.
+## Dashboard — Auth-Gated Page
 
-## Protected Route Behavior
+File: `app/(dashboard)/dashboard/page.tsx`
 
-File: `app/protected/page.tsx`
-
-The page:
-
-- Creates a server-side Supabase client
+- Server component with `DashboardContent` wrapped in `Suspense`
 - Calls `supabase.auth.getClaims()`
-- Redirects to `/auth/login` if claims are missing or an error occurs
-- Renders the current user's claims as formatted JSON
+- Redirects to `/auth/login` if claims are missing
+- Currently shows the authenticated user's email; replace with real application data
 
-Right now this page is mostly a proof-of-setup screen. It is the place where application-specific authenticated data fetching would likely be added next.
+## Database Schema (Migrations)
 
-## Supabase-Related Limitations
+Three tables are defined in `supabase/migrations/`. Apply them before building data-dependent features.
 
-The current integration is solid for a starter, but there are still open decisions:
+### profiles
 
-- No typed database schema generation is set up yet
-- No table queries beyond auth/session examples exist yet
-- No Row Level Security guidance is documented yet for future tables
-- No service-role or admin-only server workflows are implemented
+```sql
+-- auto-created when a user signs up (via trigger)
+id uuid references auth.users
+full_name text
+avatar_url text
+```
 
-## Suggested Next Improvements
+### subscriptions
 
-- Define the first real tables in Supabase
-- Add database type generation if you want typed queries
-- Replace the protected-page claims dump with real application data
-- Decide whether future mutations should use client calls, server actions, or route handlers
+```sql
+-- auto-created as FREE when a user signs up (via trigger)
+user_id uuid references auth.users
+plan enum('FREE', 'BASIC', 'PRO', 'ULTIMATE')
+status enum('ACTIVE', 'CANCELED', 'PAST_DUE', 'UNPAID')
+current_period_start / current_period_end timestamptz
+```
+
+### payments
+
+```sql
+user_id uuid references auth.users
+subscription_id uuid references subscriptions
+amount bigint  -- in Rupiah
+provider enum('MIDTRANS', 'DOKU')
+status enum('PENDING', 'PAID', 'FAILED', 'REFUNDED', 'EXPIRED')
+external_id text  -- order_id from gateway
+payment_type text  -- qris, bank_transfer, gopay, etc
+```
+
+All three tables have RLS enabled with user-scoped `SELECT` policies.
+
+## Applying Migrations
+
+```bash
+# Option 1: Supabase CLI
+npx supabase db push
+
+# Option 2: Paste SQL manually in Supabase dashboard SQL editor
+# Run each file in order: 000001 → 000002 → 000003
+
+# After applying, generate TypeScript types:
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+```
+
+## Current Limitations
+
+- TypeScript types not yet generated (needs live project)
+- No service-role or admin-only workflows implemented yet
+- No server actions for mutations yet (all auth calls are client-side)

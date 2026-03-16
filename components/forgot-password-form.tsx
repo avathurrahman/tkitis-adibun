@@ -1,6 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
+import { cn, hasEnvVars } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,14 @@ export function ForgotPasswordForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!hasEnvVars) {
+    return (
+      <div className={cn("flex flex-col gap-6", className)} {...props}>
+        <SupabaseEnvNotice />
+      </div>
+    );
+  }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

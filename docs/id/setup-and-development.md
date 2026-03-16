@@ -7,11 +7,9 @@ Project ini diinisialisasi dan diverifikasi dengan:
 - Node.js `v24.4.1`
 - npm `11.4.2`
 
-Versi Node.js modern lain yang kompatibel dengan Next.js 16 kemungkinan juga akan berjalan, tetapi menyamakan baseline di atas akan mengurangi potensi perbedaan perilaku.
+Versi Node.js modern apapun yang kompatibel dengan Next.js 16 seharusnya bisa dipakai.
 
 ## Install Dependency
-
-Dependency saat ini sudah terpasang di repository ini. Jika perlu menginstal ulang:
 
 ```bash
 npm install
@@ -19,81 +17,127 @@ npm install
 
 ## Environment Variable
 
-Buat file environment lokal dari contoh yang tersedia:
-
 ```bash
 cp .env.example .env.local
 ```
 
-Isi nilai berikut:
+Isi dengan nilai-nilai berikut:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
+NEXT_PUBLIC_SUPABASE_URL=url-project-kamu
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=publishable-atau-anon-key-kamu
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+MIDTRANS_SERVER_KEY=server-key-midtrans-kamu
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=client-key-midtrans-kamu
+
+RESEND_API_KEY=api-key-resend-kamu
+EMAIL_FROM=KilatKoding <noreply@domainmu.com>
 ```
 
 Catatan:
 
-- Project saat ini membutuhkan Supabase public URL dan publishable key.
-- Legacy anon key dari Supabase juga masih bisa dipakai dengan nama variable saat ini.
-- Jika variable ini belum diset, aplikasi tetap bisa dirender, tetapi area yang bergantung pada auth akan menampilkan warning state starter, bukan session-aware UI yang berfungsi penuh.
+- `NEXT_PUBLIC_APP_URL` dipakai oleh `config/site.ts` untuk membangun base URL site
+- Kalau Supabase vars belum diset, area yang membutuhkan auth tidak akan berfungsi, tapi app tetap bisa dirender
+- `MIDTRANS_SERVER_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
+- `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` adalah publishable key untuk membuka Snap popup di frontend
+- `EMAIL_FROM` defaultnya `KilatKoding <noreply@kilatkoding.com>` kalau tidak diset; sesuaikan dengan domain pengirim yang sudah diverifikasi di Resend
 
-## Setup Di Dashboard Supabase
+## Setup Supabase Dashboard
 
-Sebelum alur auth berjalan end to end, pastikan project Supabase Anda sudah dikonfigurasi dengan redirect URL yang benar.
+### 1. Redirect URL
 
-Redirect URL lokal yang direkomendasikan:
+Tambahkan di **Authentication > URL Configuration**:
 
-- `http://localhost:3000/protected`
-- `http://localhost:3000/auth/update-password`
-- `http://localhost:3000/auth/confirm`
+```
+http://localhost:3000/auth/confirm
+http://localhost:3000/auth/update-password
+```
 
-Padanan production yang direkomendasikan:
+Untuk production:
 
-- `https://your-domain.com/protected`
-- `https://your-domain.com/auth/update-password`
-- `https://your-domain.com/auth/confirm`
+```
+https://domain-kamu.com/auth/confirm
+https://domain-kamu.com/auth/update-password
+```
 
-Kenapa ini penting:
+Kenapa `/auth/confirm` jadi callback utama:
+- Link verifikasi email masuk ke sini
+- Email Magic Link masuk ke sini
+- Redirect OAuth (Google) masuk ke sini
+- Reset password tetap pakai `/auth/update-password` secara langsung
 
-- Flow sign-up saat ini meminta Supabase mengembalikan user ke `/protected`
-- Flow forgot-password mengarahkan user ke `/auth/update-password`
-- Route konfirmasi tersedia untuk flow OTP yang lewat `/auth/confirm`
+### 2. Google OAuth
 
-## Command Yang Umum Dipakai
+1. Aktifkan provider Google di **Authentication > Providers > Google**
+2. Masukkan Google Client ID dan Secret (dari [Google Cloud Console](https://console.cloud.google.com))
+3. Salin callback URL Supabase yang ditampilkan dan tambahkan ke **Authorized redirect URIs** di Google OAuth app kamu
 
-| Command | Kegunaan |
+### 3. Aplikasikan Migrasi Database
+
+```bash
+# Opsi A: Supabase CLI
+npx supabase db push
+
+# Opsi B: Paste setiap file secara manual di SQL editor Supabase dashboard (berurutan)
+# supabase/migrations/20260316000001_create_profiles.sql
+# supabase/migrations/20260316000002_create_subscriptions.sql
+# supabase/migrations/20260316000003_create_payments.sql
+```
+
+### 4. Generate TypeScript Types
+
+Setelah migrasi diaplikasikan:
+
+```bash
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+```
+
+## Setup Midtrans
+
+1. Buat akun Midtrans di [midtrans.com](https://midtrans.com)
+2. Di **Settings > Access Keys**, salin **Server Key** dan **Client Key**
+3. Pakai kunci **Sandbox** untuk development; kunci **Production** untuk live
+4. App otomatis pilih mode berdasarkan `NODE_ENV`: `production` pakai live, selainnya pakai sandbox
+5. Daftarkan URL webhook server kamu di **Settings > Configuration > Payment Notification URL**:
+
+```
+https://domain-kamu.com/api/webhooks/midtrans
+```
+
+Handler webhook di `app/api/webhooks/midtrans/route.ts` memverifikasi signature HMAC-SHA512 dari Midtrans sebelum memproses update status apapun.
+
+## Setup Resend
+
+1. Buat akun Resend di [resend.com](https://resend.com)
+2. Tambahkan dan verifikasi domain pengirim kamu di **Domains**
+3. Generate API key di **API Keys**
+4. Set `RESEND_API_KEY` dan `EMAIL_FROM` di `.env.local`
+
+Template email ada di `emails/`. Saat ini tersedia dua template:
+- `emails/welcome.tsx` — dikirim saat user baru signup
+- `emails/invoice.tsx` — dikirim setelah pembayaran berhasil
+
+Panggil `sendEmail()` dari `lib/email.ts` untuk mengirim template React Email apapun.
+
+## Perintah Umum
+
+| Perintah | Tujuan |
 | --- | --- |
-| `npm run dev` | Menjalankan development server lokal |
-| `npm run build` | Membuat production build |
-| `npm run start` | Menjalankan production server setelah build |
-| `npm run lint` | Menjalankan ESLint untuk seluruh repo |
+| `npm run dev` | Jalankan development server lokal |
+| `npm run build` | Buat production build |
+| `npm run start` | Jalankan production server setelah build |
+| `npm run lint` | Jalankan ESLint di seluruh repo |
 
 ## Alur Development Lokal
 
-1. Tambahkan Supabase environment variables ke `.env.local`.
-2. Jalankan aplikasi dengan `npm run dev`.
-3. Buka `http://localhost:3000`.
-4. Uji flow sign up, sign in, reset password, dan protected page.
-
-## Verifikasi Yang Sudah Dilakukan
-
-Codebase saat ini sudah diverifikasi dengan:
-
-- `npm run lint`
-- `npm run build`
-
-Keduanya lolos setelah perbaikan kecil pasca-scaffold yang dijelaskan di [Kondisi Saat Ini](./current-state.md).
+1. Salin `.env.example` ke `.env.local` dan isi nilai Supabase
+2. Jalankan `npm run dev`
+3. Buka `http://localhost:3000`
+4. Test: landing page, sign up (email + Google), sign in (password + Magic Link), dashboard
 
 ## Catatan Deployment
 
-- `app/layout.tsx` membangun `metadataBase` dari `VERCEL_URL` jika tersedia, jika tidak akan fallback ke `http://localhost:3000`.
-- Aplikasi menggunakan `next/font/google` untuk Geist. Di environment yang sangat dibatasi, production build mungkin membutuhkan akses jaringan untuk mengambil font saat build pertama.
-- Aplikasi sudah selaras dengan asumsi deployment model Vercel, tetapi belum ada konfigurasi deployment yang spesifik ke produk.
-
-## Saran Langkah Berikutnya
-
-- Ganti metadata title dan description bawaan starter
-- Buat tabel pertama yang benar-benar dibutuhkan di Supabase
-- Tambahkan typed database helper jika query aplikasi nanti cukup banyak
-- Putuskan apakah mutasi auth/data berikutnya tetap di client component atau sebagian dipindah ke server actions
+- `app/layout.tsx` membangun `metadataBase` dari `VERCEL_URL` kalau tersedia, kalau tidak fallback ke `http://localhost:3000`
+- App menggunakan `next/font/google` untuk Geist — production build butuh akses jaringan saat pertama kali
+- Belum ada konfigurasi deployment spesifik yang ditambahkan; default Vercel langsung bisa dipakai

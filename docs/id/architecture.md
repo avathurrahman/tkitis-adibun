@@ -2,151 +2,173 @@
 
 ## Struktur Tingkat Atas
 
-| Path | Fungsi |
+| Path | Tujuan |
 | --- | --- |
-| `app/` | Route App Router, layout, route handler, dan global styles |
-| `components/` | Komponen React yang reusable, termasuk UI dan auth |
-| `components/ui/` | Primitive shadcn/ui yang sudah terpasang |
-| `components/tutorial/` | Komponen tutorial bawaan dari template Supabase |
-| `lib/` | Utility bersama dan factory client Supabase |
-| `docs/` | Dokumentasi project untuk kondisi repository saat ini |
-| `proxy.ts` | Refresh session saat request dan auth gating dasar |
-| `tailwind.config.ts` | Content scanning Tailwind, extension theme, dan plugin |
-| `components.json` | Konfigurasi project shadcn/ui |
+| `app/` | Route, layout, route handler, dan global style App Router |
+| `app/(marketing)/` | Halaman publik (landing page) |
+| `app/(dashboard)/` | Halaman dashboard yang dilindungi auth |
+| `app/auth/` | Halaman alur autentikasi dan OTP route handler |
+| `components/` | Komponen UI dan auth yang reusable |
+| `components/layout/` | Komponen `Header` dan `Footer` yang dipakai bersama |
+| `components/ui/` | Primitive shadcn/ui |
+| `config/` | Config site dan definisi navigasi terpusat |
+| `lib/` | Utility bersama, factory Supabase client, dan helper payment |
+| `lib/payments/` | Client payment gateway dan helper functions |
+| `app/api/` | API route handler (payment, webhook) |
+| `emails/` | Template React Email |
+| `supabase/migrations/` | File migrasi SQL untuk schema database |
+| `docs/` | Dokumentasi project (Bahasa Indonesia dan Inggris) |
+| `proxy.ts` | Refresh session dan gating auth saat request masuk |
+| `tailwind.config.ts` | Konfigurasi Tailwind dan plugin |
+| `components.json` | Konfigurasi shadcn/ui |
 
 ## Model Rendering
 
-Project ini menggunakan model campuran server/client:
-
-- Server component menjadi default untuk file route di `app/`
-- Client component dipakai untuk form interaktif dan theme switcher
-- Akses Supabase di server dilakukan lewat `lib/supabase/server.ts`
-- Akses Supabase di browser dilakukan lewat `lib/supabase/client.ts`
-- `Suspense` dipakai untuk UI async yang auth-aware seperti `AuthButton` dan detail user di protected page
+- Server component adalah default untuk file route di `app/`
+- Client component digunakan untuk form auth interaktif dan theme switcher
+- Akses Supabase di server menggunakan `lib/supabase/server.ts`
+- Akses Supabase di browser menggunakan `lib/supabase/client.ts`
+- `Suspense` digunakan di sekitar UI async yang sadar auth (`AuthButton`, `DashboardContent`)
 
 ## Peta Route
 
-| Route | Tipe | Fungsi |
-| --- | --- | --- |
-| `/` | Page | Landing page starter dengan header auth-aware dan konten langkah berikutnya |
-| `/protected` | Page | Halaman protected contoh yang membaca claims user yang sedang login |
-| `/auth/login` | Page | Halaman sign-in email/password |
-| `/auth/sign-up` | Page | Halaman sign-up email/password |
-| `/auth/sign-up-success` | Page | Notifikasi setelah submit registrasi |
-| `/auth/forgot-password` | Page | Halaman permintaan reset password |
-| `/auth/update-password` | Page | Form password baru setelah flow reset |
-| `/auth/error` | Page | Halaman error untuk kegagalan auth |
-| `/auth/confirm` | Route handler | Route verifikasi OTP yang melakukan redirect saat sukses atau gagal |
+| Route | Group | Tipe | Tujuan |
+| --- | --- | --- | --- |
+| `/` | `(marketing)` | Page | Landing page KilatKoding |
+| `/dashboard` | `(dashboard)` | Page | Dashboard user yang sudah login |
+| `/auth/login` | — | Page | Layar login (password, Google OAuth, Magic Link) |
+| `/auth/sign-up` | — | Page | Layar registrasi (email/password + Google OAuth) |
+| `/auth/sign-up-success` | — | Page | Pemberitahuan setelah submit registrasi |
+| `/auth/forgot-password` | — | Page | Layar request reset password |
+| `/auth/update-password` | — | Page | Form password baru setelah reset |
+| `/auth/error` | — | Page | Tampilan error terkait auth |
+| `/auth/confirm` | — | Route handler | Callback OTP/OAuth — verifikasi token, redirect setelah berhasil atau gagal |
+| `/api/payments` | — | Route handler | Membuat Snap token Midtrans, menyimpan record payment pending |
+| `/api/webhooks/midtrans` | — | Route handler | Verifikasi signature Midtrans, update status payment dan subscription |
+
+## Penjelasan Route Groups
+
+Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. Fungsinya hanya untuk menerapkan layout yang berbeda pada bagian aplikasi yang berbeda.
+
+- `app/(marketing)/` — menggunakan `MarketingLayout` (full-width, `Header` + `Footer`)
+- `app/(dashboard)/` — menggunakan `DashboardLayout` (container max-width, `Header` dengan aksi auth)
+- `app/auth/` — tidak ada layout bersama; setiap halaman auth punya struktur centering dan card sendiri
 
 ## Layout
 
 ### Root Layout
 
-`app/layout.tsx` bertanggung jawab untuk:
+`app/layout.tsx` bertugas:
 
 - Memuat font Geist dari Google Fonts
-- Mendefinisikan metadata
-- Menyisipkan file CSS global
-- Membungkus aplikasi dengan `ThemeProvider` dari `next-themes`
+- Mendefinisikan metadata global (title: "KilatKoding", `lang="id"`)
+- Menyuntikkan `app/globals.css`
+- Membungkus app dalam `ThemeProvider` dari `next-themes`
 
-### Protected Layout
+### Marketing Layout
 
-`app/protected/layout.tsx` menggunakan shell yang mirip dengan landing page starter:
+`app/(marketing)/layout.tsx`:
 
-- Header dengan link brand dan navigasi auth-aware
-- Footer dengan theme switcher
-- Container konten terpusat untuk area authenticated
+- Merender `Header` (nama site + aksi auth + theme switcher)
+- Merender `Footer` (copyright + theme switcher)
+- Membungkus `children` dalam container `flex-col min-h-screen`
+
+### Dashboard Layout
+
+`app/(dashboard)/layout.tsx`:
+
+- Struktur `Header` yang sama dengan marketing
+- Membungkus `children` dalam container `max-w-5xl` terpusat dengan padding
 
 ## Sistem Styling
 
-Sistem UI dibangun di atas:
-
 - Utility class Tailwind CSS
-- CSS custom properties di `app/globals.css`
-- Komponen shadcn/ui yang dikonfigurasi lewat `components.json`
+- CSS custom property di `app/globals.css`
+- shadcn/ui dengan style `new-york`, warna dasar `neutral`
 - `tailwindcss-animate` untuk helper animasi
+- Theme switching menggunakan strategi `class` melalui `next-themes`
+- Path alias: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
-Detail penting:
+## Layer Komponen
 
-- Theme switching memakai strategi `class` melalui `next-themes`
-- Project menggunakan style shadcn/ui `new-york`
-- Base color yang dipakai adalah `neutral`
-- Alias project memetakan `@/components`, `@/components/ui`, `@/lib`, dan `@/lib/utils`
+### Komponen Layout
 
-## Lapisan Komponen
+| File | Tujuan |
+| --- | --- |
+| `components/layout/header.tsx` | Header site: logo, `AuthButton`, `ThemeSwitcher` |
+| `components/layout/footer.tsx` | Footer site: copyright, `ThemeSwitcher` |
 
-### Komponen Level Aplikasi
+### Komponen App-Level
 
-Komponen berikut membentuk pengalaman starter saat ini:
-
-- `auth-button.tsx`
-- `hero.tsx`
-- `theme-switcher.tsx`
-- `deploy-button.tsx`
-- `env-var-warning.tsx`
+| File | Tujuan |
+| --- | --- |
+| `components/auth-button.tsx` | Aksi header yang sadar auth (server component) |
+| `components/theme-switcher.tsx` | Switcher mode light/dark/system |
 
 ### Komponen Auth
 
-Ini adalah flow interaktif utama yang sudah tersedia:
+| File | Tujuan |
+| --- | --- |
+| `components/login-form.tsx` | Form login: tab password, tab Magic Link, tombol Google OAuth |
+| `components/sign-up-form.tsx` | Form registrasi: tombol Google OAuth + email/password |
+| `components/forgot-password-form.tsx` | Form request reset password |
+| `components/update-password-form.tsx` | Form update password |
+| `components/logout-button.tsx` | Tombol sign out |
 
-- `login-form.tsx`
-- `sign-up-form.tsx`
-- `forgot-password-form.tsx`
-- `update-password-form.tsx`
-- `logout-button.tsx`
+### Primitive shadcn/ui
 
-### Komponen Tutorial
+Yang sudah terpasang: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
 
-Komponen ini ada untuk memandu penggunaan awal starter, dan nantinya bisa dihapus atau diganti ketika fitur produk sudah ditambahkan:
+## Layer Payment
 
-- `tutorial/connect-supabase-steps.tsx`
-- `tutorial/fetch-data-steps.tsx`
-- `tutorial/sign-up-user-steps.tsx`
-- `tutorial/tutorial-step.tsx`
-- `tutorial/code-block.tsx`
+| File | Tujuan |
+| --- | --- |
+| `lib/payments/midtrans.ts` | Inisialisasi Snap + CoreAPI client, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
 
-### Primitive UI
+## Layer Email
 
-Primitive shadcn/ui yang saat ini sudah terpasang:
+| File | Tujuan |
+| --- | --- |
+| `lib/email.ts` | `sendEmail()` — merender template React Email ke HTML, mengirim via Resend |
+| `emails/welcome.tsx` | Template email onboarding dalam Bahasa Indonesia |
+| `emails/invoice.tsx` | Email konfirmasi pembayaran dengan jumlah Rupiah |
 
-- `badge`
-- `button`
-- `card`
-- `checkbox`
-- `dropdown-menu`
-- `input`
-- `label`
+## Layer Config
 
-## Pilihan Konfigurasi Penting
+| File | Tujuan |
+| --- | --- |
+| `config/site.ts` | `siteConfig` — nama site, deskripsi, base URL |
+| `config/navigation.ts` | Array link `marketingNav` dan `dashboardNav` |
+
+## Schema Database
+
+Migrasi ada di `supabase/migrations/`. Tiga tabel sudah didefinisikan:
+
+| Tabel | Kolom Penting | Catatan |
+| --- | --- | --- |
+| `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-dibuat saat user signup via trigger |
+| `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Mulai sebagai FREE; auto-dibuat saat signup via trigger |
+| `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Mendukung Midtrans dan Doku |
+
+Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis user.
+
+## Konfigurasi Penting
 
 ### Next.js
 
-`next.config.ts` saat ini mengaktifkan:
-
-- `cacheComponents: true`
+`next.config.ts` mengaktifkan `cacheComponents: true`.
 
 ### TypeScript
 
-`tsconfig.json` saat ini mengaktifkan:
-
-- `strict: true`
-- Path alias `@/*`
-- Bundler module resolution
+`tsconfig.json` mengaktifkan `strict: true`, path alias `@/*`, bundler module resolution.
 
 ### ESLint
 
-`eslint.config.mjs` meng-extend:
+`eslint.config.mjs` extends `next/core-web-vitals` dan `next/typescript`, mengabaikan `.next/**`.
 
-- `next/core-web-vitals`
-- `next/typescript`
+## Gaps Arsitektur Saat Ini
 
-Konfigurasi ini juga mengabaikan file hasil generate `.next/**` agar artefak type route tidak ikut dilint.
-
-## Batasan Arsitektur Saat Ini
-
-Strukturnya sudah rapi, tetapi masih sangat berorientasi starter:
-
-- Konten landing page masih konten template, belum konten produk
-- Protected page masih menampilkan claims user, belum data aplikasi
-- Belum ada domain layer, service layer, atau abstraksi query database
-- Belum ada test ataupun feature module
+- TypeScript types dari schema Supabase belum di-generate (butuh project yang sudah terhubung dengan migrasi diaplikasikan)
+- Belum ada domain/service layer (query langsung ada di page component untuk sekarang)
+- Belum ada test
+- Integrasi payment Doku belum diimplementasikan (Phase 3)

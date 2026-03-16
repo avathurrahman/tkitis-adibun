@@ -2,19 +2,21 @@
 
 ## Ringkasan
 
-Repository ini saat ini masih berupa fondasi project yang bersih, belum menjadi aplikasi produk yang spesifik. Project dibuat dari starter resmi Supabase untuk Next.js dan sudah mencakup:
+KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indonesia. Repository ini sudah melewati fase starter baseline dan sekarang sudah mencakup:
 
-- Next.js App Router
+- Next.js App Router dengan route groups `(marketing)`, `(dashboard)`, dan `auth`
 - TypeScript
-- Tailwind CSS
-- Konfigurasi shadcn/ui dan komponen dasar
-- Browser client dan server client untuk Supabase
+- Tailwind CSS + shadcn/ui
+- Supabase browser client dan server client
 - Cookie-based auth dan refresh session
-- Pengalaman auth dasar dan protected route
+- Login email/password, Google OAuth, dan Magic Link (passwordless)
+- Dashboard nyata di `/dashboard` (dilindungi auth)
+- Config terpusat di `config/site.ts`
+- File migrasi database untuk tabel `profiles`, `subscriptions`, dan `payments`
+- Integrasi payment Midtrans (Snap token creation + webhook handler)
+- Integrasi email Resend dengan template React Email (welcome, invoice)
 
 ## Baseline Paket Yang Terpasang
-
-Berikut versi paket yang resolve di `node_modules` saat dokumentasi ini dibuat:
 
 | Package | Version |
 | --- | --- |
@@ -28,42 +30,51 @@ Berikut versi paket yang resolve di `node_modules` saat dokumentasi ini dibuat:
 | `@supabase/supabase-js` | `2.99.1` |
 | `next-themes` | `0.4.6` |
 | `lucide-react` | `0.511.0` |
+| `midtrans-client` | `1.4.3` |
+| `resend` | `6.9.3` |
+| `@react-email/components` | `1.0.9` |
 
 ## Yang Sudah Berfungsi Saat Ini
 
 - Aplikasi bisa dijalankan dengan `npm run dev`
 - Linting lolos dengan `npm run lint`
-- Production build lolos dengan `npm run build`
-- UI starter akan menampilkan panduan koneksi ketika environment variable Supabase belum diset
-- Form autentikasi untuk sign up, sign in, reset password, dan update password sudah tersedia
-- Protected route tersedia di `/protected`
+- Landing page di `/` dengan branding KilatKoding, `Header`, dan `Footer`
+- Alur auth: sign up, sign in (password + Google OAuth + Magic Link), forgot password, update password
+- Dashboard di `/dashboard` — dilindungi auth, menampilkan info user yang sedang login
 - Refresh session dan gating auth berjalan melalui `proxy.ts`
-- Komponen dasar shadcn/ui sudah tersedia di `components/ui`
+- Komponen dasar shadcn/ui tersedia di `components/ui`
+- `config/site.ts` dan `config/navigation.ts` untuk metadata dan navigasi terpusat
+- `POST /api/payments` — membuat Midtrans Snap transaction, menyimpan record payment pending
+- `POST /api/webhooks/midtrans` — verifikasi signature, update status payment + subscription
+- `sendEmail()` di `lib/email.ts` — mengirim template React Email via Resend
+- `emails/welcome.tsx` dan `emails/invoice.tsx` — template email siap pakai dalam Bahasa Indonesia
 
-## Perubahan Lokal Setelah Scaffolding
+## Migrasi Database Siap Diaplikasikan
 
-Dua perubahan kecil dilakukan setelah starter dibuat:
+Tiga file migrasi tersedia di `supabase/migrations/`:
 
-1. `eslint.config.mjs` mengabaikan file hasil generate `.next/**` supaya route type hasil generate tidak membuat noise di lint.
-2. `tailwind.config.ts` mengimpor `tailwindcss-animate` dengan ESM, bukan `require()`, agar cocok dengan setup ESLint dan TypeScript saat ini.
+| File | Membuat |
+| --- | --- |
+| `20260316000001_create_profiles.sql` | Tabel `profiles` + trigger auto-create saat signup |
+| `20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + trigger auto-create tier FREE saat signup |
+| `20260316000003_create_payments.sql` | Tabel `payments` + enum (plan, status, provider) |
 
-## Status Git
-
-- Branch default: `main`
-- Remote `origin`: `git@github.com:galpratama/kilatkoding-src.git`
+Ketiga tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabase manapun.
 
 ## Yang Masih Belum Ada
 
-Project ini masih berupa baseline starter. Hal-hal berikut belum diimplementasikan:
-
-- Halaman aplikasi yang spesifik ke kebutuhan bisnis
-- Schema database kustom, migration, atau typed database client generation
-- API route atau server action di luar dukungan auth/session
+- Aplikasikan migrasi ke Supabase dan generate TypeScript types
 - Automated test
-- Formatter dan commit hooks
 - Workflow CI/CD
-- Dokumentasi deployment yang spesifik ke project
+- Integrasi Doku (Phase 3)
+- Sistem blog MDX (Phase 3)
+- Admin dashboard (Phase 3)
+- `hooks/use-auth.ts`, `hooks/use-subscription.ts` (Phase 3)
 
-## Implikasi Praktis
+## Langkah Berikutnya
 
-Repository ini sudah siap dipakai sebagai fondasi development. Langkah logis berikutnya adalah mengganti konten landing/tutorial starter dengan UI produk, mendefinisikan schema database di Supabase, lalu membangun flow aplikasi yang nyata di atas fondasi auth/session yang sudah ada.
+1. Aplikasikan tiga migrasi SQL ke project Supabase kamu
+2. Jalankan `npx supabase gen types typescript --project-id YOUR_ID > types/database.ts`
+3. Aktifkan Google OAuth di Supabase dashboard (Authentication > Providers)
+4. Tambahkan Midtrans sandbox keys dan Resend API key ke `.env.local`
+5. Mulai Phase 3 kalau sudah siap

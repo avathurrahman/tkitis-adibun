@@ -2,173 +2,217 @@
 
 ## Ringkasan
 
-Aplikasi saat ini menggunakan Supabase untuk autentikasi dan penanganan session. Setup yang ada sudah mendukung:
+KilatKoding menggunakan Supabase untuk autentikasi, manajemen session, dan database. Sistem auth mendukung tiga metode login:
 
-- Akses server-side melalui `@supabase/ssr`
-- Akses browser-side untuk form auth yang interaktif
+- **Email/password** — alur kredensial standar
+- **Google OAuth** — login satu klik via Google
+- **Magic Link** — login tanpa password, berbasis email
 
-Implementasi ini berpusat pada cookie-based auth sehingga state autentikasi tersedia di seluruh App Router.
+Ketiganya berbagi mekanisme session yang sama: cookie-based auth melalui `@supabase/ssr`, tersedia di seluruh App Router baik di server maupun client.
 
-## Environment Variable Yang Dipakai
-
-Aplikasi saat ini membaca:
+## Environment Variable
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SUPABASE_URL=url-project-kamu
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=publishable-atau-anon-key-kamu
 ```
 
-Nilai ini dipakai baik di browser client maupun server client factory.
-
-## Factory Client Supabase
+## Factory Supabase Client
 
 ### Browser Client
 
 File: `lib/supabase/client.ts`
 
-Fungsi:
-
-- Membuat Supabase browser client dengan `createBrowserClient`
-- Dipakai oleh form auth interaktif seperti login, sign up, dan reset password
+Dipakai oleh semua form auth interaktif (login, sign up, reset password). Membuat browser client dengan `createBrowserClient`.
 
 ### Server Client
 
 File: `lib/supabase/server.ts`
 
-Fungsi:
-
-- Membuat Supabase server client yang terikat pada request dengan `createServerClient`
-- Membaca dan menulis cookie melalui `next/headers`
-- Menghindari reuse client global, yang penting terutama di environment server
+Dipakai oleh server component dan route handler. Membuat client berbasis request via `createServerClient`, baca/tulis cookie melalui `next/headers`. Tidak pernah dipakai ulang secara global.
 
 ### Proxy Session Updater
 
 File: `lib/supabase/proxy.ts`
 
-Fungsi:
+Berjalan saat request masuk melalui `proxy.ts`:
 
-- Melakukan refresh atau pembacaan auth session saat request
-- Menyinkronkan cookie antara request dan response
-- Mengalihkan user yang belum login dari route yang protected
+1. Membuat Supabase server client yang terikat ke cookie request
+2. Memanggil `supabase.auth.getClaims()` untuk refresh session
+3. Redirect ke `/auth/login` jika request ke route yang dilindungi dan tidak ada session
+4. Mengembalikan response dengan auth cookie yang sudah disinkronkan
 
-## Alur Request
+## Konfigurasi Supabase Dashboard Yang Diperlukan
 
-1. `proxy.ts` berjalan untuk request yang cocok dengan matcher.
-2. `updateSession()` membuat Supabase server client yang terikat ke request cookies.
-3. `supabase.auth.getClaims()` dipanggil agar session tersedia dan tetap up to date.
-4. Jika request bukan untuk `/` atau `/auth/*` dan tidak ada user yang login, request diarahkan ke `/auth/login`.
-5. Response dari Supabase tetap dipertahankan agar auth cookie tetap sinkron.
+### Redirect URL
 
-Jika environment variable belum tersedia, proxy akan return lebih awal dan melewati perilaku auth/session.
+Tambahkan di **Authentication > URL Configuration**:
 
-## Flow Auth Yang Tersedia Saat Ini
+**Development lokal:**
+```
+http://localhost:3000/auth/confirm
+http://localhost:3000/auth/update-password
+```
 
-### Sign Up
+**Production:**
+```
+https://domain-kamu.com/auth/confirm
+https://domain-kamu.com/auth/update-password
+```
 
-Komponen: `components/sign-up-form.tsx`
+Kenapa `/auth/confirm` jadi callback utama:
+- Link verifikasi email masuk ke sini
+- Email Magic Link masuk ke sini
+- Redirect OAuth (Google) masuk ke sini
+- Reset password tetap pakai `/auth/update-password` secara langsung
 
-Perilaku:
+### Setup Google OAuth
 
-- Mengambil input email, password, dan repeat-password
-- Melakukan pengecekan kecocokan password di client
-- Memanggil `supabase.auth.signUp()`
-- Mengatur `emailRedirectTo` ke `${window.location.origin}/protected`
-- Mengarahkan user ke `/auth/sign-up-success` setelah submit berhasil
+1. Aktifkan provider Google di **Authentication > Providers > Google**
+2. Masukkan Google Client ID dan Secret (dari [Google Cloud Console](https://console.cloud.google.com))
+3. Salin callback URL Supabase yang ditampilkan dan tambahkan ke **Authorized redirect URIs** di Google OAuth app kamu
 
-Implikasi saat ini:
+## Alur Auth
 
-- UI mengasumsikan konfirmasi email terjadi di luar form lalu user kembali ke aplikasi.
-- Halaman success hanya bersifat informasional.
-
-### Sign In
+### Login
 
 Komponen: `components/login-form.tsx`
 
-Perilaku:
+Form login punya tiga opsi dalam satu card:
 
-- Mengambil email dan password
+**Google OAuth:**
+- Memanggil `supabase.auth.signInWithOAuth({ provider: 'google' })`
+- Redirect ke `${origin}/auth/confirm` setelah kembali
+
+**Tab Password:**
+- Mengumpulkan email + password
 - Memanggil `supabase.auth.signInWithPassword()`
-- Mengarahkan ke `/protected` setelah berhasil
+- Redirect ke `/dashboard` setelah berhasil
 
-### Forgot Password
+**Tab Magic Link:**
+- Mengumpulkan email saja
+- Memanggil `supabase.auth.signInWithOtp()` dengan `emailRedirectTo: ${origin}/auth/confirm`
+- Menampilkan konfirmasi inline bahwa link sudah dikirim
+
+### Daftar (Sign Up)
+
+Komponen: `components/sign-up-form.tsx`
+
+Dua opsi:
+
+**Google OAuth:**
+- Alur sama seperti login via Google; Supabase menangani akun baru vs. yang sudah ada
+
+**Email/password:**
+- Mengumpulkan email, password, dan ulangi password
+- Cek kecocokan password di client sebelum memanggil `supabase.auth.signUp()`
+- `emailRedirectTo` mengarah ke `/auth/confirm`
+- Redirect ke `/auth/sign-up-success` setelah submit
+
+### Lupa Password
 
 Komponen: `components/forgot-password-form.tsx`
 
-Perilaku:
-
-- Mengambil email
 - Memanggil `supabase.auth.resetPasswordForEmail()`
-- Mengatur `redirectTo` ke `${window.location.origin}/auth/update-password`
-- Menampilkan state sukses secara inline setelah email dikirim
+- `redirectTo` diset ke `${origin}/auth/update-password`
+- Menampilkan status sukses inline setelah email terkirim
 
 ### Update Password
 
 Komponen: `components/update-password-form.tsx`
 
-Perilaku:
-
-- Mengambil password baru
+- Mengumpulkan password baru
 - Memanggil `supabase.auth.updateUser({ password })`
-- Mengarahkan ke `/protected` setelah berhasil
+- Redirect ke `/dashboard` setelah berhasil
 
 ### Logout
 
 Komponen: `components/logout-button.tsx`
 
-Perilaku:
+- Memanggil `supabase.auth.signOut()`
+- Mengembalikan app ke state tidak terautentikasi
 
-- Melakukan sign out melalui Supabase
-- Mengembalikan aplikasi ke state tidak terautentikasi
-
-### Status Auth Di Header
+### Status Auth di Header
 
 Komponen: `components/auth-button.tsx`
 
-Perilaku:
-
-- Berjalan di server
+- Server component
 - Memanggil `supabase.auth.getClaims()`
-- Jika user ada, menampilkan email user dan tombol logout
-- Jika tidak ada user, menampilkan tombol sign in dan sign up
+- Menampilkan email user + tombol logout saat terautentikasi
+- Menampilkan tombol sign-in dan sign-up saat tidak terautentikasi
 
-## Route Konfirmasi
+## Confirm Route (Callback OTP + OAuth)
 
 File: `app/auth/confirm/route.ts`
 
-Route ini:
+Semua verifikasi berbasis email (Magic Link, konfirmasi email, reset password) dan redirect OAuth masuk ke route ini:
 
-- Membaca `token_hash`, `type`, dan `next` opsional dari query string
-- Memanggil `supabase.auth.verifyOtp()`
-- Melakukan redirect ke `next` jika berhasil
-- Melakukan redirect ke `/auth/error` jika gagal
+1. Membaca `token_hash`, `type`, dan `next` opsional dari query string
+2. Memanggil `supabase.auth.verifyOtp()`
+3. Redirect ke `next` (default `/`) saat berhasil
+4. Redirect ke `/auth/error` saat gagal
 
-Dengan ini project memiliki endpoint verifikasi OTP yang terpisah, meskipun UI starter juga memakai target redirect langsung untuk flow auth lain.
+## Dashboard — Halaman Dilindungi Auth
 
-## Perilaku Protected Route
+File: `app/(dashboard)/dashboard/page.tsx`
 
-File: `app/protected/page.tsx`
-
-Halaman ini:
-
-- Membuat server-side Supabase client
+- Server component dengan `DashboardContent` dibungkus `Suspense`
 - Memanggil `supabase.auth.getClaims()`
-- Redirect ke `/auth/login` jika claims tidak ada atau terjadi error
-- Merender claims user saat ini sebagai JSON yang diformat
+- Redirect ke `/auth/login` jika claims tidak ada
+- Sekarang menampilkan email user yang login; ganti dengan data aplikasi nyata
 
-Saat ini halaman tersebut masih berfungsi sebagai bukti bahwa setup sudah benar. Tempat ini kemungkinan besar akan menjadi lokasi pertama untuk data aplikasi yang sebenarnya pada area authenticated.
+## Schema Database (Migrasi)
 
-## Batasan Integrasi Supabase Saat Ini
+Tiga tabel didefinisikan di `supabase/migrations/`. Aplikasikan sebelum membangun fitur yang bergantung pada data.
 
-Integrasi saat ini sudah kuat untuk ukuran starter, tetapi masih ada beberapa keputusan lanjutan:
+### profiles
 
-- Belum ada typed database schema generation
-- Belum ada query tabel di luar contoh auth/session
-- Belum ada panduan Row Level Security untuk tabel aplikasi di masa depan
-- Belum ada workflow admin-only atau service-role di server
+```sql
+-- auto-dibuat saat user signup (via trigger)
+id uuid references auth.users
+full_name text
+avatar_url text
+```
 
-## Saran Peningkatan Berikutnya
+### subscriptions
 
-- Definisikan tabel pertama yang benar-benar dibutuhkan aplikasi
-- Tambahkan database type generation jika ingin query yang strongly typed
-- Ganti tampilan claims di protected page dengan data aplikasi yang sebenarnya
-- Putuskan apakah mutasi berikutnya lebih cocok memakai client call, server actions, atau route handlers
+```sql
+-- auto-dibuat sebagai FREE saat user signup (via trigger)
+user_id uuid references auth.users
+plan enum('FREE', 'BASIC', 'PRO', 'ULTIMATE')
+status enum('ACTIVE', 'CANCELED', 'PAST_DUE', 'UNPAID')
+current_period_start / current_period_end timestamptz
+```
+
+### payments
+
+```sql
+user_id uuid references auth.users
+subscription_id uuid references subscriptions
+amount bigint  -- dalam Rupiah
+provider enum('MIDTRANS', 'DOKU')
+status enum('PENDING', 'PAID', 'FAILED', 'REFUNDED', 'EXPIRED')
+external_id text  -- order_id dari payment gateway
+payment_type text  -- qris, bank_transfer, gopay, dll
+```
+
+Ketiga tabel sudah mengaktifkan RLS dengan policy `SELECT` berbasis user.
+
+## Mengaplikasikan Migrasi
+
+```bash
+# Opsi 1: Supabase CLI
+npx supabase db push
+
+# Opsi 2: Paste SQL manual di SQL editor Supabase dashboard
+# Jalankan setiap file berurutan: 000001 → 000002 → 000003
+
+# Setelah diaplikasikan, generate TypeScript types:
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+```
+
+## Keterbatasan Saat Ini
+
+- TypeScript types belum di-generate (butuh project yang sudah terhubung)
+- Belum ada workflow service-role atau admin-only
+- Belum ada server action untuk mutasi (semua panggilan auth masih di client)
