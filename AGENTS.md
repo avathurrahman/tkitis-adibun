@@ -4,16 +4,18 @@ Repository guidance for coding agents working in `/Users/galpratama/Development/
 
 ## Project Summary
 
-This repository is currently a clean starter foundation built on:
+KilatKoding is a production-ready Next.js SaaS boilerplate for Indonesian developers, built on:
 
 - Next.js App Router
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- Supabase SSR + browser client auth
-- `next-themes` for theme switching
-
-The codebase is still close to the official Supabase `with-supabase` starter. It already has working auth screens and a protected route, but it does not yet contain product-specific features or database schema.
+- TypeScript (strict mode)
+- Tailwind CSS + shadcn/ui (44 components)
+- Supabase SSR auth (email/password, Google OAuth, Magic Link)
+- Midtrans (Snap) + Doku (JOKUL) payment gateway integration
+- Resend + React Email (welcome and invoice templates in Bahasa Indonesia)
+- MDX blog system with frontmatter, reading time, and tag support
+- Database: `profiles`, `subscriptions`, `payments` tables with Row Level Security
+- Admin dashboard at `/admin` gated by `ADMIN_EMAILS` env var
+- GitHub Actions CI (lint + build on push/PR)
 
 ## Documentation
 
@@ -72,18 +74,55 @@ Important paths:
 - `lib/supabase/`: Supabase browser/server/proxy helpers
 - `proxy.ts`: request-time auth/session update logic
 - `docs/`: English and Indonesian repository documentation
+- `config/`: centralized site config and navigation
+- `supabase/migrations/`: SQL migrations
+- `emails/`: React Email templates
+- `hooks/`: client-side React hooks
+- `content/blog/`: MDX blog posts
 
 Important current routes:
 
-- `/`: starter landing page
-- `/protected`: authenticated example page
+Marketing (public, `(marketing)` group):
+- `/` — KilatKoding landing page
+- `/about` — About page
+- `/affiliates` — Affiliates program page
+- `/blog` — MDX blog listing
+- `/blog/[slug]` — MDX blog post detail
+- `/changelog` — Product changelog
+- `/checkout` — Checkout / purchase flow
+- `/compare` — Plan comparison page
+- `/contact` — Contact form page
+- `/open` — Open startup metrics / stats
+- `/privacy` — Privacy policy
+- `/roadmap` — Public product roadmap
+- `/status` — Service status page
+- `/terms` — Terms of service
+- `/use-cases` — Use cases gallery
+- `/waitlist` — Waitlist sign-up
+- `/order/[id]` — Order confirmation / post-purchase page
+
+Dashboard (auth-gated, `(dashboard)` group):
+- `/dashboard` — Main user dashboard
+- `/dashboard/settings` — Profile + password change
+- `/dashboard/billing` — Plan display + payment flow
+- `/admin` — Admin dashboard (gated by ADMIN_EMAILS env var)
+
+Auth:
 - `/auth/login`
 - `/auth/sign-up`
 - `/auth/sign-up-success`
+- `/auth/verify-email`
 - `/auth/forgot-password`
 - `/auth/update-password`
 - `/auth/error`
-- `/auth/confirm`
+- `/auth/confirm` — OTP/OAuth callback route handler
+
+API:
+- `POST /api/payments` — Creates Midtrans Snap token, inserts pending payment record
+- `POST /api/webhooks/midtrans` — Verifies signature, updates payment + subscription
+- `POST /api/webhooks/doku` — Verifies notification, updates payment + subscription
+- `POST /api/contact` — Contact form submission handler
+- `POST /api/waitlist` — Waitlist sign-up handler
 
 ## Development Guidelines
 
@@ -115,16 +154,6 @@ Important current routes:
 - For auth-aware request handling, work through `proxy.ts` and `lib/supabase/proxy.ts`.
 - If adding new database access patterns, document them in `docs/en` and `docs/id`.
 
-## Current Cleanup Notes
-
-The repository still contains starter/template content:
-
-- Landing page hero and tutorial sections are starter content.
-- Protected page still prints user claims rather than product data.
-- Root `README.md` still reflects the upstream starter more than this project.
-
-Agents may replace or refine these when the task calls for product-specific work.
-
 ## When Editing Documentation
 
 - Keep English docs in `docs/en`.
@@ -147,11 +176,3 @@ Do not rewrite history unless explicitly asked.
 4. Verify with `npm run lint` and/or `npm run build` when appropriate.
 5. Update `docs/en` and `docs/id` if the project behavior or structure changes.
 
-## Good First Extension Points
-
-If the task is open-ended, likely next implementation areas are:
-
-- Replacing starter landing content with product UI
-- Adding the first real Supabase tables and queries
-- Turning `/protected` into a real authenticated dashboard
-- Rewriting the root `README.md` to match this repository

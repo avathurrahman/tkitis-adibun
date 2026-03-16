@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Download, ArrowRight, BookOpen, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -42,6 +43,8 @@ export default async function OrderSuccessPage({
   const { id } = await params;
 
   return (
+    <>
+      <TemplateBanner description="Halaman konfirmasi order untuk produkmu — sesuaikan next steps dan link setelah pembayaran berhasil" />
     <div className="max-w-2xl mx-auto px-4 py-16 space-y-10 text-center">
       <div className="space-y-4">
         <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/30 flex items-center justify-center mx-auto">
@@ -112,5 +115,6 @@ export default async function OrderSuccessPage({
         </Link>
       </div>
     </div>
+    </>
   );
 }

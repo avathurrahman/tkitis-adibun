@@ -34,21 +34,69 @@
 
 ## Peta Route
 
-| Route | Group | Tipe | Tujuan |
-| --- | --- | --- | --- |
-| `/` | `(marketing)` | Page | Landing page KilatKoding |
-| `/dashboard` | `(dashboard)` | Page | Dashboard user yang sudah login |
-| `/auth/login` | — | Page | Layar login (password, Google OAuth, Magic Link) |
-| `/auth/sign-up` | — | Page | Layar registrasi (email/password + Google OAuth) |
-| `/auth/sign-up-success` | — | Page | Pemberitahuan setelah submit registrasi |
-| `/auth/forgot-password` | — | Page | Layar request reset password |
-| `/auth/update-password` | — | Page | Form password baru setelah reset |
-| `/auth/error` | — | Page | Tampilan error terkait auth |
-| `/auth/confirm` | — | Route handler | Callback OTP/OAuth — verifikasi token, redirect setelah berhasil atau gagal |
-| `/api/payments` | — | Route handler | Membuat Snap token Midtrans, menyimpan record payment pending |
-| `/api/webhooks/midtrans` | — | Route handler | Verifikasi signature Midtrans, update status payment dan subscription |
-| `/api/webhooks/doku` | — | Route handler | Verifikasi notifikasi Doku, update status payment dan subscription |
-| `/admin` | `(dashboard)` | Page | Admin dashboard — statistik payment dan ringkasan subscription |
+### Route Marketing (publik, group `(marketing)`)
+
+| Route | File | Tujuan |
+| --- | --- | --- |
+| `/` | `app/(marketing)/page.tsx` | Halaman landing KilatKoding |
+| `/about` | `app/(marketing)/about/page.tsx` | Tentang KilatKoding |
+| `/affiliates` | `app/(marketing)/affiliates/page.tsx` | Program afiliasi |
+| `/blog` | `app/(marketing)/blog/page.tsx` | Daftar blog MDX |
+| `/blog/[slug]` | `app/(marketing)/blog/[slug]/page.tsx` | Detail post blog MDX |
+| `/changelog` | `app/(marketing)/changelog/page.tsx` | Changelog produk |
+| `/checkout` | `app/(marketing)/checkout/page.tsx` | Alur checkout / pembelian |
+| `/compare` | `app/(marketing)/compare/page.tsx` | Perbandingan paket |
+| `/contact` | `app/(marketing)/contact/page.tsx` | Formulir kontak |
+| `/open` | `app/(marketing)/open/page.tsx` | Metrik startup terbuka |
+| `/order/[id]` | `app/(marketing)/order/[id]/page.tsx` | Konfirmasi pesanan / pasca-pembelian |
+| `/privacy` | `app/(marketing)/privacy/page.tsx` | Kebijakan privasi |
+| `/roadmap` | `app/(marketing)/roadmap/page.tsx` | Roadmap produk publik |
+| `/status` | `app/(marketing)/status/page.tsx` | Status layanan |
+| `/terms` | `app/(marketing)/terms/page.tsx` | Syarat layanan |
+| `/use-cases` | `app/(marketing)/use-cases/page.tsx` | Galeri use case |
+| `/waitlist` | `app/(marketing)/waitlist/page.tsx` | Pendaftaran waitlist |
+
+### Route Dashboard (perlu autentikasi, group `(dashboard)`)
+
+| Route | File | Tujuan |
+| --- | --- | --- |
+| `/dashboard` | `app/(dashboard)/dashboard/page.tsx` | Dashboard utama pengguna |
+| `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profil + ganti password |
+| `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Tampilan paket + alur pembayaran |
+| `/admin` | `app/(dashboard)/admin/page.tsx` | Dashboard admin (dibatasi oleh `ADMIN_EMAILS`) |
+
+### Route Auth
+
+| Route | File / Tipe | Tujuan |
+| --- | --- | --- |
+| `/auth/login` | Page | Layar masuk |
+| `/auth/sign-up` | Page | Layar registrasi |
+| `/auth/sign-up-success` | Page | Konfirmasi pasca-registrasi |
+| `/auth/verify-email` | Page | Instruksi verifikasi email |
+| `/auth/forgot-password` | Page | Permintaan reset password |
+| `/auth/update-password` | Page | Formulir password baru |
+| `/auth/error` | Page | Tampilan error auth |
+| `/auth/confirm` | Route handler | Callback OTP/OAuth |
+
+### Route API
+
+| Route | Method | Tujuan |
+| --- | --- | --- |
+| `/api/payments` | POST | Membuat token Snap Midtrans, menyimpan catatan pembayaran pending |
+| `/api/webhooks/midtrans` | POST | Memverifikasi tanda tangan, memperbarui pembayaran + langganan |
+| `/api/webhooks/doku` | POST | Memverifikasi notifikasi, memperbarui pembayaran + langganan |
+| `/api/contact` | POST | Handler pengiriman formulir kontak |
+| `/api/waitlist` | POST | Handler pendaftaran waitlist |
+
+### File App-Level
+
+| File | Tujuan |
+| --- | --- |
+| `app/error.tsx` | Error boundary root |
+| `app/not-found.tsx` | Halaman 404 global |
+| `app/robots.ts` | Generasi robots.txt dinamis |
+| `app/sitemap.ts` | Generasi sitemap XML dinamis |
+| `app/(marketing)/loading.tsx` | State loading skeleton seksi marketing |
 
 ## Penjelasan Route Groups
 
@@ -101,6 +149,8 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 | --- | --- |
 | `components/layout/header.tsx` | Header site: logo, `AuthButton`, `ThemeSwitcher` |
 | `components/layout/footer.tsx` | Footer site: copyright, `ThemeSwitcher` |
+| `components/layout/desktop-nav.tsx` | Link navigasi bar desktop |
+| `components/layout/current-year.tsx` | Tahun copyright dinamis (komponen klien) |
 
 ### Komponen App-Level
 
@@ -118,10 +168,48 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 | `components/forgot-password-form.tsx` | Form request reset password |
 | `components/update-password-form.tsx` | Form update password |
 | `components/logout-button.tsx` | Tombol sign out |
+| `components/auth/supabase-env-notice.tsx` | Banner peringatan saat env var Supabase tidak ada |
+| `components/contact-form.tsx` | Formulir kontak dengan field dan penanganan pengiriman |
+
+### Seksi Landing Page
+
+| File | Tujuan |
+| --- | --- |
+| `components/sections/hero.tsx` | Seksi hero |
+| `components/sections/features.tsx` | Seksi fitur |
+| `components/sections/pricing.tsx` | Seksi harga |
+| `components/sections/testimonials.tsx` | Seksi testimoni |
+| `components/sections/faq.tsx` | Seksi FAQ |
+| `components/sections/cta.tsx` | Seksi call-to-action |
+| `components/sections/ai-optimized.tsx` | Seksi fitur AI-Optimized |
+| `components/sections/pain-points.tsx` | Seksi pain point |
+| `components/sections/tech-stack.tsx` | Seksi showcase tech stack |
+| `components/sections/timeline.tsx` | Seksi timeline / roadmap produk |
+
+### Komponen Dashboard
+
+| File | Tujuan |
+| --- | --- |
+| `components/dashboard/subscription-card.tsx` | Menampilkan paket dan status langganan saat ini |
+| `components/dashboard/payments-table.tsx` | Tabel pembayaran sebelumnya |
+| `components/dashboard/admin-revenue-chart.tsx` | Grafik revenue untuk admin dashboard |
+| `components/dashboard/payment-button.tsx` | Memicu alur pembayaran (Midtrans/Doku) |
+
+### Komponen Halaman Docs
+
+| File | Tujuan |
+| --- | --- |
+| `components/docs/component-demo.tsx` | Menampilkan preview komponen shadcn/ui secara langsung |
+| `components/docs/tab-controls.tsx` | Tab controls untuk halaman docs komponen |
+| `components/docs/tab-data.tsx` | Tab tampilan data |
+| `components/docs/tab-forms.tsx` | Tab komponen form |
+| `components/docs/tab-foundations.tsx` | Tab primitif fondasi |
+| `components/docs/tab-navigation.tsx` | Tab komponen navigasi |
+| `components/docs/tab-overlays.tsx` | Tab komponen overlay |
 
 ### Primitive shadcn/ui
 
-Yang sudah terpasang: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
+Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `calendar`, `card`, `carousel`, `chart`, `checkbox`, `collapsible`, `command`, `context-menu`, `dialog`, `drawer`, `dropdown-menu`, `form`, `hover-card`, `input`, `label`, `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`, `resizable`, `scroll-area`, `select`, `separator`, `sheet`, `skeleton`, `slider`, `sonner`, `switch`, `table`, `tabs`, `template-banner`, `textarea`, `toggle`, `toggle-group`, `tooltip`
 
 ## Layer Hooks
 
@@ -129,6 +217,7 @@ Yang sudah terpasang: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `i
 | --- | --- |
 | `hooks/use-auth.ts` | Subscribe ke `onAuthStateChange`; mengembalikan `{ user, loading }` |
 | `hooks/use-subscription.ts` | Mengambil baris subscription untuk user saat ini; mengembalikan `{ subscription, loading, isPro, isActive }` |
+| `hooks/use-payment.ts` | State pembayaran sisi klien dan helper alur Midtrans/Doku |
 
 ## Layer Payment
 

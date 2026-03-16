@@ -1,0 +1,39 @@
+# KilatKoding — Cursor Rules
+
+## Project Context
+Next.js SaaS boilerplate for Indonesian developers.
+Stack: Next.js App Router, TypeScript strict, Tailwind CSS, shadcn/ui (44 components), Supabase SSR auth, Midtrans/Doku payments.
+
+## Component Rules
+- Default to Server Components. Add "use client" only when using hooks, event handlers, or browser APIs.
+- Import from @/components/ui/ before creating new base UI components.
+- Use cn() from @/lib/utils for conditional class names.
+
+## Data Access Rules
+- Server-side Supabase: import from @/lib/supabase/server
+- Client-side Supabase: import from @/lib/supabase/client
+- Never import server client in client components.
+
+## Naming Conventions
+- Files: kebab-case (e.g., payment-button.tsx)
+- Components: PascalCase exports
+- Hooks: camelCase with use- prefix (e.g., useAuth)
+- Route handlers: route.ts in the route segment folder
+
+## Route Groups
+- app/(marketing)/ — public pages with MarketingLayout (Header + Footer)
+- app/(dashboard)/ — auth-gated pages with DashboardLayout
+- app/auth/ — auth flow pages, no shared layout
+
+## Payments
+- All amounts in IDR (Indonesian Rupiah), integer values
+- Midtrans Snap: createSnapTransaction() in lib/payments/midtrans.ts
+- Doku JOKUL: createDokuPayment() in lib/payments/doku.ts
+
+## Config
+- Site metadata: config/site.ts (siteConfig)
+- Navigation: config/navigation.ts (marketingNav, dashboardNav)
+
+## Documentation
+- Docs in docs/en/ (English) and docs/id/ (Indonesian)
+- Both language sets should stay in sync

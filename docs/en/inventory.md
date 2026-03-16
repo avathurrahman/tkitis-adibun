@@ -34,13 +34,31 @@ This file is a practical reference for the important source files currently in t
 | `app/(dashboard)/dashboard/settings/page.tsx` | Settings — `/dashboard/settings` (profile + password change) |
 | `app/(dashboard)/dashboard/billing/page.tsx` | Billing — `/dashboard/billing` (plan + payment flow) |
 | `app/(dashboard)/admin/page.tsx` | Admin dashboard — `/admin` (gated by `ADMIN_EMAILS`) |
+| `app/(marketing)/about/page.tsx` | About page — `/about` |
+| `app/(marketing)/affiliates/page.tsx` | Affiliates program — `/affiliates` |
+| `app/(marketing)/changelog/page.tsx` | Product changelog — `/changelog` |
+| `app/(marketing)/checkout/page.tsx` | Checkout / purchase flow — `/checkout` |
+| `app/(marketing)/compare/page.tsx` | Plan comparison — `/compare` |
+| `app/(marketing)/contact/page.tsx` | Contact form page — `/contact` |
+| `app/(marketing)/loading.tsx` | Marketing skeleton loading state |
+| `app/(marketing)/open/page.tsx` | Open startup metrics — `/open` |
+| `app/(marketing)/order/[id]/page.tsx` | Order confirmation / post-purchase — `/order/[id]` |
+| `app/(marketing)/roadmap/page.tsx` | Public product roadmap — `/roadmap` |
+| `app/(marketing)/status/page.tsx` | Service status — `/status` |
+| `app/(marketing)/use-cases/page.tsx` | Use cases gallery — `/use-cases` |
+| `app/(marketing)/waitlist/page.tsx` | Waitlist sign-up — `/waitlist` |
 | `app/auth/login/page.tsx` | Login screen |
 | `app/auth/sign-up/page.tsx` | Sign-up screen |
 | `app/auth/sign-up-success/page.tsx` | Post-registration instructions |
 | `app/auth/forgot-password/page.tsx` | Password reset request screen |
 | `app/auth/update-password/page.tsx` | Password update screen |
 | `app/auth/error/page.tsx` | Auth error display |
+| `app/auth/verify-email/page.tsx` | Email verification instructions |
 | `app/auth/confirm/route.ts` | Supabase OTP/OAuth verification handler |
+| `app/error.tsx` | Root error boundary |
+| `app/not-found.tsx` | Global 404 page |
+| `app/robots.ts` | Robots.txt dynamic generation |
+| `app/sitemap.ts` | XML sitemap dynamic generation |
 
 ## Layout Components
 
@@ -48,11 +66,14 @@ This file is a practical reference for the important source files currently in t
 | --- | --- |
 | `components/layout/header.tsx` | Site header: logo, `AuthButton`, `ThemeSwitcher` |
 | `components/layout/footer.tsx` | Site footer: copyright, `ThemeSwitcher` |
+| `components/layout/desktop-nav.tsx` | Desktop navigation bar links |
+| `components/layout/current-year.tsx` | Dynamic copyright year (client component) |
 
 ## Auth And Shell Components
 
 | File | Purpose |
 | --- | --- |
+| `components/auth/supabase-env-notice.tsx` | Warning banner when Supabase env vars are missing |
 | `components/auth-button.tsx` | Server-side auth-aware header actions |
 | `components/logout-button.tsx` | Sign-out action |
 | `components/login-form.tsx` | Sign-in: email/password tab, Magic Link tab, Google OAuth button |
@@ -60,6 +81,7 @@ This file is a practical reference for the important source files currently in t
 | `components/forgot-password-form.tsx` | Password reset request form |
 | `components/update-password-form.tsx` | Password update form |
 | `components/theme-switcher.tsx` | Light/dark/system mode switcher |
+| `components/contact-form.tsx` | Contact form with fields and submission handling |
 
 ## Shared Utility Files
 
@@ -76,6 +98,7 @@ This file is a practical reference for the important source files currently in t
 | File | Purpose |
 | --- | --- |
 | `hooks/use-auth.ts` | Client-side user session state with `onAuthStateChange` listener |
+| `hooks/use-payment.ts` | Client-side payment state and Midtrans/Doku flow helpers |
 | `hooks/use-subscription.ts` | Client-side subscription state; exposes `isPro` and `isActive` helpers |
 
 ## Payment Library
@@ -92,6 +115,8 @@ This file is a practical reference for the important source files currently in t
 | `app/api/payments/route.ts` | POST | Auth-gated — creates Midtrans Snap token, inserts pending `payments` record |
 | `app/api/webhooks/midtrans/route.ts` | POST | Verifies Midtrans signature, updates `payments.status`, activates subscription on success |
 | `app/api/webhooks/doku/route.ts` | POST | Verifies Doku notification, updates `payments.status`, activates subscription on success |
+| `app/api/contact/route.ts` | POST | Contact form — saves submission |
+| `app/api/waitlist/route.ts` | POST | Waitlist — saves email sign-up |
 
 ## Email Templates
 
@@ -107,10 +132,11 @@ This file is a practical reference for the important source files currently in t
 | `supabase/migrations/20260316000001_create_profiles.sql` | `profiles` table + auto-create trigger on signup |
 | `supabase/migrations/20260316000002_create_subscriptions.sql` | `subscriptions` table + auto-create FREE trigger on signup |
 | `supabase/migrations/20260316000003_create_payments.sql` | `payments` table + enums (plan, payment_status, payment_provider) |
+| `supabase/migrations/20260316000004_create_waitlist.sql` | `waitlist` table |
 
-## Installed shadcn/ui Primitives (43 total)
+## Installed shadcn/ui Primitives (44 total)
 
-accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, dialog, drawer, dropdown-menu, form, hover-card, input, label, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, sheet, skeleton, slider, sonner, switch, table, tabs, textarea, toggle, toggle-group, tooltip
+accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, dialog, drawer, dropdown-menu, form, hover-card, input, label, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, sheet, skeleton, slider, sonner, switch, table, tabs, template-banner, textarea, toggle, toggle-group, tooltip
 
 ## Landing Page Sections
 
@@ -122,6 +148,22 @@ accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button,
 | `components/sections/testimonials.tsx` | Testimonials — Avatar + Carousel |
 | `components/sections/faq.tsx` | FAQ — Accordion |
 | `components/sections/cta.tsx` | CTA banner |
+| `components/sections/ai-optimized.tsx` | AI-Optimized feature section |
+| `components/sections/pain-points.tsx` | Pain points section |
+| `components/sections/tech-stack.tsx` | Tech stack showcase section |
+| `components/sections/timeline.tsx` | Product timeline / roadmap section |
+
+## Docs Page Components
+
+| File | Purpose |
+| --- | --- |
+| `components/docs/component-demo.tsx` | Renders live shadcn/ui component previews |
+| `components/docs/tab-controls.tsx` | Controls tab for component docs page |
+| `components/docs/tab-data.tsx` | Data display tab |
+| `components/docs/tab-forms.tsx` | Form components tab |
+| `components/docs/tab-foundations.tsx` | Foundation primitives tab |
+| `components/docs/tab-navigation.tsx` | Navigation components tab |
+| `components/docs/tab-overlays.tsx` | Overlay components tab |
 
 ## Dashboard Components
 

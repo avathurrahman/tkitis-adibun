@@ -9,7 +9,8 @@
       "Bash(npx shadcn@latest add chart popover pagination command --overwrite)",
       "Bash(npx shadcn@latest add alert-dialog aspect-ratio calendar collapsible context-menu drawer resizable slider toggle toggle-group --overwrite)",
       "Bash(ls \"/Users/galpratama/Development/galpratama/kilatkoding-src/app/\\(marketing\\)/\")",
-      "Bash(ls -la /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(marketing\\\\\\)/compare/)"
+      "Bash(ls -la /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(marketing\\\\\\)/compare/)",
+      "Bash(ls /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(dashboard\\\\\\)/dashboard)"
     ]
   }
 }

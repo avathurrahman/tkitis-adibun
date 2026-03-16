@@ -34,21 +34,69 @@
 
 ## Route Map
 
-| Route | Group | Type | Purpose |
-| --- | --- | --- | --- |
-| `/` | `(marketing)` | Page | KilatKoding landing page |
-| `/dashboard` | `(dashboard)` | Page | Authenticated user dashboard |
-| `/auth/login` | — | Page | Sign-in screen (password, Google OAuth, Magic Link) |
-| `/auth/sign-up` | — | Page | Registration screen (email/password + Google OAuth) |
-| `/auth/sign-up-success` | — | Page | Confirmation notice after sign-up |
-| `/auth/forgot-password` | — | Page | Password reset request screen |
-| `/auth/update-password` | — | Page | New password form after reset flow |
-| `/auth/error` | — | Page | Error display for auth-related failures |
-| `/auth/confirm` | — | Route handler | OTP/OAuth callback — verifies token, redirects on success or failure |
-| `/api/payments` | — | Route handler | Creates Midtrans Snap token, inserts pending payment record |
-| `/api/webhooks/midtrans` | — | Route handler | Verifies Midtrans signature, updates payment and subscription status |
-| `/api/webhooks/doku` | — | Route handler | Verifies Doku notification, updates payment and subscription status |
-| `/admin` | `(dashboard)` | Page | Admin dashboard — payment stats and subscription overview |
+### Marketing Routes (public, `(marketing)` group)
+
+| Route | File | Purpose |
+| --- | --- | --- |
+| `/` | `app/(marketing)/page.tsx` | KilatKoding landing page |
+| `/about` | `app/(marketing)/about/page.tsx` | About KilatKoding |
+| `/affiliates` | `app/(marketing)/affiliates/page.tsx` | Affiliates program |
+| `/blog` | `app/(marketing)/blog/page.tsx` | MDX blog listing |
+| `/blog/[slug]` | `app/(marketing)/blog/[slug]/page.tsx` | MDX blog post detail |
+| `/changelog` | `app/(marketing)/changelog/page.tsx` | Product changelog |
+| `/checkout` | `app/(marketing)/checkout/page.tsx` | Purchase / checkout flow |
+| `/compare` | `app/(marketing)/compare/page.tsx` | Plan comparison |
+| `/contact` | `app/(marketing)/contact/page.tsx` | Contact form |
+| `/open` | `app/(marketing)/open/page.tsx` | Open startup metrics |
+| `/order/[id]` | `app/(marketing)/order/[id]/page.tsx` | Order confirmation / post-purchase |
+| `/privacy` | `app/(marketing)/privacy/page.tsx` | Privacy policy |
+| `/roadmap` | `app/(marketing)/roadmap/page.tsx` | Public product roadmap |
+| `/status` | `app/(marketing)/status/page.tsx` | Service status |
+| `/terms` | `app/(marketing)/terms/page.tsx` | Terms of service |
+| `/use-cases` | `app/(marketing)/use-cases/page.tsx` | Use cases gallery |
+| `/waitlist` | `app/(marketing)/waitlist/page.tsx` | Waitlist sign-up |
+
+### Dashboard Routes (auth-gated, `(dashboard)` group)
+
+| Route | File | Purpose |
+| --- | --- | --- |
+| `/dashboard` | `app/(dashboard)/dashboard/page.tsx` | Main user dashboard |
+| `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profile + password change |
+| `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Plan display + payment flow |
+| `/admin` | `app/(dashboard)/admin/page.tsx` | Admin dashboard (gated by `ADMIN_EMAILS`) |
+
+### Auth Routes
+
+| Route | File / Type | Purpose |
+| --- | --- | --- |
+| `/auth/login` | Page | Sign-in screen |
+| `/auth/sign-up` | Page | Registration screen |
+| `/auth/sign-up-success` | Page | Post-registration confirmation |
+| `/auth/verify-email` | Page | Email verification instructions |
+| `/auth/forgot-password` | Page | Password reset request |
+| `/auth/update-password` | Page | New password form |
+| `/auth/error` | Page | Auth error display |
+| `/auth/confirm` | Route handler | OTP/OAuth callback |
+
+### API Routes
+
+| Route | Method | Purpose |
+| --- | --- | --- |
+| `/api/payments` | POST | Creates Midtrans Snap token, inserts pending payment |
+| `/api/webhooks/midtrans` | POST | Verifies signature, updates payment + subscription |
+| `/api/webhooks/doku` | POST | Verifies notification, updates payment + subscription |
+| `/api/contact` | POST | Contact form submission handler |
+| `/api/waitlist` | POST | Waitlist sign-up handler |
+
+### App-Level Files
+
+| File | Purpose |
+| --- | --- |
+| `app/error.tsx` | Root error boundary |
+| `app/not-found.tsx` | Global 404 page |
+| `app/robots.ts` | Robots.txt dynamic generation |
+| `app/sitemap.ts` | XML sitemap dynamic generation |
+| `app/(marketing)/loading.tsx` | Marketing section skeleton loading state |
 
 ## Route Groups Explained
 
@@ -101,6 +149,8 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 | --- | --- |
 | `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, and `ThemeSwitcher` |
 | `components/layout/footer.tsx` | Shared footer with copyright and `ThemeSwitcher` |
+| `components/layout/desktop-nav.tsx` | Desktop navigation bar links |
+| `components/layout/current-year.tsx` | Dynamic copyright year (client component) |
 
 ### App-Level Components
 
@@ -118,10 +168,48 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 | `components/forgot-password-form.tsx` | Password reset request form |
 | `components/update-password-form.tsx` | Password update form |
 | `components/logout-button.tsx` | Sign-out action button |
+| `components/auth/supabase-env-notice.tsx` | Warning banner when Supabase env vars are missing |
+| `components/contact-form.tsx` | Contact form with fields and submission handling |
+
+### Landing Page Sections
+
+| File | Purpose |
+| --- | --- |
+| `components/sections/hero.tsx` | Hero section |
+| `components/sections/features.tsx` | Features section |
+| `components/sections/pricing.tsx` | Pricing section |
+| `components/sections/testimonials.tsx` | Testimonials section |
+| `components/sections/faq.tsx` | FAQ section |
+| `components/sections/cta.tsx` | Call-to-action section |
+| `components/sections/ai-optimized.tsx` | AI-Optimized feature section |
+| `components/sections/pain-points.tsx` | Pain points section |
+| `components/sections/tech-stack.tsx` | Tech stack showcase section |
+| `components/sections/timeline.tsx` | Product timeline / roadmap section |
+
+### Dashboard Components
+
+| File | Purpose |
+| --- | --- |
+| `components/dashboard/subscription-card.tsx` | Displays current plan and subscription status |
+| `components/dashboard/payments-table.tsx` | Table of past payments |
+| `components/dashboard/admin-revenue-chart.tsx` | Revenue chart for admin dashboard |
+| `components/dashboard/payment-button.tsx` | Triggers payment flow (Midtrans/Doku) |
+
+### Docs Page Components
+
+| File | Purpose |
+| --- | --- |
+| `components/docs/component-demo.tsx` | Renders live shadcn/ui component previews |
+| `components/docs/tab-controls.tsx` | Controls tab for component docs page |
+| `components/docs/tab-data.tsx` | Data display tab |
+| `components/docs/tab-forms.tsx` | Form components tab |
+| `components/docs/tab-foundations.tsx` | Foundation primitives tab |
+| `components/docs/tab-navigation.tsx` | Navigation components tab |
+| `components/docs/tab-overlays.tsx` | Overlay components tab |
 
 ### shadcn/ui Primitives
 
-Currently installed: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
+Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `calendar`, `card`, `carousel`, `chart`, `checkbox`, `collapsible`, `command`, `context-menu`, `dialog`, `drawer`, `dropdown-menu`, `form`, `hover-card`, `input`, `label`, `navigation-menu`, `pagination`, `popover`, `progress`, `radio-group`, `resizable`, `scroll-area`, `select`, `separator`, `sheet`, `skeleton`, `slider`, `sonner`, `switch`, `table`, `tabs`, `template-banner`, `textarea`, `toggle`, `toggle-group`, `tooltip`
 
 ## Hooks Layer
 
@@ -129,6 +217,7 @@ Currently installed: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `in
 | --- | --- |
 | `hooks/use-auth.ts` | Subscribes to `onAuthStateChange`; returns `{ user, loading }` |
 | `hooks/use-subscription.ts` | Fetches subscription row for current user; returns `{ subscription, loading, isPro, isActive }` |
+| `hooks/use-payment.ts` | Client-side payment state and Midtrans/Doku flow helpers |
 
 ## Payment Layer
 

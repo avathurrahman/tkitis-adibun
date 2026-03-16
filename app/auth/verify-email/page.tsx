@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { TemplateBanner } from "@/components/ui/template-banner";
 import { Mail, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -41,6 +42,8 @@ export default function VerifyEmailPage() {
   }
 
   return (
+    <>
+      <TemplateBanner description="Halaman verifikasi email — ganti noreply@kilatkoding.com dengan domain email produkmu" />
     <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
       <div className="max-w-md w-full space-y-6">
         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -92,5 +95,6 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

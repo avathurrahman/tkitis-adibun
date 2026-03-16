@@ -51,14 +51,22 @@ Reference:
 ## Important Files
 
 - `app/layout.tsx`: root layout, metadata, theme provider
-- `app/page.tsx`: starter landing page
-- `app/protected/page.tsx`: protected example page
-- `app/auth/confirm/route.ts`: OTP verification route
+- `app/(marketing)/page.tsx`: KilatKoding landing page
+- `app/(dashboard)/dashboard/page.tsx`: authenticated dashboard
+- `app/auth/confirm/route.ts`: OTP/OAuth verification route handler
 - `lib/supabase/server.ts`: server Supabase client
 - `lib/supabase/client.ts`: browser Supabase client
 - `lib/supabase/proxy.ts`: auth/session synchronization
 - `proxy.ts`: route matcher and request-time proxy entrypoint
-- `components/ui/`: installed shadcn/ui primitives
+- `config/site.ts`: centralized site metadata
+- `config/navigation.ts`: nav link definitions
+- `lib/payments/midtrans.ts`: Midtrans Snap client and helpers
+- `lib/payments/doku.ts`: Doku JOKUL client and helpers
+- `lib/email.ts`: Resend + React Email wrapper
+- `hooks/use-auth.ts`: client-side auth state hook
+- `hooks/use-subscription.ts`: client-side subscription state hook
+- `components/ui/`: installed shadcn/ui primitives (44 total)
+- `supabase/migrations/`: SQL migration files
 
 ## Working Rules
 

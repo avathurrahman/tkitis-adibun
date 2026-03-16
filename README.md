@@ -1,109 +1,134 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# KilatKoding
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Boilerplate Next.js untuk developer Indonesia yang mau build SaaS dengan cepat — lengkap dengan auth, payment gateway lokal, email, blog, dan dashboard.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+> **AI-Optimized:** Dikonfigurasi untuk Claude Code (`CLAUDE.md`, `AGENTS.md`), GitHub Copilot (`.github/copilot-instructions.md`), Cursor (`.cursorrules`), dan Windsurf (`.windsurfrules`).
 
-## Features
+---
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## Tech Stack
 
-## Demo
+- **Framework:** Next.js (App Router), React 19, TypeScript 5 (strict)
+- **Styling:** Tailwind CSS 3, shadcn/ui (44 components, new-york style)
+- **Auth:** Supabase SSR — email/password, Google OAuth, Magic Link
+- **Payments:** Midtrans (Snap) + Doku (JOKUL) — keduanya payment gateway Indonesia
+- **Email:** Resend + React Email — template welcome & invoice dalam Bahasa Indonesia
+- **Blog:** MDX dengan frontmatter, reading time, dan tag support
+- **Database:** Supabase PostgreSQL — migrations untuk `profiles`, `subscriptions`, `payments` (semua dengan RLS)
+- **CI:** GitHub Actions (lint + build on push/PR)
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+---
 
-## Deploy to Vercel
+## Quick Start
 
-Vercel deployment will guide you through creating a Supabase account and project.
+```bash
+npm install
+cp .env.example .env.local
+# isi variabel di .env.local (lihat bagian Environment Variables)
+npm run dev
+```
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+Buka [http://localhost:3000](http://localhost:3000).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+---
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## Environment Variables
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+Salin `.env.example` ke `.env.local` dan isi nilai berikut:
 
-## Clone and run locally
+```env
+# Supabase — dari Project Settings > API
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+# URL aplikasi
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-2. Create a Next.js app using the Supabase Starter template npx command
+# Payment provider aktif: "midtrans" atau "doku"
+PAYMENT_PROVIDER=doku
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+# Doku (jika PAYMENT_PROVIDER=doku)
+DOKU_CLIENT_ID=
+DOKU_SECRET_KEY=
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+# Midtrans (jika PAYMENT_PROVIDER=midtrans)
+MIDTRANS_SERVER_KEY=
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+# Email — dari Resend dashboard
+RESEND_API_KEY=
+EMAIL_FROM=KilatKoding <noreply@yourdomain.com>
 
-3. Use `cd` to change into the app's directory
+# Admin — email yang boleh akses /admin (comma-separated)
+ADMIN_EMAILS=you@example.com
+```
 
-   ```bash
-   cd with-supabase-app
-   ```
+Catatan penting:
+- `MIDTRANS_SERVER_KEY`, `DOKU_CLIENT_ID`, dan `DOKU_SECRET_KEY` adalah server-only — jangan beri prefix `NEXT_PUBLIC_`
+- `ADMIN_EMAILS` kosong = semua user authenticated bisa akses `/admin`
+- `EMAIL_FROM` default ke `KilatKoding <noreply@kilatkoding.com>` jika tidak diset
 
-4. Rename `.env.example` to `.env.local` and update the following:
+---
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+## Commands
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+| Command | Fungsi |
+| --- | --- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Jalankan dev server |
+| `npm run lint` | Jalankan ESLint |
+| `npm run build` | Build production |
+| `npm run start` | Jalankan production server |
 
-5. You can now run the Next.js local development server:
+---
 
-   ```bash
-   npm run dev
-   ```
+## Documentation
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+- English: [`docs/en/README.md`](./docs/en/README.md)
+- Bahasa Indonesia: [`docs/id/README.md`](./docs/id/README.md)
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+Dokumentasi lengkap mencakup arsitektur, setup Supabase, Midtrans, Doku, Resend, auth flow, dan inventory file.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+---
 
-## Feedback and issues
+## Database
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+Migrations tersedia di `supabase/migrations/`:
 
-## More Supabase examples
+| File | Membuat |
+| --- | --- |
+| `20260316000001_create_profiles.sql` | Tabel `profiles` + auto-create trigger |
+| `20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + FREE tier trigger |
+| `20260316000003_create_payments.sql` | Tabel `payments` + enums (plan, status, provider) |
+| `20260316000004_create_waitlist.sql` | Tabel `waitlist` |
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+Cara apply:
+
+```bash
+# Opsi A: Supabase CLI
+npx supabase db push
+
+# Opsi B: Paste manual di Supabase dashboard SQL editor (urut sesuai nama file)
+```
+
+Generate TypeScript types setelah migrations di-apply:
+
+```bash
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+```
+
+---
+
+## AI Tools
+
+Repo ini menyertakan konfigurasi untuk beberapa AI coding tools:
+
+| File | Tool | Isi |
+| --- | --- | --- |
+| `CLAUDE.md` | Claude Code | Panduan project, commands, working rules, dokumentasi |
+| `AGENTS.md` | Claude Code / agent umum | Ringkasan arsitektur, konvensi, environment vars, workflow |
+| `.github/copilot-instructions.md` | GitHub Copilot | Instruksi konteks project untuk Copilot |
+| `.cursorrules` | Cursor | Rules untuk Cursor AI editor |
+| `.windsurfrules` | Windsurf | Rules untuk Windsurf AI editor |
+
+Semua config file ini dirancang untuk memberikan konteks yang akurat tentang stack, konvensi, dan struktur project — supaya AI suggestions lebih relevan dan tidak menyarankan pola yang tidak sesuai.

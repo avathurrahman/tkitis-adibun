@@ -25,20 +25,40 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 
 | File | Tujuan |
 | --- | --- |
-| `app/layout.tsx` | Root layout: font Geist, metadata, `lang="id"`, theme provider |
+| `app/layout.tsx` | Root layout: font Geist, metadata, `lang="id"`, ThemeProvider, TooltipProvider, Toaster |
 | `app/globals.css` | Layer Tailwind dan design token |
 | `app/(marketing)/layout.tsx` | Layout marketing: wrapper `Header` + `Footer` |
 | `app/(marketing)/page.tsx` | Landing page — `/` |
 | `app/(dashboard)/layout.tsx` | Layout dashboard: `Header` + container max-width |
 | `app/(dashboard)/dashboard/page.tsx` | Dashboard terautentikasi — `/dashboard` |
+| `app/(dashboard)/dashboard/settings/page.tsx` | Settings — `/dashboard/settings` (profil + ganti password) |
+| `app/(dashboard)/dashboard/billing/page.tsx` | Billing — `/dashboard/billing` (paket + alur pembayaran) |
 | `app/(dashboard)/admin/page.tsx` | Admin dashboard — `/admin` (dibatasi oleh `ADMIN_EMAILS`) |
-| `app/auth/login/page.tsx` | Layar login |
+| `app/(marketing)/about/page.tsx` | Halaman about — `/about` |
+| `app/(marketing)/affiliates/page.tsx` | Program afiliasi — `/affiliates` |
+| `app/(marketing)/changelog/page.tsx` | Changelog produk — `/changelog` |
+| `app/(marketing)/checkout/page.tsx` | Alur checkout / pembelian — `/checkout` |
+| `app/(marketing)/compare/page.tsx` | Perbandingan paket — `/compare` |
+| `app/(marketing)/contact/page.tsx` | Halaman formulir kontak — `/contact` |
+| `app/(marketing)/loading.tsx` | State loading skeleton seksi marketing |
+| `app/(marketing)/open/page.tsx` | Metrik startup terbuka — `/open` |
+| `app/(marketing)/order/[id]/page.tsx` | Konfirmasi pesanan / pasca-pembelian — `/order/[id]` |
+| `app/(marketing)/roadmap/page.tsx` | Roadmap produk publik — `/roadmap` |
+| `app/(marketing)/status/page.tsx` | Status layanan — `/status` |
+| `app/(marketing)/use-cases/page.tsx` | Galeri use case — `/use-cases` |
+| `app/(marketing)/waitlist/page.tsx` | Pendaftaran waitlist — `/waitlist` |
+| `app/auth/login/page.tsx` | Layar masuk |
 | `app/auth/sign-up/page.tsx` | Layar registrasi |
 | `app/auth/sign-up-success/page.tsx` | Instruksi pasca-registrasi |
-| `app/auth/forgot-password/page.tsx` | Layar request reset password |
+| `app/auth/forgot-password/page.tsx` | Layar permintaan reset password |
 | `app/auth/update-password/page.tsx` | Layar update password |
 | `app/auth/error/page.tsx` | Tampilan error auth |
+| `app/auth/verify-email/page.tsx` | Instruksi verifikasi email |
 | `app/auth/confirm/route.ts` | Handler verifikasi OTP/OAuth Supabase |
+| `app/error.tsx` | Error boundary root |
+| `app/not-found.tsx` | Halaman 404 global |
+| `app/robots.ts` | Generasi robots.txt dinamis |
+| `app/sitemap.ts` | Generasi sitemap XML dinamis |
 
 ## Komponen Layout
 
@@ -46,11 +66,14 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | --- | --- |
 | `components/layout/header.tsx` | Header site: logo, `AuthButton`, `ThemeSwitcher` |
 | `components/layout/footer.tsx` | Footer site: copyright, `ThemeSwitcher` |
+| `components/layout/desktop-nav.tsx` | Link navigasi bar desktop |
+| `components/layout/current-year.tsx` | Tahun copyright dinamis (komponen klien) |
 
 ## Komponen Auth Dan Shell
 
 | File | Tujuan |
 | --- | --- |
+| `components/auth/supabase-env-notice.tsx` | Banner peringatan saat env var Supabase tidak ada |
 | `components/auth-button.tsx` | Aksi header yang sadar auth (server component) |
 | `components/logout-button.tsx` | Aksi sign out |
 | `components/login-form.tsx` | Login: tab email/password, tab Magic Link, tombol Google OAuth |
@@ -58,6 +81,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `components/forgot-password-form.tsx` | Form request reset password |
 | `components/update-password-form.tsx` | Form update password |
 | `components/theme-switcher.tsx` | Switcher mode light/dark/system |
+| `components/contact-form.tsx` | Formulir kontak dengan field dan penanganan pengiriman |
 
 ## File Utility Bersama
 
@@ -74,6 +98,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | File | Tujuan |
 | --- | --- |
 | `hooks/use-auth.ts` | State session user di client-side dengan listener `onAuthStateChange` |
+| `hooks/use-payment.ts` | State pembayaran sisi klien dan helper alur Midtrans/Doku |
 | `hooks/use-subscription.ts` | State subscription di client-side; mengekspos helper `isPro` dan `isActive` |
 
 ## Library Payment
@@ -87,9 +112,11 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 
 | File | Method | Tujuan |
 | --- | --- | --- |
-| `app/api/payments/route.ts` | POST | Dilindungi auth — membuat Snap token Midtrans, menyimpan record `payments` pending |
-| `app/api/webhooks/midtrans/route.ts` | POST | Verifikasi signature Midtrans, update `payments.status`, aktifkan subscription jika berhasil |
-| `app/api/webhooks/doku/route.ts` | POST | Verifikasi notifikasi Doku, update `payments.status`, aktifkan subscription jika berhasil |
+| `app/api/payments/route.ts` | POST | Dilindungi auth — membuat token Snap Midtrans, menyimpan catatan pembayaran pending |
+| `app/api/webhooks/midtrans/route.ts` | POST | Memverifikasi tanda tangan Midtrans, update `payments.status`, aktifkan subscription jika berhasil |
+| `app/api/webhooks/doku/route.ts` | POST | Memverifikasi notifikasi Doku, update `payments.status`, aktifkan subscription jika berhasil |
+| `app/api/contact/route.ts` | POST | Formulir kontak — menyimpan pengiriman |
+| `app/api/waitlist/route.ts` | POST | Waitlist — menyimpan pendaftaran email |
 
 ## Template Email
 
@@ -105,18 +132,47 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `supabase/migrations/20260316000001_create_profiles.sql` | Tabel `profiles` + trigger auto-create saat signup |
 | `supabase/migrations/20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + trigger auto-create FREE saat signup |
 | `supabase/migrations/20260316000003_create_payments.sql` | Tabel `payments` + enum (plan, payment_status, payment_provider) |
+| `supabase/migrations/20260316000004_create_waitlist.sql` | Tabel `waitlist` |
 
-## Primitive shadcn/ui Yang Terpasang
+## Primitive shadcn/ui Yang Terpasang (44 total)
+
+accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, dialog, drawer, dropdown-menu, form, hover-card, input, label, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, sheet, skeleton, slider, sonner, switch, table, tabs, template-banner, textarea, toggle, toggle-group, tooltip
+
+## Seksi Landing Page
 
 | File | Tujuan |
 | --- | --- |
-| `components/ui/badge.tsx` | Badge |
-| `components/ui/button.tsx` | Button |
-| `components/ui/card.tsx` | Card |
-| `components/ui/checkbox.tsx` | Checkbox |
-| `components/ui/dropdown-menu.tsx` | Dropdown menu |
-| `components/ui/input.tsx` | Input |
-| `components/ui/label.tsx` | Label |
+| `components/sections/hero.tsx` | Hero — headline, badge, CTA |
+| `components/sections/features.tsx` | Grid fitur — 6 kartu dengan ikon |
+| `components/sections/pricing.tsx` | Harga — kartu FREE/PRO dengan toggle bulanan/tahunan |
+| `components/sections/testimonials.tsx` | Testimoni — Avatar + Carousel |
+| `components/sections/faq.tsx` | FAQ — Accordion |
+| `components/sections/cta.tsx` | Banner CTA |
+| `components/sections/ai-optimized.tsx` | Seksi fitur AI-Optimized |
+| `components/sections/pain-points.tsx` | Seksi pain point |
+| `components/sections/tech-stack.tsx` | Seksi showcase tech stack |
+| `components/sections/timeline.tsx` | Seksi timeline / roadmap produk |
+
+## Komponen Halaman Docs
+
+| File | Tujuan |
+| --- | --- |
+| `components/docs/component-demo.tsx` | Menampilkan preview komponen shadcn/ui secara langsung |
+| `components/docs/tab-controls.tsx` | Tab controls untuk halaman docs komponen |
+| `components/docs/tab-data.tsx` | Tab tampilan data |
+| `components/docs/tab-forms.tsx` | Tab komponen form |
+| `components/docs/tab-foundations.tsx` | Tab primitif fondasi |
+| `components/docs/tab-navigation.tsx` | Tab komponen navigasi |
+| `components/docs/tab-overlays.tsx` | Tab komponen overlay |
+
+## Komponen Dashboard
+
+| File | Tujuan |
+| --- | --- |
+| `components/dashboard/subscription-card.tsx` | Status langganan dengan Badge, Progress, Skeleton |
+| `components/dashboard/payments-table.tsx` | Pembayaran terbaru — Table + Badge, query Supabase sisi klien |
+| `components/dashboard/admin-revenue-chart.tsx` | Grafik revenue batang (recharts, komponen klien) |
+| `components/dashboard/payment-button.tsx` | Tombol upgrade — memanggil /api/payments, menangani Midtrans Snap + Doku redirect |
 
 ## CI / Infrastruktur
 
