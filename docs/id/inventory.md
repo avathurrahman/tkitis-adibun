@@ -31,6 +31,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `app/(marketing)/page.tsx` | Landing page — `/` |
 | `app/(dashboard)/layout.tsx` | Layout dashboard: `Header` + container max-width |
 | `app/(dashboard)/dashboard/page.tsx` | Dashboard terautentikasi — `/dashboard` |
+| `app/(dashboard)/admin/page.tsx` | Admin dashboard — `/admin` (dibatasi oleh `ADMIN_EMAILS`) |
 | `app/auth/login/page.tsx` | Layar login |
 | `app/auth/sign-up/page.tsx` | Layar registrasi |
 | `app/auth/sign-up-success/page.tsx` | Instruksi pasca-registrasi |
@@ -68,11 +69,19 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `lib/supabase/proxy.ts` | Logika refresh session dan redirect yang dipakai `proxy.ts` |
 | `lib/email.ts` | `sendEmail()` — wrapper Resend yang merender template React Email dan mengirimnya via API |
 
+## Hooks
+
+| File | Tujuan |
+| --- | --- |
+| `hooks/use-auth.ts` | State session user di client-side dengan listener `onAuthStateChange` |
+| `hooks/use-subscription.ts` | State subscription di client-side; mengekspos helper `isPro` dan `isActive` |
+
 ## Library Payment
 
 | File | Tujuan |
 | --- | --- |
 | `lib/payments/midtrans.ts` | Inisialisasi Snap + CoreAPI client, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
+| `lib/payments/doku.ts` | HTTP client Doku JOKUL, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
 
 ## API Route
 
@@ -80,6 +89,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | --- | --- | --- |
 | `app/api/payments/route.ts` | POST | Dilindungi auth — membuat Snap token Midtrans, menyimpan record `payments` pending |
 | `app/api/webhooks/midtrans/route.ts` | POST | Verifikasi signature Midtrans, update `payments.status`, aktifkan subscription jika berhasil |
+| `app/api/webhooks/doku/route.ts` | POST | Verifikasi notifikasi Doku, update `payments.status`, aktifkan subscription jika berhasil |
 
 ## Template Email
 
@@ -108,14 +118,15 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `components/ui/input.tsx` | Input |
 | `components/ui/label.tsx` | Label |
 
-## File Yang Belum Dibuat (Phase 3+)
+## CI / Infrastruktur
 
-| File | Phase | Tujuan |
-| --- | --- | --- |
-| `types/database.ts` | Setelah migrasi diaplikasikan | TypeScript types yang di-generate dari Supabase |
-| `lib/payments/doku.ts` | Phase 3 | Client dan helper Doku |
-| `app/api/webhooks/doku/route.ts` | Phase 3 | Handler webhook Doku |
-| `hooks/use-auth.ts` | Phase 3 | Hook client-side state auth |
-| `hooks/use-subscription.ts` | Phase 3 | Hook client-side state subscription |
-| `app/(dashboard)/admin/page.tsx` | Phase 3 | Admin dashboard |
-| `content/blog/` | Phase 3 | Direktori konten blog MDX |
+| File | Tujuan |
+| --- | --- |
+| `.github/workflows/ci.yml` | GitHub Actions: lint + build di push dan PR ke `main` |
+
+## File Yang Belum Dibuat (Ke Depannya)
+
+| File | Tujuan |
+| --- | --- |
+| `types/database.ts` | TypeScript types yang di-generate dari Supabase (jalankan setelah migrasi diaplikasikan) |
+| `content/blog/` | Direktori konten blog MDX |

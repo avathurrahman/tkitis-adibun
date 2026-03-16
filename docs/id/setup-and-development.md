@@ -33,6 +33,11 @@ NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=client-key-midtrans-kamu
 
 RESEND_API_KEY=api-key-resend-kamu
 EMAIL_FROM=KilatKoding <noreply@domainmu.com>
+
+DOKU_CLIENT_ID=client-id-doku-kamu
+DOKU_SECRET_KEY=secret-key-doku-kamu
+
+ADMIN_EMAILS=kamu@example.com,rekan@example.com
 ```
 
 Catatan:
@@ -42,6 +47,8 @@ Catatan:
 - `MIDTRANS_SERVER_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
 - `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` adalah publishable key untuk membuka Snap popup di frontend
 - `EMAIL_FROM` defaultnya `KilatKoding <noreply@kilatkoding.com>` kalau tidak diset; sesuaikan dengan domain pengirim yang sudah diverifikasi di Resend
+- `DOKU_CLIENT_ID` dan `DOKU_SECRET_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
+- `ADMIN_EMAILS` adalah daftar email yang dipisahkan koma yang boleh mengakses `/admin`; kalau kosong, semua user yang sudah login bisa mengaksesnya
 
 ## Setup Supabase Dashboard
 
@@ -119,6 +126,30 @@ Template email ada di `emails/`. Saat ini tersedia dua template:
 - `emails/invoice.tsx` — dikirim setelah pembayaran berhasil
 
 Panggil `sendEmail()` dari `lib/email.ts` untuk mengirim template React Email apapun.
+
+## Setup Doku
+
+1. Buat akun Doku di [doku.com](https://doku.com)
+2. Dari merchant dashboard, ambil **Client ID** dan **Secret Key**
+3. Pakai kredensial **Sandbox** untuk development; **Production** untuk live
+4. App otomatis pilih mode berdasarkan `NODE_ENV`: `production` pakai `api.doku.com`, selainnya pakai `sandbox.doku.com`
+5. Daftarkan URL webhook server kamu di pengaturan merchant Doku:
+
+```
+https://domain-kamu.com/api/webhooks/doku
+```
+
+Handler webhook di `app/api/webhooks/doku/route.ts` memverifikasi tanda tangan check-word Doku sebelum memproses notifikasi.
+
+## Admin Dashboard
+
+Halaman admin di `/admin` menampilkan:
+- Total revenue dari payment yang `PAID`
+- Jumlah subscription aktif
+- Jumlah paket berbayar
+- Tabel 20 payment terbaru
+
+Akses dikontrol oleh `ADMIN_EMAILS`. Kalau env var tidak diset, semua user yang sudah login bisa mengakses `/admin`. Set ke daftar email yang dipisahkan koma untuk membatasi akses.
 
 ## Perintah Umum
 

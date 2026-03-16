@@ -1,7 +1,7 @@
 # KilatKoding Boilerplate — Implementation Plan
 
 > Created: 2026-03-16
-> Status: Phase 1 Complete ✅
+> Status: Phases 1, 2, 3 Complete ✅
 
 ---
 
@@ -67,15 +67,15 @@ EMAIL_FROM=KilatKoding <noreply@kilatkoding.com>
 
 ---
 
-## Phase 3 — Polish
+## Phase 3 — Polish ✅
 
-- [ ] Doku integration
-- [ ] Sumopod / Mailketing email options
-- [ ] MDX blog system
-- [ ] Admin dashboard template (`app/(dashboard)/admin/`)
-- [ ] `hooks/use-auth.ts`
-- [ ] `hooks/use-subscription.ts`
-- [ ] CI workflow (`.github/workflows/ci.yml`)
+- [x] Doku integration (`lib/payments/doku.ts` + `app/api/webhooks/doku/route.ts`)
+- [ ] Sumopod / Mailketing email options (future)
+- [ ] MDX blog system (future)
+- [x] Admin dashboard template (`app/(dashboard)/admin/`)
+- [x] `hooks/use-auth.ts`
+- [x] `hooks/use-subscription.ts`
+- [x] CI workflow (`.github/workflows/ci.yml`)
 
 ---
 

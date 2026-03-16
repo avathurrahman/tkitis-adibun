@@ -16,7 +16,9 @@
 | `lib/payments/` | Payment gateway client and helper functions |
 | `app/api/` | API route handlers (payments, webhooks) |
 | `emails/` | React Email templates |
+| `hooks/` | Client-side React hooks for auth and subscription state |
 | `supabase/migrations/` | SQL migration files for database schema |
+| `.github/workflows/` | GitHub Actions CI workflows |
 | `docs/` | Project documentation (English and Indonesian) |
 | `proxy.ts` | Request-time session refresh and auth gating |
 | `tailwind.config.ts` | Tailwind content scanning, theme extensions, and plugin setup |
@@ -45,6 +47,8 @@
 | `/auth/confirm` | — | Route handler | OTP/OAuth callback — verifies token, redirects on success or failure |
 | `/api/payments` | — | Route handler | Creates Midtrans Snap token, inserts pending payment record |
 | `/api/webhooks/midtrans` | — | Route handler | Verifies Midtrans signature, updates payment and subscription status |
+| `/api/webhooks/doku` | — | Route handler | Verifies Doku notification, updates payment and subscription status |
+| `/admin` | `(dashboard)` | Page | Admin dashboard — payment stats and subscription overview |
 
 ## Route Groups Explained
 
@@ -119,11 +123,19 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 
 Currently installed: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
 
+## Hooks Layer
+
+| File | Purpose |
+| --- | --- |
+| `hooks/use-auth.ts` | Subscribes to `onAuthStateChange`; returns `{ user, loading }` |
+| `hooks/use-subscription.ts` | Fetches subscription row for current user; returns `{ subscription, loading, isPro, isActive }` |
+
 ## Payment Layer
 
 | File | Purpose |
 | --- | --- |
 | `lib/payments/midtrans.ts` | Snap + CoreAPI client init, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
+| `lib/payments/doku.ts` | Doku JOKUL HTTP client, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
 
 ## Email Layer
 
@@ -171,4 +183,3 @@ All tables have Row Level Security enabled with user-scoped read policies.
 - No TypeScript types generated from Supabase schema yet (needs live project with migrations applied)
 - No domain/service layer (queries live directly in page components for now)
 - No tests
-- Doku payment integration not yet implemented (Phase 3)

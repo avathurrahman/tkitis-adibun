@@ -31,6 +31,7 @@ This file is a practical reference for the important source files currently in t
 | `app/(marketing)/page.tsx` | Landing page — `/` |
 | `app/(dashboard)/layout.tsx` | Dashboard layout: `Header` + max-width container |
 | `app/(dashboard)/dashboard/page.tsx` | Authenticated dashboard — `/dashboard` |
+| `app/(dashboard)/admin/page.tsx` | Admin dashboard — `/admin` (gated by `ADMIN_EMAILS`) |
 | `app/auth/login/page.tsx` | Login screen |
 | `app/auth/sign-up/page.tsx` | Sign-up screen |
 | `app/auth/sign-up-success/page.tsx` | Post-registration instructions |
@@ -68,11 +69,19 @@ This file is a practical reference for the important source files currently in t
 | `lib/supabase/proxy.ts` | Session refresh and redirect logic used by `proxy.ts` |
 | `lib/email.ts` | `sendEmail()` — Resend wrapper that renders React Email templates and sends via API |
 
+## Hooks
+
+| File | Purpose |
+| --- | --- |
+| `hooks/use-auth.ts` | Client-side user session state with `onAuthStateChange` listener |
+| `hooks/use-subscription.ts` | Client-side subscription state; exposes `isPro` and `isActive` helpers |
+
 ## Payment Library
 
 | File | Purpose |
 | --- | --- |
 | `lib/payments/midtrans.ts` | Snap + CoreAPI client init, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
+| `lib/payments/doku.ts` | Doku JOKUL client, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
 
 ## API Routes
 
@@ -80,6 +89,7 @@ This file is a practical reference for the important source files currently in t
 | --- | --- | --- |
 | `app/api/payments/route.ts` | POST | Auth-gated — creates Midtrans Snap token, inserts pending `payments` record |
 | `app/api/webhooks/midtrans/route.ts` | POST | Verifies Midtrans signature, updates `payments.status`, activates subscription on success |
+| `app/api/webhooks/doku/route.ts` | POST | Verifies Doku notification, updates `payments.status`, activates subscription on success |
 
 ## Email Templates
 
@@ -108,14 +118,15 @@ This file is a practical reference for the important source files currently in t
 | `components/ui/input.tsx` | Input |
 | `components/ui/label.tsx` | Label |
 
-## Files Pending Creation (Phase 3+)
+## CI / Infrastructure
 
-| File | Phase | Purpose |
-| --- | --- | --- |
-| `types/database.ts` | After migrations applied | Generated Supabase TypeScript types |
-| `lib/payments/doku.ts` | Phase 3 | Doku payment client and helpers |
-| `app/api/webhooks/doku/route.ts` | Phase 3 | Doku webhook handler |
-| `hooks/use-auth.ts` | Phase 3 | Client-side auth state hook |
-| `hooks/use-subscription.ts` | Phase 3 | Client-side subscription state hook |
-| `app/(dashboard)/admin/page.tsx` | Phase 3 | Admin dashboard |
-| `content/blog/` | Phase 3 | MDX blog content directory |
+| File | Purpose |
+| --- | --- |
+| `.github/workflows/ci.yml` | GitHub Actions: lint + build on push and PR to `main` |
+
+## Files Pending Creation (Future)
+
+| File | Purpose |
+| --- | --- |
+| `types/database.ts` | Generated Supabase TypeScript types (run after migrations are applied) |
+| `content/blog/` | MDX blog content directory |

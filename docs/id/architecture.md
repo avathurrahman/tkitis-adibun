@@ -16,7 +16,9 @@
 | `lib/payments/` | Client payment gateway dan helper functions |
 | `app/api/` | API route handler (payment, webhook) |
 | `emails/` | Template React Email |
+| `hooks/` | Hook React client-side untuk state auth dan subscription |
 | `supabase/migrations/` | File migrasi SQL untuk schema database |
+| `.github/workflows/` | Workflow CI GitHub Actions |
 | `docs/` | Dokumentasi project (Bahasa Indonesia dan Inggris) |
 | `proxy.ts` | Refresh session dan gating auth saat request masuk |
 | `tailwind.config.ts` | Konfigurasi Tailwind dan plugin |
@@ -45,6 +47,8 @@
 | `/auth/confirm` | — | Route handler | Callback OTP/OAuth — verifikasi token, redirect setelah berhasil atau gagal |
 | `/api/payments` | — | Route handler | Membuat Snap token Midtrans, menyimpan record payment pending |
 | `/api/webhooks/midtrans` | — | Route handler | Verifikasi signature Midtrans, update status payment dan subscription |
+| `/api/webhooks/doku` | — | Route handler | Verifikasi notifikasi Doku, update status payment dan subscription |
+| `/admin` | `(dashboard)` | Page | Admin dashboard — statistik payment dan ringkasan subscription |
 
 ## Penjelasan Route Groups
 
@@ -119,11 +123,19 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 
 Yang sudah terpasang: `badge`, `button`, `card`, `checkbox`, `dropdown-menu`, `input`, `label`
 
+## Layer Hooks
+
+| File | Tujuan |
+| --- | --- |
+| `hooks/use-auth.ts` | Subscribe ke `onAuthStateChange`; mengembalikan `{ user, loading }` |
+| `hooks/use-subscription.ts` | Mengambil baris subscription untuk user saat ini; mengembalikan `{ subscription, loading, isPro, isActive }` |
+
 ## Layer Payment
 
 | File | Tujuan |
 | --- | --- |
 | `lib/payments/midtrans.ts` | Inisialisasi Snap + CoreAPI client, `createSnapTransaction()`, `verifyMidtransSignature()`, `isMidtransPaymentSuccess()` |
+| `lib/payments/doku.ts` | HTTP client Doku JOKUL, `createDokuPayment()`, `verifyDokuNotification()`, `isDokuPaymentSuccess()` |
 
 ## Layer Email
 
@@ -171,4 +183,3 @@ Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis us
 - TypeScript types dari schema Supabase belum di-generate (butuh project yang sudah terhubung dengan migrasi diaplikasikan)
 - Belum ada domain/service layer (query langsung ada di page component untuk sekarang)
 - Belum ada test
-- Integrasi payment Doku belum diimplementasikan (Phase 3)
