@@ -2,7 +2,7 @@
 
 ## Summary
 
-KilatKoding is a Next.js boilerplate built specifically for Indonesian developers. Phases 1, 2, and 3 are complete. The repository now includes:
+KilatKoding is a Next.js boilerplate built specifically for Indonesian developers. Phases 1–4 are complete. The repository now includes:
 
 - Next.js App Router with route groups `(marketing)`, `(dashboard)`, and `auth`
 - TypeScript
@@ -20,6 +20,14 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Admin dashboard at `/admin` with payment stats and subscription overview
 - GitHub Actions CI workflow (lint + build on push/PR)
 - MDX blog system at `/blog` with frontmatter, reading time, and tag support
+- 43 shadcn/ui components installed (full component library)
+- Landing page with Hero, Features, Testimonials, Pricing, FAQ, and CTA sections
+- Sticky header with desktop nav, mobile Sheet drawer, Avatar + DropdownMenu auth button
+- Dashboard with subscription card, payments table, breadcrumb nav
+- Admin dashboard with recharts revenue chart, sortable payments table, pagination
+- Settings page at `/dashboard/settings` with profile display and password change
+- Billing page at `/dashboard/billing` with plan display and payment flow (Midtrans/Doku)
+- Sonner toast notifications wired globally
 
 ## Current Installed Baseline
 

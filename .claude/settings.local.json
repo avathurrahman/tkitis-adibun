@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npm run:*)",
       "Bash(find /Users/galpratama/Development/galpratama/kilatkoding-src -type f -name *.md)",
-      "Bash(find /Users/galpratama/Development/galpratama/kilatkoding-src -maxdepth 1 -type f \\\\\\(-name *.ts -o -name *.js -o -name next.config.* \\\\\\))"
+      "Bash(find /Users/galpratama/Development/galpratama/kilatkoding-src -maxdepth 1 -type f \\\\\\(-name *.ts -o -name *.js -o -name next.config.* \\\\\\))",
+      "Bash(npx shadcn@latest add accordion navigation-menu carousel --overwrite)",
+      "Bash(npx shadcn@latest add table hover-card breadcrumb scroll-area --overwrite)",
+      "Bash(npx shadcn@latest add chart popover pagination command --overwrite)",
+      "Bash(npx shadcn@latest add alert-dialog aspect-ratio calendar collapsible context-menu drawer resizable slider toggle toggle-group --overwrite)"
     ]
   }
 }

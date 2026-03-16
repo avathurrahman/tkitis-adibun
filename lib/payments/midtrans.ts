@@ -1,26 +1,17 @@
 import MidtransClient from "midtrans-client";
 import crypto from "crypto";
 
-if (!process.env.MIDTRANS_SERVER_KEY) {
-  throw new Error("MIDTRANS_SERVER_KEY is not set");
-}
-if (!process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY) {
-  throw new Error("NEXT_PUBLIC_MIDTRANS_CLIENT_KEY is not set");
-}
-
 const isProduction = process.env.NODE_ENV === "production";
 
-export const snap = new MidtransClient.Snap({
-  isProduction,
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
-});
-
-export const coreApi = new MidtransClient.CoreApi({
-  isProduction,
-  serverKey: process.env.MIDTRANS_SERVER_KEY,
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
-});
+function getSnapClient() {
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  if (!serverKey) throw new Error("MIDTRANS_SERVER_KEY is not set");
+  return new MidtransClient.Snap({
+    isProduction,
+    serverKey,
+    clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+  });
+}
 
 export type MidtransItem = {
   id: string;
@@ -42,6 +33,7 @@ export type CreateTransactionParams = {
 export async function createSnapTransaction(params: CreateTransactionParams) {
   const { orderId, amount, customerName, customerEmail, items, callbackUrl, enabledPayments } = params;
 
+  const snap = getSnapClient();
   const token = await snap.createTransactionToken({
     transaction_details: {
       order_id: orderId,

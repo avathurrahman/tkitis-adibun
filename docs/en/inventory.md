@@ -25,12 +25,14 @@ This file is a practical reference for the important source files currently in t
 
 | File | Purpose |
 | --- | --- |
-| `app/layout.tsx` | Root layout: Geist font, metadata, `lang="id"`, theme provider |
+| `app/layout.tsx` | Root layout: Geist font, metadata, `lang="id"`, ThemeProvider, TooltipProvider, Toaster |
 | `app/globals.css` | Tailwind layers and design tokens |
 | `app/(marketing)/layout.tsx` | Marketing layout: `Header` + `Footer` wrapper |
 | `app/(marketing)/page.tsx` | Landing page — `/` |
 | `app/(dashboard)/layout.tsx` | Dashboard layout: `Header` + max-width container |
 | `app/(dashboard)/dashboard/page.tsx` | Authenticated dashboard — `/dashboard` |
+| `app/(dashboard)/dashboard/settings/page.tsx` | Settings — `/dashboard/settings` (profile + password change) |
+| `app/(dashboard)/dashboard/billing/page.tsx` | Billing — `/dashboard/billing` (plan + payment flow) |
 | `app/(dashboard)/admin/page.tsx` | Admin dashboard — `/admin` (gated by `ADMIN_EMAILS`) |
 | `app/auth/login/page.tsx` | Login screen |
 | `app/auth/sign-up/page.tsx` | Sign-up screen |
@@ -106,17 +108,29 @@ This file is a practical reference for the important source files currently in t
 | `supabase/migrations/20260316000002_create_subscriptions.sql` | `subscriptions` table + auto-create FREE trigger on signup |
 | `supabase/migrations/20260316000003_create_payments.sql` | `payments` table + enums (plan, payment_status, payment_provider) |
 
-## Installed shadcn/ui Primitives
+## Installed shadcn/ui Primitives (43 total)
+
+accordion, alert, alert-dialog, aspect-ratio, avatar, badge, breadcrumb, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, dialog, drawer, dropdown-menu, form, hover-card, input, label, navigation-menu, pagination, popover, progress, radio-group, resizable, scroll-area, select, separator, sheet, skeleton, slider, sonner, switch, table, tabs, textarea, toggle, toggle-group, tooltip
+
+## Landing Page Sections
 
 | File | Purpose |
 | --- | --- |
-| `components/ui/badge.tsx` | Badge |
-| `components/ui/button.tsx` | Button |
-| `components/ui/card.tsx` | Card |
-| `components/ui/checkbox.tsx` | Checkbox |
-| `components/ui/dropdown-menu.tsx` | Dropdown menu |
-| `components/ui/input.tsx` | Input |
-| `components/ui/label.tsx` | Label |
+| `components/sections/hero.tsx` | Hero — headline, badge, CTA |
+| `components/sections/features.tsx` | Features grid — 6 cards with icons |
+| `components/sections/pricing.tsx` | Pricing — FREE/PRO cards with monthly/annual toggle |
+| `components/sections/testimonials.tsx` | Testimonials — Avatar + Carousel |
+| `components/sections/faq.tsx` | FAQ — Accordion |
+| `components/sections/cta.tsx` | CTA banner |
+
+## Dashboard Components
+
+| File | Purpose |
+| --- | --- |
+| `components/dashboard/subscription-card.tsx` | Subscription status with Badge, Progress, Skeleton |
+| `components/dashboard/payments-table.tsx` | Recent payments — Table + Badge, client-side Supabase query |
+| `components/dashboard/admin-revenue-chart.tsx` | Revenue bar chart (recharts, client component) |
+| `components/dashboard/payment-button.tsx` | Upgrade button — calls /api/payments, handles Midtrans Snap + Doku redirect |
 
 ## CI / Infrastructure
 
