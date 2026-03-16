@@ -49,10 +49,13 @@ export type CreateDokuPaymentParams = {
   backUrl?: string;
   items?: DokuBasketItem[];
   expiryMinutes?: number;
+  paymentMethodTypes?: string[];
 };
 
 export type DokuPaymentResult = {
-  payment_url: string;
+  payment: {
+    url: string;
+  };
   order: {
     invoice_number: string;
     amount: number;
@@ -91,6 +94,9 @@ export async function createDokuPayment(
     },
     payment: {
       payment_due_date: params.expiryMinutes ?? 60,
+      ...(params.paymentMethodTypes && {
+        payment_method_types: params.paymentMethodTypes,
+      }),
     },
     customer: {
       name: params.customerName,
