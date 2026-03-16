@@ -1,0 +1,60 @@
+---
+title: "Memulai dengan KilatKoding"
+description: "Panduan cepat untuk setup boilerplate KilatKoding dan mulai membangun SaaS kamu."
+date: "2026-03-16"
+slug: "memulai-dengan-kilatkoding"
+author: "Tim KilatKoding"
+tags: ["tutorial", "setup", "nextjs"]
+published: true
+---
+
+## Apa itu KilatKoding?
+
+KilatKoding adalah boilerplate Next.js yang dirancang khusus untuk developer Indonesia yang ingin membangun produk SaaS dengan cepat. Sudah terintegrasi dengan:
+
+- **Supabase** — auth, database, dan storage
+- **Midtrans** dan **Doku** — payment gateway lokal
+- **Resend** — email transaksional
+
+## Setup Awal
+
+Clone repository dan install dependency:
+
+```bash
+git clone https://github.com/your-org/kilatkoding-src.git
+cd kilatkoding-src
+npm install
+```
+
+Salin file environment:
+
+```bash
+cp .env.example .env.local
+```
+
+Isi semua value yang diperlukan di `.env.local`, lalu jalankan dev server:
+
+```bash
+npm run dev
+```
+
+Buka [http://localhost:3000](http://localhost:3000).
+
+## Struktur Route
+
+| Route | Deskripsi |
+| --- | --- |
+| `/` | Landing page |
+| `/auth/login` | Halaman login |
+| `/auth/sign-up` | Halaman registrasi |
+| `/dashboard` | Dashboard (perlu auth) |
+| `/admin` | Admin panel (butuh `ADMIN_EMAILS`) |
+| `/blog` | Daftar artikel blog |
+
+## Langkah Selanjutnya
+
+1. Aktifkan Google OAuth di Supabase dashboard
+2. Tambahkan Midtrans key ke environment
+3. Terapkan migrasi database dengan `supabase db push`
+
+Selamat membangun!

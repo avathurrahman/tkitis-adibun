@@ -19,6 +19,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Client-side auth and subscription hooks (`use-auth`, `use-subscription`)
 - Admin dashboard at `/admin` with payment stats and subscription overview
 - GitHub Actions CI workflow (lint + build on push/PR)
+- MDX blog system at `/blog` with frontmatter, reading time, and tag support
 
 ## Current Installed Baseline
 
@@ -37,6 +38,9 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 | `midtrans-client` | `1.4.3` |
 | `resend` | `6.9.3` |
 | `@react-email/components` | `1.0.9` |
+| `next-mdx-remote` | `5.x` |
+| `gray-matter` | `4.x` |
+| `@tailwindcss/typography` | `0.5.x` |
 
 ## What Works Today
 
@@ -57,6 +61,10 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - `useAuth()` in `hooks/use-auth.ts` — client-side user session state with `onAuthStateChange`
 - `useSubscription()` in `hooks/use-subscription.ts` — client-side subscription state with `isPro` / `isActive` helpers
 - Admin dashboard at `/admin` — payment stats, subscription counts, recent payments table (gated by `ADMIN_EMAILS`)
+- Blog listing at `/blog` — lists all published MDX posts with date, reading time, and tags
+- Blog post detail at `/blog/[slug]` — renders MDX content with Tailwind Typography prose styles
+- `getAllPosts()` and `getPostBySlug()` in `lib/mdx.ts` — file-system MDX helpers
+- Two sample posts in `content/blog/` (in Bahasa Indonesia)
 
 ## Database Migrations Ready To Apply
 
@@ -73,7 +81,6 @@ All three tables include Row Level Security policies. They have not been applied
 ## What Is Still Missing
 
 - Apply migrations to Supabase and generate TypeScript types
-- MDX blog system (future)
 - Automated tests
 - Sumopod / Mailketing email provider options (future)
 

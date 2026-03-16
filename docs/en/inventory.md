@@ -124,9 +124,18 @@ This file is a practical reference for the important source files currently in t
 | --- | --- |
 | `.github/workflows/ci.yml` | GitHub Actions: lint + build on push and PR to `main` |
 
+## Blog
+
+| File | Purpose |
+| --- | --- |
+| `lib/mdx.ts` | `getAllPosts()` and `getPostBySlug()` — file-system MDX helpers with frontmatter and reading time |
+| `app/(marketing)/blog/page.tsx` | Blog listing — `/blog` |
+| `app/(marketing)/blog/[slug]/page.tsx` | Blog post detail — `/blog/[slug]` |
+| `content/blog/memulai-dengan-kilatkoding.mdx` | Sample post: getting started guide |
+| `content/blog/integrasi-midtrans-nextjs.mdx` | Sample post: Midtrans integration tutorial |
+
 ## Files Pending Creation (Future)
 
 | File | Purpose |
 | --- | --- |
 | `types/database.ts` | Generated Supabase TypeScript types (run after migrations are applied) |
-| `content/blog/` | MDX blog content directory |
