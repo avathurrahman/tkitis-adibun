@@ -1,0 +1,94 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+const testimonials = [
+  {
+    name: "Andi Saputra",
+    role: "Founder, TokoDigital.id",
+    initials: "AS",
+    quote:
+      "KilatKoding menghemat waktu saya berminggu-minggu. Integrasi Midtrans-nya sudah production-ready, tinggal isi API key dan langsung jalan.",
+  },
+  {
+    name: "Rina Kusuma",
+    role: "Full-stack Developer",
+    initials: "RK",
+    quote:
+      "Auth dengan Google OAuth dan Magic Link beres dalam 5 menit. Struktur kodenya bersih, mudah di-extend sesuai kebutuhan produk.",
+  },
+  {
+    name: "Budi Hartono",
+    role: "CTO, StartupLokal",
+    initials: "BH",
+    quote:
+      "Email invoice dalam Bahasa Indonesia dengan format Rupiah — detail kecil yang terasa besar buat user lokal kami.",
+  },
+  {
+    name: "Dewi Lestari",
+    role: "Indie Hacker",
+    initials: "DL",
+    quote:
+      "Dari nol ke MVP dalam 2 hari. Blog MDX-nya sangat berguna untuk konten marketing. Supabase + Next.js App Router terasa seamless.",
+  },
+];
+
+export function TestimonialsSection() {
+  return (
+    <section id="testimonials" className="py-20 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Dipercaya Developer Indonesia
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">
+            Dari indie hacker sampai startup, KilatKoding mempercepat
+            development mereka.
+          </p>
+        </div>
+        <Carousel
+          opts={{ align: "start", loop: true }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-4">
+            {testimonials.map((t) => (
+              <CarouselItem
+                key={t.name}
+                className="pl-4 md:basis-1/2"
+              >
+                <Card className="h-full border-border/50">
+                  <CardContent className="pt-6 flex flex-col gap-4 h-full">
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {t.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{t.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t.role}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:flex" />
+          <CarouselNext className="hidden sm:flex" />
+        </Carousel>
+      </div>
+    </section>
+  );
+}

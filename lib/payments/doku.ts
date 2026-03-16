@@ -1,17 +1,19 @@
 import crypto from "crypto";
 
-if (!process.env.DOKU_CLIENT_ID) {
-  throw new Error("DOKU_CLIENT_ID is not set");
-}
-if (!process.env.DOKU_SECRET_KEY) {
-  throw new Error("DOKU_SECRET_KEY is not set");
-}
-
 const isProduction = process.env.NODE_ENV === "production";
 const BASE_URL = isProduction ? "https://api.doku.com" : "https://sandbox.doku.com";
 
-const CLIENT_ID = process.env.DOKU_CLIENT_ID!;
-const SECRET_KEY = process.env.DOKU_SECRET_KEY!;
+function getClientId(): string {
+  const id = process.env.DOKU_CLIENT_ID;
+  if (!id) throw new Error("DOKU_CLIENT_ID is not set");
+  return id;
+}
+
+function getSecretKey(): string {
+  const key = process.env.DOKU_SECRET_KEY;
+  if (!key) throw new Error("DOKU_SECRET_KEY is not set");
+  return key;
+}
 
 function hashBody(body: object): string {
   return crypto.createHash("sha256").update(JSON.stringify(body)).digest("base64");
@@ -24,14 +26,14 @@ function buildSignature(
   bodyHash: string
 ): string {
   const components = [
-    `Client-Id:${CLIENT_ID}`,
+    `Client-Id:${getClientId()}`,
     `Request-Id:${requestId}`,
     `Request-Timestamp:${timestamp}`,
     `Request-Target:${target}`,
     `Digest:SHA-256=${bodyHash}`,
   ].join("\n");
 
-  return crypto.createHmac("sha256", SECRET_KEY).update(components).digest("base64");
+  return crypto.createHmac("sha256", getSecretKey()).update(components).digest("base64");
 }
 
 export type DokuBasketItem = {
@@ -83,6 +85,7 @@ export async function createDokuPayment(
   const requestId = params.orderId;
   const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 
+  const CLIENT_ID = getClientId();
   const body = {
     client: { id: CLIENT_ID },
     order: {
@@ -140,7 +143,7 @@ export function verifyDokuNotification(
   mallId: string
 ): boolean {
   const { order, transaction, security } = notification;
-  const checkString = `${mallId}${order.invoice_number}${order.amount}${transaction.status}${SECRET_KEY}`;
+  const checkString = `${mallId}${order.invoice_number}${order.amount}${transaction.status}${getSecretKey()}`;
   const expected = crypto.createHash("sha1").update(checkString).digest("hex").toUpperCase();
   return expected === security.check_word;
 }

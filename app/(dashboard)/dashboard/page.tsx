@@ -1,8 +1,19 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
 import { hasEnvVars } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
-import { Suspense } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { SubscriptionCard } from "@/components/dashboard/subscription-card";
+import { PaymentsTable } from "@/components/dashboard/payments-table";
 
 async function DashboardContent() {
   if (!hasEnvVars) {
@@ -16,19 +27,45 @@ async function DashboardContent() {
     redirect("/auth/login");
   }
 
+  const email = data.claims.email as string;
+  const initials = email.slice(0, 2).toUpperCase();
+
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="text-muted-foreground">
-        Selamat datang, {data.claims.email}
-      </p>
+    <div className="flex flex-col gap-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="flex items-center gap-4">
+        <Avatar className="h-11 w-11">
+          <AvatarFallback className="bg-primary/10 text-primary font-medium">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <h1 className="text-xl font-bold">Selamat datang kembali</h1>
+          <p className="text-sm text-muted-foreground">{email}</p>
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <SubscriptionCard />
+      </div>
+
+      <PaymentsTable />
     </div>
   );
 }
 
 export default function DashboardPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
       <DashboardContent />
     </Suspense>
   );

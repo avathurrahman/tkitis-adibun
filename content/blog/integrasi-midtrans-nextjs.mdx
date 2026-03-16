@@ -1,0 +1,69 @@
+---
+title: "Integrasi Midtrans dengan Next.js"
+description: "Cara mengintegrasikan Midtrans Snap ke aplikasi Next.js menggunakan API route dan webhook handler."
+date: "2026-03-10"
+slug: "integrasi-midtrans-nextjs"
+author: "Tim KilatKoding"
+tags: ["midtrans", "payment", "nextjs", "tutorial"]
+published: true
+---
+
+## Mengapa Midtrans?
+
+Midtrans adalah payment gateway yang paling banyak digunakan di Indonesia. Mendukung transfer bank, e-wallet (GoPay, OVO, Dana), kartu kredit, dan QRIS dalam satu integrasi.
+
+## Alur Kerja Snap
+
+```
+User klik bayar
+     ↓
+POST /api/payments  →  Buat Snap token  →  Simpan pending payment
+     ↓
+Snap popup terbuka di browser
+     ↓
+User bayar
+     ↓
+Midtrans kirim notifikasi ke webhook
+     ↓
+POST /api/webhooks/midtrans  →  Verifikasi  →  Update status
+```
+
+## Membuat Snap Token
+
+Di `app/api/payments/route.ts`, endpoint POST menerima `userId`, `plan`, dan `amount`, lalu memanggil Midtrans:
+
+```typescript
+const snapToken = await createSnapTransaction({
+  orderId: `order-${Date.now()}`,
+  amount: 199000,
+  customerName: profile.name,
+  customerEmail: user.email,
+});
+```
+
+## Memproses Webhook
+
+Midtrans mengirim notifikasi ke endpoint yang kamu daftarkan. Verifikasi signature sebelum update status:
+
+```typescript
+const isValid = verifyMidtransSignature(
+  notification.order_id,
+  notification.status_code,
+  notification.gross_amount,
+  notification.signature_key
+);
+```
+
+## Mode Sandbox vs Produksi
+
+KilatKoding otomatis menggunakan sandbox saat `NODE_ENV !== "production"`. Tidak perlu ganti kode — cukup set environment variable yang sesuai.
+
+```env
+# Sandbox
+MIDTRANS_SERVER_KEY=SB-Mid-server-xxxx
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-xxxx
+
+# Production
+MIDTRANS_SERVER_KEY=Mid-server-xxxx
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=Mid-client-xxxx
+```

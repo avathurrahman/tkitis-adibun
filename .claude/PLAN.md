@@ -1,7 +1,7 @@
 # KilatKoding Boilerplate — Implementation Plan
 
 > Created: 2026-03-16
-> Status: Phases 1, 2, 3 Complete ✅
+> Status: Phases 1, 2, 3, MDX Blog Complete ✅
 
 ---
 
@@ -71,11 +71,73 @@ EMAIL_FROM=KilatKoding <noreply@kilatkoding.com>
 
 - [x] Doku integration (`lib/payments/doku.ts` + `app/api/webhooks/doku/route.ts`)
 - [ ] Sumopod / Mailketing email options (future)
-- [ ] MDX blog system (future)
+- [x] MDX blog system (`lib/mdx.ts`, `app/(marketing)/blog/`, `content/blog/`)
 - [x] Admin dashboard template (`app/(dashboard)/admin/`)
 - [x] `hooks/use-auth.ts`
 - [x] `hooks/use-subscription.ts`
 - [x] CI workflow (`.github/workflows/ci.yml`)
+
+---
+
+---
+
+## Phase 4 — UI Component Library (50+ Components) ✅
+
+> Completed: 2026-03-16
+> Final count: 43 shadcn components installed + page-level composites (landing sections, dashboard widgets, admin charts)
+
+### 4a. Core Shared Components ✅
+
+- [x] `separator`, `avatar`, `skeleton`, `alert`, `dialog`, `sheet`, `tooltip`, `sonner`
+- [x] `select`, `textarea`, `form`, `switch`, `radio-group`, `tabs`, `progress`
+- [x] `TooltipProvider` added to `app/layout.tsx`
+
+### 4b. Landing Page (`/`) ✅
+
+- [x] `accordion`, `navigation-menu`, `carousel` installed
+- [x] `components/sections/hero.tsx` — badge + headline + CTA
+- [x] `components/sections/features.tsx` — 6-feature grid with icons
+- [x] `components/sections/pricing.tsx` — FREE/PRO cards with monthly/annual Switch toggle
+- [x] `components/sections/testimonials.tsx` — Avatar + Carousel
+- [x] `components/sections/faq.tsx` — Accordion
+- [x] `components/sections/cta.tsx` — CTA banner
+
+### 4c. Dashboard (`/dashboard`) ✅
+
+- [x] `table`, `hover-card`, `breadcrumb`, `scroll-area` installed
+- [x] `components/dashboard/subscription-card.tsx` — Badge + Progress + Skeleton
+- [x] `components/dashboard/payments-table.tsx` — Table + Badge + Skeleton, client-side Supabase query
+
+### 4d. Admin Dashboard (`/admin`) ✅
+
+- [x] `chart`, `popover`, `pagination`, `command` installed
+- [x] `components/dashboard/admin-revenue-chart.tsx` — recharts BarChart (client component)
+- [x] Admin page upgraded: Table + Badge + Pagination + Breadcrumb + 4 stat cards
+- [x] Fixed pre-existing bugs: `doku.ts` and `midtrans.ts` module-level throws → request-time guards
+- [x] Added `types/midtrans-client.d.ts` type declaration
+
+### 4e. Blog Enhancements (`/blog`) ✅
+
+- [x] Blog listing: Card + Badge for post cards
+- [x] Blog detail: Avatar for author, Badge for tags, Separator
+
+### 4f. Remaining shadcn Components ✅
+
+- [x] `alert-dialog`, `aspect-ratio`, `calendar`, `collapsible`, `context-menu`
+- [x] `drawer`, `resizable`, `slider`, `toggle`, `toggle-group`
+- [x] Fixed Tailwind v4 incompatibilities: `toggle-group.tsx` and `calendar.tsx`
+
+**Final total: 43 shadcn components installed · Build passes ✓**
+
+---
+
+### Phase 4 Execution Order
+
+```
+4a (core) → 4b (landing) → 4c (dashboard) → 4d (admin) → 4e (blog) → 4f (remainder)
+```
+
+Each phase is independently shippable. Phase 4a must complete before any other.
 
 ---
 
@@ -84,3 +146,5 @@ EMAIL_FROM=KilatKoding <noreply@kilatkoding.com>
 - Skip `src/` folder migration — not necessary, adds churn without benefit
 - Keep `app/auth/` routes as-is (URL prefix `/auth/` must stay — Supabase callback references it)
 - Route groups `(marketing)` and `(dashboard)` don't affect URLs
+- Phase 4 installs via `npx shadcn@latest add <component>` — no manual file creation needed for primitives
+- Custom page sections live in `components/sections/` (marketing) and `components/dashboard/` (app)

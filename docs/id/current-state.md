@@ -19,6 +19,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Hook client-side auth dan subscription (`use-auth`, `use-subscription`)
 - Admin dashboard di `/admin` dengan statistik payment dan ringkasan subscription
 - Workflow CI GitHub Actions (lint + build di push/PR)
+- Sistem blog MDX di `/blog` dengan dukungan frontmatter, estimasi waktu baca, dan tag
 
 ## Baseline Paket Yang Terpasang
 
@@ -37,6 +38,9 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 | `midtrans-client` | `1.4.3` |
 | `resend` | `6.9.3` |
 | `@react-email/components` | `1.0.9` |
+| `next-mdx-remote` | `5.x` |
+| `gray-matter` | `4.x` |
+| `@tailwindcss/typography` | `0.5.x` |
 
 ## Yang Sudah Berfungsi Saat Ini
 
@@ -57,6 +61,10 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - `useAuth()` di `hooks/use-auth.ts` — state session user di client-side dengan `onAuthStateChange`
 - `useSubscription()` di `hooks/use-subscription.ts` — state subscription di client-side dengan helper `isPro` / `isActive`
 - Admin dashboard di `/admin` — statistik payment, jumlah subscription, tabel payment terbaru (dibatasi oleh `ADMIN_EMAILS`)
+- Daftar blog di `/blog` — menampilkan semua post MDX yang dipublikasikan dengan tanggal, estimasi baca, dan tag
+- Detail post blog di `/blog/[slug]` — merender konten MDX dengan prose style Tailwind Typography
+- `getAllPosts()` dan `getPostBySlug()` di `lib/mdx.ts` — helper MDX berbasis file system
+- Dua post contoh di `content/blog/` (dalam Bahasa Indonesia)
 
 ## Migrasi Database Siap Diaplikasikan
 
@@ -73,7 +81,6 @@ Ketiga tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supaba
 ## Yang Masih Belum Ada
 
 - Aplikasikan migrasi ke Supabase dan generate TypeScript types
-- Sistem blog MDX (ke depannya)
 - Automated test
 - Opsi email provider Sumopod / Mailketing (ke depannya)
 
