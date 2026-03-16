@@ -1,11 +1,13 @@
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Kebijakan Privasi — KilatKoding",
-  description: "Kebijakan privasi KilatKoding — bagaimana kami mengumpulkan, menggunakan, dan melindungi data kamu.",
-};
+  description:
+    "Kebijakan privasi KilatKoding — bagaimana kami mengumpulkan, menggunakan, dan melindungi data kamu.",
+  path: "/privacy",
+});
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

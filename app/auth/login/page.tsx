@@ -1,4 +1,12 @@
 import { LoginForm } from "@/components/login-form";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Login — KilatKoding",
+  description: "Masuk ke akun KilatKoding kamu.",
+  path: "/auth/login",
+  noIndex: true,
+});
 
 export default function Page() {
   return (

@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Use Cases — KilatKoding",
-  description: "KilatKoding cocok untuk SaaS, marketplace, agency, dan startup. Lihat use case dan contoh nyatanya.",
-};
+  description:
+    "KilatKoding cocok untuk SaaS, marketplace, agency, dan startup. Lihat use case dan contoh nyatanya.",
+  path: "/use-cases",
+});
 
 const useCases = [
   {
@@ -37,7 +39,7 @@ const useCases = [
       "Bangun marketplace dengan sistem pembayaran dan manajemen user yang solid. Infrastructure untuk escrow, split payment, dan vendor management sudah bisa dikembangkan dari boilerplate ini.",
     example: "platform freelance, digital marketplace, B2B procurement",
     features: [
-      "Multi-role auth (buyer, seller, admin)",
+      "Auth bisa di-extend untuk buyer, seller, dan admin",
       "Payment gateway lokal (Midtrans + Doku)",
       "Webhook untuk konfirmasi pembayaran",
       "Admin monitoring semua transaksi",

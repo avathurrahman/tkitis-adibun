@@ -5,11 +5,16 @@ import {
   isDokuPaymentSuccess,
   type DokuNotification,
 } from "@/lib/payments/doku";
+import { dokuNotificationSchema } from "@/lib/validations";
 
 const MALL_ID = process.env.DOKU_CLIENT_ID ?? "";
 
 export async function POST(request: NextRequest) {
-  const body = (await request.json()) as DokuNotification;
+  const parsed = dokuNotificationSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+  const body = parsed.data as DokuNotification;
 
   if (!verifyDokuNotification(body, MALL_ID)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });

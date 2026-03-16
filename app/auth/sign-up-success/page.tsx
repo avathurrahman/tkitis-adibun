@@ -5,6 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Pendaftaran Berhasil — KilatKoding",
+  description: "Pendaftaran berhasil. Lanjutkan dengan verifikasi email kamu.",
+  path: "/auth/sign-up-success",
+  noIndex: true,
+});
 
 export default function Page() {
   return (

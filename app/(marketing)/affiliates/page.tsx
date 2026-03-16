@@ -5,12 +5,14 @@ import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, DollarSign, Link2, BarChart2 } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Program Afiliasi — KilatKoding",
-  description: "Bergabung jadi afiliasi KilatKoding dan dapatkan komisi 30% untuk setiap referral.",
-};
+  description:
+    "Bergabung jadi afiliasi KilatKoding dan dapatkan komisi 30% untuk setiap referral.",
+  path: "/affiliates",
+});
 
 const steps = [
   {

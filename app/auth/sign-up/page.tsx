@@ -1,4 +1,12 @@
 import { SignUpForm } from "@/components/sign-up-form";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Daftar — KilatKoding",
+  description: "Buat akun KilatKoding untuk mulai mencoba boilerplate.",
+  path: "/auth/sign-up",
+  noIndex: true,
+});
 
 export default function Page() {
   return (

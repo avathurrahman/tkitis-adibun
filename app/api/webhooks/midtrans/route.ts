@@ -5,9 +5,14 @@ import {
   isMidtransPaymentSuccess,
   type MidtransNotification,
 } from "@/lib/payments/midtrans";
+import { midtransNotificationSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
-  const body = (await request.json()) as MidtransNotification;
+  const parsed = midtransNotificationSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+  const body = parsed.data as MidtransNotification;
 
   const { order_id, status_code, gross_amount, signature_key } = body;
 
@@ -23,7 +28,7 @@ export async function POST(request: NextRequest) {
     .from("payments")
     .update({
       status: paymentStatus,
-      payment_type: body.payment_type,
+      payment_type: body.payment_type ?? null,
       paid_at: paymentStatus === "PAID" ? new Date().toISOString() : null,
       metadata: body,
       updated_at: new Date().toISOString(),

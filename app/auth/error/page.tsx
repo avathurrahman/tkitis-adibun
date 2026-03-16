@@ -1,5 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Auth Error — KilatKoding",
+  description: "Terjadi kendala saat proses autentikasi KilatKoding.",
+  path: "/auth/error",
+  noIndex: true,
+});
 
 async function ErrorContent({
   searchParams,

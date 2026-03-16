@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { siteConfig } from "@/config/site";
+import { createMetadata } from "@/lib/seo";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "KilatKoding",
-  description:
-    "Boilerplate Next.js untuk developer Indonesia. Midtrans, Supabase, Resend — siap pakai.",
+  metadataBase: new URL(siteConfig.url),
+  ...createMetadata({
+    title: siteConfig.name,
+    description: siteConfig.description,
+    path: "/",
+  }),
 };
 
 const geistSans = Geist({

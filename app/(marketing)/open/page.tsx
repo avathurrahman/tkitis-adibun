@@ -3,12 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { TrendingUp, Users, CreditCard, Star } from "lucide-react";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Open Startup — KilatKoding",
-  description: "KilatKoding adalah open startup. Kami berbagi metrik bisnis secara transparan: MRR, pengguna, pendapatan.",
-};
+  description:
+    "KilatKoding adalah open startup. Kami berbagi metrik bisnis secara transparan: MRR, pengguna, pendapatan.",
+  path: "/open",
+});
 
 const stats = [
   {
@@ -54,7 +56,7 @@ const milestones = [
   { date: "Nov 2025", text: "Launch v0.1 — first paying customer 🎉", done: true },
   { date: "Des 2025", text: "Rp 1.000.000 MRR milestone", done: true },
   { date: "Jan 2026", text: "100 registered users", done: true },
-  { date: "Feb 2026", text: "Launch v0.4 dengan 43 shadcn components", done: true },
+  { date: "Feb 2026", text: "Launch v0.4 dengan 44 shadcn components", done: true },
   { date: "Mar 2026", text: "Launch v0.5 — marketing funnel pages", done: true },
   { date: "Apr 2026", text: "Rp 5.000.000 MRR target", done: false },
   { date: "Jun 2026", text: "500 registered users", done: false },

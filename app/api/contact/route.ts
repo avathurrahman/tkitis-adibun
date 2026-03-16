@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { contactRequestSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
   const resendKey = process.env.RESEND_API_KEY;
@@ -10,12 +11,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email service not configured." }, { status: 503 });
   }
 
-  const body = await req.json();
-  const { name, email, message } = body as { name: string; email: string; message: string };
-
-  if (!name || !email || !message) {
+  const parsed = contactRequestSchema.safeParse(await req.json());
+  if (!parsed.success) {
     return NextResponse.json({ error: "Semua field wajib diisi." }, { status: 400 });
   }
+  const { name, email, message } = parsed.data;
 
   const resend = new Resend(resendKey);
 

@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { waitlistRequestSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { email, name } = body as { email: string; name?: string };
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const parsed = waitlistRequestSchema.safeParse(await req.json());
+  if (!parsed.success) {
     return NextResponse.json({ error: "Email tidak valid." }, { status: 400 });
   }
+  const { email, name } = parsed.data;
 
   const supabase = await createClient();
 
-  const { error } = await supabase.from("waitlist").insert({ email, name: name || null });
+  const normalizedName = name && name.length > 0 ? name : null;
+  const { error } = await supabase.from("waitlist").insert({ email, name: normalizedName });
 
   if (error) {
     if (error.code === "23505") {

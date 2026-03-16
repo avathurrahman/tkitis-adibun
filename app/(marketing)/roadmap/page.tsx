@@ -1,12 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TemplateBanner } from "@/components/ui/template-banner";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Roadmap — KilatKoding",
-  description: "Rencana pengembangan KilatKoding ke depan. Lihat fitur yang sedang dibangun dan yang akan datang.",
-};
+  description:
+    "Rencana pengembangan KilatKoding ke depan. Lihat fitur yang sedang dibangun dan yang akan datang.",
+  path: "/roadmap",
+});
 
 type RoadmapStatus = "shipped" | "in-progress" | "planned";
 
@@ -25,7 +27,7 @@ const items: RoadmapItem[] = [
   { title: "Resend + React Email", description: "Email transaksional dengan template Bahasa Indonesia", status: "shipped" },
   { title: "Admin dashboard", description: "Revenue chart, user stats, payment overview", status: "shipped" },
   { title: "MDX Blog system", description: "Blog dengan frontmatter, reading time, tags", status: "shipped" },
-  { title: "50+ UI Components", description: "shadcn/ui lengkap dengan dark mode", status: "shipped" },
+  { title: "44 UI Components", description: "shadcn/ui lengkap dengan dark mode", status: "shipped" },
   { title: "Marketing funnel pages", description: "Landing page 10 seksi + waitlist, compare, roadmap, status", status: "shipped" },
 
   // In Progress

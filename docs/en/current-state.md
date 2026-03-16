@@ -21,7 +21,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Admin dashboard at `/admin` with payment stats and subscription overview
 - GitHub Actions CI workflow (lint + build on push/PR)
 - MDX blog system at `/blog` with frontmatter, reading time, and tag support
-- 43 shadcn/ui components installed (full component library)
+- 44 shadcn/ui components installed (full component library)
 - Landing page with Hero, Features, Testimonials, Pricing, FAQ, and CTA sections
 - Sticky header with desktop nav, mobile Sheet drawer, Avatar + DropdownMenu auth button
 - Dashboard with subscription card, payments table, breadcrumb nav
@@ -29,6 +29,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Settings page at `/dashboard/settings` with profile display and password change
 - Billing page at `/dashboard/billing` with plan display and payment flow (Midtrans/Doku)
 - Sonner toast notifications wired globally
+- SEO foundations: per-page metadata, canonical URLs, Open Graph/Twitter cards, JSON-LD, sitemap, and robots
 - Automated tests via Vitest + Testing Library covering API routes, payment providers/webhooks, AI guards, MDX helpers, auth/client hooks, and key forms
 
 ## Current Installed Baseline
@@ -66,9 +67,8 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - Session refresh and auth gating run through `proxy.ts`
 - shadcn/ui base components under `components/ui`
 - `config/site.ts` and `config/navigation.ts` for centralized site metadata
-- `POST /api/payments` — creates a Midtrans Snap transaction, inserts a pending payment record
+- `POST /api/payments` — creates a payment session (Midtrans Snap token or Doku checkout URL), inserts a pending payment record
 - `POST /api/webhooks/midtrans` — verifies signature, updates payment + subscription status
-- `POST /api/payments/doku` (via `lib/payments/doku.ts`) — creates Doku JOKUL payment URL
 - `POST /api/webhooks/doku` — verifies Doku notification, updates payment + subscription status
 - `sendEmail()` in `lib/email.ts` — sends React Email templates via Resend
 - `emails/welcome.tsx` and `emails/invoice.tsx` — ready-to-use email templates in Bahasa Indonesia
@@ -103,8 +103,11 @@ All tables include Row Level Security policies. They have not been applied to a 
 
 ## What Is Still Missing
 
-- Apply migrations to Supabase and generate TypeScript types
-- Sumopod / Mailketing email provider options (future)
+- Apply migrations to a live Supabase project and generate `types/database.ts`
+- Sumopod / Mailketing email provider options
+- Self-serve subscription management UI (downgrade / cancel flows)
+- Team / multi-tenant, API keys management, notifications, referrals, WhatsApp OTP, and mobile starter features from the public roadmap
+- Rate limiting and file uploads
 
 ## Next Immediate Steps
 

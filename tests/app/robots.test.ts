@@ -6,7 +6,7 @@ describe("app/robots", () => {
       rules: [
         {
           allow: "/",
-          disallow: ["/api/", "/admin/"],
+          disallow: ["/api/", "/admin/", "/auth/", "/dashboard/", "/order/"],
           userAgent: "*",
         },
       ],

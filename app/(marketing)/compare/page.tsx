@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/table";
 import { Check, X, Minus } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Perbandingan — KilatKoding",
-  description: "Bandingkan KilatKoding dengan setup manual, laravel boilerplate, dan alternatif lainnya.",
-};
+  description:
+    "Bandingkan KilatKoding dengan setup manual, laravel boilerplate, dan alternatif lainnya.",
+  path: "/compare",
+});
 
 type CellValue = true | false | null | string;
 
@@ -53,7 +55,7 @@ const features: { category: string; rows: { label: string; kilatkoding: CellValu
   {
     category: "UI & Frontend",
     rows: [
-      { label: "50+ UI Components", kilatkoding: true, manual: false, laravelBoilerplate: "Bootstrap" },
+      { label: "44 UI Components", kilatkoding: true, manual: false, laravelBoilerplate: "Bootstrap" },
       { label: "Dark mode bawaan", kilatkoding: true, manual: "Manual", laravelBoilerplate: false },
       { label: "Responsive landing page", kilatkoding: true, manual: "Manual", laravelBoilerplate: false },
       { label: "Admin dashboard", kilatkoding: true, manual: false, laravelBoilerplate: "Terbatas" },

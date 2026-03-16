@@ -29,6 +29,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { AdminRevenueChart } from "@/components/dashboard/admin-revenue-chart";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Admin — KilatKoding",
+  description: "Dashboard admin untuk memantau revenue dan subscription KilatKoding.",
+  path: "/admin",
+  noIndex: true,
+});
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .split(",")

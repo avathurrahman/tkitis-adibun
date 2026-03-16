@@ -1,15 +1,20 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getModel, type AIProvider } from "@/lib/ai/provider";
 import { authorizeAIRequest } from "@/lib/ai/middleware";
 import { trackUsage } from "@/lib/ai/usage";
+import { aiChatRequestSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { messages, provider } = body as {
-    messages: UIMessage[];
-    provider?: AIProvider;
-  };
+  const parsed = aiChatRequestSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Missing required field: messages" },
+      { status: 400 }
+    );
+  }
+  const messages = parsed.data.messages as unknown as UIMessage[];
+  const provider = parsed.data.provider as AIProvider | undefined;
 
   const selectedProvider = provider ?? "openai";
   const auth = await authorizeAIRequest(selectedProvider);

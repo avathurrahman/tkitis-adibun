@@ -3,18 +3,20 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Github, Twitter, Zap, Shield, Globe, Code2 } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Tentang Kami — KilatKoding",
-  description: "KilatKoding dibikin untuk developer Indonesia yang mau ship SaaS lebih cepat tanpa setup dari nol.",
-};
+  description:
+    "KilatKoding dibikin untuk developer Indonesia yang mau ship SaaS lebih cepat tanpa setup dari nol.",
+  path: "/about",
+});
 
 const stack = [
   { name: "Next.js 16", desc: "App Router, RSC, Turbopack" },
   { name: "TypeScript", desc: "Type-safe dari ujung ke ujung" },
   { name: "Tailwind CSS", desc: "Styling yang cepat dan konsisten" },
-  { name: "shadcn/ui", desc: "43 komponen siap pakai" },
+  { name: "shadcn/ui", desc: "44 komponen siap pakai" },
   { name: "Supabase", desc: "Auth + Postgres + RLS" },
   { name: "Midtrans & Doku", desc: "Payment gateway lokal Indonesia" },
   { name: "Resend", desc: "Email transaksional yang andal" },

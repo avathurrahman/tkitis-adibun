@@ -44,7 +44,7 @@ const plans = [
       "Semua di Basic, plus:",
       "Semua payment gateway (Midtrans + Doku)",
       "Semua email provider",
-      "50+ UI components lengkap",
+      "44 UI components lengkap",
       "Admin dashboard template",
       "Unlimited client projects",
       "Priority support",

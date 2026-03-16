@@ -83,7 +83,7 @@
 
 | Route | Method | Tujuan |
 | --- | --- | --- |
-| `/api/payments` | POST | Membuat token Snap Midtrans, menyimpan catatan pembayaran pending |
+| `/api/payments` | POST | Membuat payment session (token Midtrans Snap atau URL checkout Doku), menyimpan catatan pembayaran pending |
 | `/api/webhooks/midtrans` | POST | Memverifikasi tanda tangan, memperbarui pembayaran + langganan |
 | `/api/webhooks/doku` | POST | Memverifikasi notifikasi, memperbarui pembayaran + langganan |
 | `/api/contact` | POST | Handler pengiriman formulir kontak |
@@ -116,7 +116,7 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 `app/layout.tsx` bertugas:
 
 - Memuat font Geist dari Google Fonts
-- Mendefinisikan metadata global (title: "KilatKoding", `lang="id"`)
+- Mendefinisikan metadata global (`lang="id"`, Open Graph/Twitter default, canonical base URL)
 - Menyuntikkan `app/globals.css`
 - Membungkus app dalam `ThemeProvider` dari `next-themes`
 
@@ -284,4 +284,4 @@ Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis us
 
 - TypeScript types dari schema Supabase belum di-generate (butuh project yang sudah terhubung dengan migrasi diaplikasikan)
 - Belum ada domain/service layer (query langsung ada di page component untuk sekarang)
-- Belum ada test
+- Belum ada layer khusus untuk rate limiting atau file upload

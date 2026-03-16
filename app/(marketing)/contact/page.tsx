@@ -1,12 +1,14 @@
 import { ContactForm } from "@/components/contact-form";
 import { Separator } from "@/components/ui/separator";
 import { Mail, MessageCircle } from "lucide-react";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Kontak — KilatKoding",
-  description: "Ada pertanyaan atau butuh bantuan? Hubungi kami dan kami akan balas secepatnya.",
-};
+  description:
+    "Ada pertanyaan atau butuh bantuan? Hubungi kami dan kami akan balas secepatnya.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

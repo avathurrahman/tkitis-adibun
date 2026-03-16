@@ -1,8 +1,8 @@
 # Project Documentation
 
-This folder documents the current state of the repository as it exists today: a freshly scaffolded Next.js + Supabase application with Tailwind CSS, TypeScript, and shadcn/ui already wired together.
+This folder documents the current state of the repository as it exists today: a production-ready Next.js SaaS boilerplate for Indonesian developers with auth, payments, email, AI, blog, tests, and CI already wired together.
 
-The repository is currently based on Supabase's `with-supabase` Next.js starter, with a small amount of local cleanup applied for linting and Tailwind config compatibility.
+The repository originally started from Supabase's `with-supabase` Next.js starter, but it has since been expanded into KilatKoding's app, docs, integrations, and workflow conventions.
 
 ## Start Here
 
@@ -27,10 +27,11 @@ The repository is currently based on Supabase's `with-supabase` Next.js starter,
 
 The app currently provides:
 
-- A landing page with starter guidance
-- Sign up, sign in, forgot password, and update password screens
-- A protected page that reads the authenticated user's claims
-- A shared theme switcher with light, dark, and system modes
-- shadcn/ui primitives already installed and ready to extend
+- A full marketing funnel, auth flows, dashboard, billing, and admin pages
+- Supabase SSR auth with email/password, Google OAuth, and Magic Link
+- Midtrans and Doku payment flows with verified webhooks
+- Resend + React Email templates in Bahasa Indonesia
+- MDX blog support, AI routes, automated tests, and GitHub Actions CI
+- SEO foundations including per-page metadata, canonical URLs, Open Graph/Twitter cards, JSON-LD, sitemap, and robots
 
-The app does not yet include product-specific features, custom database tables, tests, CI workflows, or deployment-specific customization beyond the starter defaults.
+The app still does not include every roadmap item. Live Supabase deployment setup, generated database types, extra email providers (Sumopod/Mailketing), self-serve subscription management, file uploads, and other future roadmap features remain pending.

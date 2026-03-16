@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
+import { paymentRequestSchema } from "@/lib/validations";
 
 type PaymentProvider = "midtrans" | "doku";
 
@@ -17,19 +18,14 @@ export async function POST(request: NextRequest) {
   const userId = authData.claims.sub as string;
   const userEmail = authData.claims.email as string;
 
-  const body = await request.json();
-  const { plan, amount, items } = body as {
-    plan: string;
-    amount: number;
-    items: { id: string; price: number; quantity: number; name: string }[];
-  };
-
-  if (!plan || !amount || !items?.length) {
+  const parsed = paymentRequestSchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json(
       { error: "Missing required fields: plan, amount, items" },
       { status: 400 }
     );
   }
+  const { amount, items } = parsed.data;
 
   const orderId = `KK-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
 

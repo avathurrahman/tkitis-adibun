@@ -15,6 +15,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UpdatePasswordForm } from "@/components/update-password-form";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Pengaturan — KilatKoding",
+  description: "Kelola akun dan password KilatKoding kamu.",
+  path: "/dashboard/settings",
+  noIndex: true,
+});
 
 async function SettingsContent() {
   if (!hasEnvVars) return <SupabaseEnvNotice />;

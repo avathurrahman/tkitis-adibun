@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
+export const faqs = [
   {
     q: "Apakah ini one-time purchase atau subscription?",
     a: "One-time purchase. Kamu bayar sekali dan mendapatkan seluruh source code, dokumentasi, dan semua update selamanya. Tidak ada biaya bulanan.",

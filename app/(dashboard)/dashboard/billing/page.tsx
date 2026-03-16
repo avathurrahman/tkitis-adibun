@@ -16,6 +16,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import { PaymentButton } from "@/components/dashboard/payment-button";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Billing — KilatKoding",
+  description: "Kelola paket aktif dan mulai pembayaran KilatKoding kamu.",
+  path: "/dashboard/billing",
+  noIndex: true,
+});
 
 const PRO_PLAN = {
   plan: "PRO",

@@ -3,12 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Status — KilatKoding",
-  description: "Status operasional layanan KilatKoding — website, auth, database, email, dan payment.",
-};
+  description:
+    "Status operasional layanan KilatKoding — website, auth, database, email, dan payment.",
+  path: "/status",
+});
 
 type ServiceStatus = "operational" | "degraded" | "down";
 

@@ -20,7 +20,7 @@ const features = [
     icon: CreditCard,
     title: "Pembayaran Lokal",
     description:
-      "Midtrans Snap dan Doku JOKUL sudah terintegrasi. Webhook handler dan subscription management siap pakai.",
+      "Midtrans Snap dan Doku JOKUL sudah terintegrasi. Webhook handler dan fondasi subscription siap pakai untuk flow billing awal.",
   },
   {
     icon: Mail,
@@ -57,7 +57,7 @@ export function FeaturesSection() {
             Semua yang kamu butuhkan
           </h2>
           <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
-            50+ komponen UI dan integrasi backend siap pakai — tidak perlu mulai
+            44 komponen UI dan integrasi backend siap pakai — tidak perlu mulai
             dari nol.
           </p>
         </div>

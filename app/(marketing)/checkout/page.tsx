@@ -5,11 +5,14 @@ import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Checkout — KilatKoding",
-};
+  description:
+    "Lihat paket KilatKoding dan lanjutkan ke alur pembelian boilerplate untuk developer Indonesia.",
+  path: "/checkout",
+});
 
 const plans: Record<string, {
   name: string;
@@ -36,7 +39,7 @@ const plans: Record<string, {
     features: [
       "Semua di Basic",
       "Midtrans + Doku",
-      "50+ UI components",
+      "44 UI components",
       "Admin dashboard template",
       "Unlimited client projects",
       "1× konsultasi 30 menit",

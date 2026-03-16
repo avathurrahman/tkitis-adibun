@@ -20,6 +20,8 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | --- | --- |
 | `config/site.ts` | `siteConfig` — nama site, deskripsi, base URL |
 | `config/navigation.ts` | Array link `marketingNav` dan `dashboardNav` |
+| `lib/seo.ts` | Helper SEO bersama untuk metadata, canonical URL, absolute URL, dan serialisasi JSON-LD |
+| `lib/validations.ts` | Schema Zod bersama untuk validasi request API |
 
 ## File App Router
 
@@ -47,6 +49,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `app/(marketing)/status/page.tsx` | Status layanan — `/status` |
 | `app/(marketing)/use-cases/page.tsx` | Galeri use case — `/use-cases` |
 | `app/(marketing)/waitlist/page.tsx` | Pendaftaran waitlist — `/waitlist` |
+| `app/(marketing)/waitlist/waitlist-page.tsx` | UI countdown dan submit waitlist di sisi klien |
 | `app/auth/login/page.tsx` | Layar masuk |
 | `app/auth/sign-up/page.tsx` | Layar registrasi |
 | `app/auth/sign-up-success/page.tsx` | Instruksi pasca-registrasi |
@@ -54,6 +57,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | `app/auth/update-password/page.tsx` | Layar update password |
 | `app/auth/error/page.tsx` | Tampilan error auth |
 | `app/auth/verify-email/page.tsx` | Instruksi verifikasi email |
+| `app/auth/verify-email/verify-email-client.tsx` | Alur kirim ulang email verifikasi di sisi klien |
 | `app/auth/confirm/route.ts` | Handler verifikasi OTP/OAuth Supabase |
 | `app/error.tsx` | Error boundary root |
 | `app/not-found.tsx` | Halaman 404 global |
@@ -121,11 +125,11 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 
 | File | Method | Tujuan |
 | --- | --- | --- |
-| `app/api/payments/route.ts` | POST | Dilindungi auth — membuat token Snap Midtrans, menyimpan catatan pembayaran pending |
+| `app/api/payments/route.ts` | POST | Dilindungi auth — membuat payment session (Midtrans atau Doku), menyimpan catatan pembayaran pending |
 | `app/api/webhooks/midtrans/route.ts` | POST | Memverifikasi tanda tangan Midtrans, update `payments.status`, aktifkan subscription jika berhasil |
 | `app/api/webhooks/doku/route.ts` | POST | Memverifikasi notifikasi Doku, update `payments.status`, aktifkan subscription jika berhasil |
-| `app/api/contact/route.ts` | POST | Formulir kontak — menyimpan pengiriman |
-| `app/api/waitlist/route.ts` | POST | Waitlist — menyimpan pendaftaran email |
+| `app/api/contact/route.ts` | POST | Formulir kontak — validasi input dan kirim pesan via Resend |
+| `app/api/waitlist/route.ts` | POST | Waitlist — validasi input dan simpan pendaftaran ke Supabase |
 | `app/api/ai/chat/route.ts` | POST | Streaming chat dilindungi auth + usage tracking |
 | `app/api/ai/generate/route.ts` | POST | One-shot generation dilindungi auth + usage tracking |
 

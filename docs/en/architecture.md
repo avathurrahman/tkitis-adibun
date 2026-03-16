@@ -83,7 +83,7 @@
 
 | Route | Method | Purpose |
 | --- | --- | --- |
-| `/api/payments` | POST | Creates Midtrans Snap token, inserts pending payment |
+| `/api/payments` | POST | Creates a payment session (Midtrans Snap token or Doku checkout URL), inserts pending payment |
 | `/api/webhooks/midtrans` | POST | Verifies signature, updates payment + subscription |
 | `/api/webhooks/doku` | POST | Verifies notification, updates payment + subscription |
 | `/api/contact` | POST | Contact form submission handler |
@@ -116,7 +116,7 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 `app/layout.tsx` is responsible for:
 
 - Loading the Geist font from Google Fonts
-- Defining global metadata (title: "KilatKoding", `lang="id"`)
+- Defining global metadata (`lang="id"`, default Open Graph/Twitter, canonical base URL)
 - Injecting `app/globals.css`
 - Wrapping the app in `ThemeProvider` from `next-themes`
 
@@ -284,4 +284,4 @@ All tables have Row Level Security enabled with user-scoped read policies.
 
 - No TypeScript types generated from Supabase schema yet (needs live project with migrations applied)
 - No domain/service layer (queries live directly in page components for now)
-- No tests
+- No dedicated rate limiting or file upload layer yet

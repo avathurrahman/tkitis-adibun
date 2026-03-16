@@ -21,7 +21,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Admin dashboard di `/admin` dengan statistik payment dan ringkasan subscription
 - Workflow CI GitHub Actions (lint + build di push/PR)
 - Sistem blog MDX di `/blog` dengan dukungan frontmatter, estimasi waktu baca, dan tag
-- 43 komponen shadcn/ui terpasang (library komponen lengkap)
+- 44 komponen shadcn/ui terpasang (library komponen lengkap)
 - Landing page dengan seksi Hero, Features, Testimonials, Pricing, FAQ, dan CTA
 - Header sticky dengan nav desktop, drawer Sheet mobile, tombol auth Avatar + DropdownMenu
 - Dashboard dengan subscription card, tabel pembayaran, navigasi breadcrumb
@@ -29,6 +29,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Halaman settings di `/dashboard/settings` dengan tampilan profil dan ganti password
 - Halaman billing di `/dashboard/billing` dengan tampilan paket dan alur pembayaran (Midtrans/Doku)
 - Notifikasi toast Sonner terhubung secara global
+- Fondasi SEO: metadata per-halaman, canonical URL, Open Graph/Twitter card, JSON-LD, sitemap, dan robots
 - Halaman marketing funnel lengkap: `/about`, `/affiliates`, `/changelog`, `/checkout`, `/compare`, `/contact`, `/open`, `/order/[id]`, `/privacy`, `/roadmap`, `/status`, `/terms`, `/use-cases`, `/waitlist`
 - Automated test berbasis Vitest + Testing Library yang mencakup route API, payment provider/webhook, guard AI, helper MDX, hook client, dan form utama
 
@@ -67,9 +68,8 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Refresh session dan gating auth berjalan melalui `proxy.ts`
 - Komponen dasar shadcn/ui tersedia di `components/ui`
 - `config/site.ts` dan `config/navigation.ts` untuk metadata dan navigasi terpusat
-- `POST /api/payments` — membuat Midtrans Snap transaction, menyimpan record payment pending
+- `POST /api/payments` — membuat payment session (token Midtrans Snap atau URL checkout Doku), menyimpan record payment pending
 - `POST /api/webhooks/midtrans` — verifikasi signature, update status payment + subscription
-- `POST /api/payments/doku` (via `lib/payments/doku.ts`) — membuat URL pembayaran Doku JOKUL
 - `POST /api/webhooks/doku` — verifikasi notifikasi Doku, update status payment + subscription
 - `sendEmail()` di `lib/email.ts` — mengirim template React Email via Resend
 - `emails/welcome.tsx` dan `emails/invoice.tsx` — template email siap pakai dalam Bahasa Indonesia
@@ -107,8 +107,11 @@ Semua tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabas
 
 ## Yang Masih Belum Ada
 
-- Aplikasikan migrasi ke Supabase dan generate TypeScript types
-- Opsi email provider Sumopod / Mailketing (ke depannya)
+- Aplikasikan migrasi ke project Supabase live dan generate `types/database.ts`
+- Opsi email provider Sumopod / Mailketing
+- UI self-serve subscription management (downgrade / cancel flow)
+- Fitur roadmap seperti team / multi-tenant, API key management, notification system, referral, WhatsApp OTP, dan mobile starter
+- Rate limiting dan file upload
 
 ## Langkah Berikutnya
 

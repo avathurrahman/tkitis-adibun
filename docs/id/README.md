@@ -1,8 +1,8 @@
 # Dokumentasi Proyek
 
-Folder ini mendokumentasikan kondisi repository saat ini: sebuah aplikasi Next.js + Supabase yang baru diinisialisasi dan sudah terhubung dengan Tailwind CSS, TypeScript, dan shadcn/ui.
+Folder ini mendokumentasikan kondisi repository saat ini: sebuah boilerplate SaaS Next.js yang production-ready untuk developer Indonesia dengan auth, payment, email, AI, blog, test, dan CI yang sudah saling terhubung.
 
-Repository ini saat ini masih berbasis starter resmi Supabase `with-supabase`, dengan sedikit penyesuaian lokal untuk linting dan kompatibilitas konfigurasi Tailwind.
+Repository ini awalnya memang berasal dari starter resmi Supabase `with-supabase`, tetapi sekarang sudah berkembang menjadi app KilatKoding lengkap beserta docs, integrasi, dan workflow-nya.
 
 ## Mulai Dari Sini
 
@@ -27,10 +27,11 @@ Repository ini saat ini masih berbasis starter resmi Supabase `with-supabase`, d
 
 Aplikasi saat ini sudah memiliki:
 
-- Landing page dengan panduan starter
-- Halaman sign up, sign in, forgot password, dan update password
-- Halaman protected yang membaca claims user yang sedang login
-- Theme switcher untuk light, dark, dan system mode
-- Primitive shadcn/ui yang siap dipakai dan dikembangkan
+- Marketing funnel lengkap, auth flows, dashboard, billing, dan admin
+- Supabase SSR auth dengan email/password, Google OAuth, dan Magic Link
+- Flow pembayaran Midtrans dan Doku dengan webhook terverifikasi
+- Resend + React Email dalam Bahasa Indonesia
+- Dukungan blog MDX, route AI, automated test, dan GitHub Actions CI
+- Fondasi SEO seperti metadata per-halaman, canonical URL, Open Graph/Twitter card, JSON-LD, sitemap, dan robots
 
-Aplikasi ini belum memiliki fitur bisnis spesifik, tabel database kustom, test, workflow CI, atau konfigurasi deployment yang spesifik ke produk.
+Aplikasi ini masih belum mencakup semua item roadmap. Setup Supabase live, generated database types, provider email tambahan (Sumopod/Mailketing), self-serve subscription management, file upload, dan fitur roadmap lanjutan lainnya masih pending.

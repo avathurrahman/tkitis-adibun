@@ -20,6 +20,8 @@ This file is a practical reference for the important source files currently in t
 | --- | --- |
 | `config/site.ts` | `siteConfig` — site name, description, base URL |
 | `config/navigation.ts` | `marketingNav` and `dashboardNav` link arrays |
+| `lib/seo.ts` | Shared SEO helpers for metadata, canonical URLs, absolute URLs, and JSON-LD serialization |
+| `lib/validations.ts` | Shared Zod schemas for API request validation |
 
 ## App Router Files
 
@@ -47,6 +49,7 @@ This file is a practical reference for the important source files currently in t
 | `app/(marketing)/status/page.tsx` | Service status — `/status` |
 | `app/(marketing)/use-cases/page.tsx` | Use cases gallery — `/use-cases` |
 | `app/(marketing)/waitlist/page.tsx` | Waitlist sign-up — `/waitlist` |
+| `app/(marketing)/waitlist/waitlist-page.tsx` | Client-side countdown + waitlist submission UI |
 | `app/auth/login/page.tsx` | Login screen |
 | `app/auth/sign-up/page.tsx` | Sign-up screen |
 | `app/auth/sign-up-success/page.tsx` | Post-registration instructions |
@@ -54,6 +57,7 @@ This file is a practical reference for the important source files currently in t
 | `app/auth/update-password/page.tsx` | Password update screen |
 | `app/auth/error/page.tsx` | Auth error display |
 | `app/auth/verify-email/page.tsx` | Email verification instructions |
+| `app/auth/verify-email/verify-email-client.tsx` | Client-side verify-email resend flow |
 | `app/auth/confirm/route.ts` | Supabase OTP/OAuth verification handler |
 | `app/error.tsx` | Root error boundary |
 | `app/not-found.tsx` | Global 404 page |
@@ -121,11 +125,11 @@ This file is a practical reference for the important source files currently in t
 
 | File | Method | Purpose |
 | --- | --- | --- |
-| `app/api/payments/route.ts` | POST | Auth-gated — creates Midtrans Snap token, inserts pending `payments` record |
+| `app/api/payments/route.ts` | POST | Auth-gated — creates a payment session (Midtrans or Doku), inserts pending `payments` record |
 | `app/api/webhooks/midtrans/route.ts` | POST | Verifies Midtrans signature, updates `payments.status`, activates subscription on success |
 | `app/api/webhooks/doku/route.ts` | POST | Verifies Doku notification, updates `payments.status`, activates subscription on success |
-| `app/api/contact/route.ts` | POST | Contact form — saves submission |
-| `app/api/waitlist/route.ts` | POST | Waitlist — saves email sign-up |
+| `app/api/contact/route.ts` | POST | Contact form — validates input and sends the message via Resend |
+| `app/api/waitlist/route.ts` | POST | Waitlist — validates input and inserts the sign-up into Supabase |
 | `app/api/ai/chat/route.ts` | POST | Auth + plan-gated streaming chat using `streamText()` + `toUIMessageStreamResponse()` |
 | `app/api/ai/generate/route.ts` | POST | Auth + plan-gated one-shot text generation using `generateText()` |
 

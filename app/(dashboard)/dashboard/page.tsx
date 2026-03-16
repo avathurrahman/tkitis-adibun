@@ -14,6 +14,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SubscriptionCard } from "@/components/dashboard/subscription-card";
 import { PaymentsTable } from "@/components/dashboard/payments-table";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "Dashboard — KilatKoding",
+  description: "Ringkasan akun, paket aktif, dan riwayat pembayaran kamu.",
+  path: "/dashboard",
+  noIndex: true,
+});
 
 async function DashboardContent() {
   if (!hasEnvVars) {

@@ -5,11 +5,13 @@ import { FormsTab } from "@/components/docs/tab-forms";
 import { NavigationTab } from "@/components/docs/tab-navigation";
 import { OverlaysTab } from "@/components/docs/tab-overlays";
 import { DataTab } from "@/components/docs/tab-data";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = createMetadata({
   title: "Komponen UI — KilatKoding",
   description: "Referensi lengkap semua komponen shadcn/ui yang tersedia.",
-};
+  path: "/docs/components",
+});
 
 export default function ComponentsPage() {
   return (
@@ -17,7 +19,7 @@ export default function ComponentsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Komponen UI</h1>
         <p className="mt-2 text-muted-foreground">
-          43 komponen shadcn/ui siap pakai — klik tab untuk melihat demo interaktif.
+          44 komponen shadcn/ui siap pakai — klik tab untuk melihat demo interaktif.
         </p>
       </div>
 

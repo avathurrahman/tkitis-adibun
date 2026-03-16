@@ -118,7 +118,7 @@ Auth:
 - `/auth/confirm` — OTP/OAuth callback route handler
 
 API:
-- `POST /api/payments` — Creates Midtrans Snap token, inserts pending payment record
+- `POST /api/payments` — Creates a payment session (Midtrans Snap token or Doku checkout URL), inserts pending payment record
 - `POST /api/webhooks/midtrans` — Verifies signature, updates payment + subscription
 - `POST /api/webhooks/doku` — Verifies notification, updates payment + subscription
 - `POST /api/contact` — Contact form submission handler
@@ -175,4 +175,3 @@ Do not rewrite history unless explicitly asked.
 3. Make the minimal safe change.
 4. Verify with `npm run lint` and/or `npm run build` when appropriate.
 5. Update `docs/en` and `docs/id` if the project behavior or structure changes.
-

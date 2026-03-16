@@ -3,21 +3,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { getModel, type AIProvider } from "@/lib/ai/provider";
 import { authorizeAIRequest } from "@/lib/ai/middleware";
 import { trackUsage } from "@/lib/ai/usage";
+import { aiGenerateRequestSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { prompt, system, provider } = body as {
-    prompt: string;
-    system?: string;
-    provider?: AIProvider;
-  };
-
-  if (!prompt) {
+  const parsed = aiGenerateRequestSchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json(
       { error: "Missing required field: prompt" },
       { status: 400 }
     );
   }
+  const { prompt, system, provider } = parsed.data as {
+    prompt: string;
+    system?: string;
+    provider?: AIProvider;
+  };
 
   const selectedProvider = provider ?? "openai";
   const auth = await authorizeAIRequest(selectedProvider);

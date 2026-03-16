@@ -5,11 +5,13 @@ import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Download, ArrowRight, BookOpen, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Pesanan Berhasil — KilatKoding",
-};
+  description: "Konfirmasi pesanan KilatKoding dan langkah berikutnya setelah pembelian.",
+  noIndex: true,
+});
 
 const nextSteps = [
   {

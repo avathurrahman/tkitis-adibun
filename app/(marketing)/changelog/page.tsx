@@ -1,11 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Changelog — KilatKoding",
   description: "Riwayat pembaruan dan fitur baru di KilatKoding.",
-};
+  path: "/changelog",
+});
 
 type ChangeEntry = {
   version: string;
@@ -23,7 +24,7 @@ const changelog: ChangeEntry[] = [
       {
         category: "Baru",
         items: [
-          "Halaman /docs/components — showcase interaktif 43 komponen shadcn/ui",
+          "Halaman /docs/components — showcase interaktif 44 komponen shadcn/ui",
           "Halaman /about, /contact, /privacy, /terms, /changelog",
           "Sitemap.xml dan robots.txt otomatis via Next.js",
           "Halaman error 404 dan error boundary global",
@@ -43,7 +44,7 @@ const changelog: ChangeEntry[] = [
       {
         category: "Baru",
         items: [
-          "43 komponen shadcn/ui terinstal penuh",
+          "44 komponen shadcn/ui terinstal penuh",
           "Landing page lengkap: Hero, Features, Testimonials, Pricing, FAQ, CTA",
           "Header responsif dengan mobile Sheet drawer dan Avatar dropdown",
           "Dashboard dengan SubscriptionCard, PaymentsTable, dan Breadcrumb",

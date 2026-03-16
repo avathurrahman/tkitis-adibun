@@ -1,11 +1,12 @@
 import { Separator } from "@/components/ui/separator";
 import { siteConfig } from "@/config/site";
-import type { Metadata } from "next";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = createMetadata({
   title: "Syarat & Ketentuan — KilatKoding",
   description: "Syarat dan ketentuan penggunaan layanan KilatKoding.",
-};
+  path: "/terms",
+});
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
