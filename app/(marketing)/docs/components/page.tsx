@@ -1,10 +1,13 @@
+import { Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FoundationsTab } from "@/components/docs/tab-foundations";
 import { ControlsTab } from "@/components/docs/tab-controls";
 import { FormsTab } from "@/components/docs/tab-forms";
 import { NavigationTab } from "@/components/docs/tab-navigation";
 import { OverlaysTab } from "@/components/docs/tab-overlays";
 import { DataTab } from "@/components/docs/tab-data";
+import { DashboardTab } from "@/components/docs/tab-dashboard";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -19,7 +22,7 @@ export default function ComponentsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Komponen UI</h1>
         <p className="mt-2 text-muted-foreground">
-          44 komponen shadcn/ui siap pakai — klik tab untuk melihat demo interaktif.
+          68 komponen siap pakai — klik tab untuk melihat demo interaktif.
         </p>
       </div>
 
@@ -31,6 +34,7 @@ export default function ComponentsPage() {
           <TabsTrigger value="navigation">Navigasi</TabsTrigger>
           <TabsTrigger value="overlays">Overlay</TabsTrigger>
           <TabsTrigger value="data">Data</TabsTrigger>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
         </TabsList>
 
         <div className="mt-8">
@@ -51,6 +55,11 @@ export default function ComponentsPage() {
           </TabsContent>
           <TabsContent value="data">
             <DataTab />
+          </TabsContent>
+          <TabsContent value="dashboard">
+            <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+              <DashboardTab />
+            </Suspense>
           </TabsContent>
         </div>
       </Tabs>

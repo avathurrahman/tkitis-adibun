@@ -34,16 +34,25 @@ export function ComponentDemo({
 export function DemoSection({
   title,
   children,
+  columns = 2,
 }: {
   title: string;
   children: React.ReactNode;
+  columns?: 1 | 2;
 }) {
   return (
     <section className="space-y-4">
       <h3 className="text-base font-semibold text-muted-foreground uppercase tracking-wide text-xs border-b pb-2">
         {title}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-6",
+          columns === 2 && "md:grid-cols-2"
+        )}
+      >
+        {children}
+      </div>
     </section>
   );
 }
