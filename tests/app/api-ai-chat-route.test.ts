@@ -1,3 +1,5 @@
+import { resetRateLimitStore } from "@/lib/rate-limit";
+
 const authorizeAIRequestMock = vi.fn();
 const getModelMock = vi.fn();
 const trackUsageMock = vi.fn();
@@ -23,11 +25,16 @@ vi.mock("ai", () => ({
 
 describe("app/api/ai/chat/route", () => {
   beforeEach(() => {
+    resetRateLimitStore();
     authorizeAIRequestMock.mockReset();
     getModelMock.mockReset();
     trackUsageMock.mockReset();
     convertToModelMessagesMock.mockReset();
     streamTextMock.mockReset();
+  });
+
+  afterEach(() => {
+    resetRateLimitStore();
   });
 
   it("returns the authorization response when access is denied", async () => {

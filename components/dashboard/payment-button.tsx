@@ -53,8 +53,6 @@ export function PaymentButton({ config }: { config: PlanConfig }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan: config.plan,
-          amount: config.amount,
-          items: config.items,
         }),
       });
 
@@ -72,9 +70,12 @@ export function PaymentButton({ config }: { config: PlanConfig }) {
           snapObj.pay(data.token, {
             onSuccess: () => {
               toast.success("Pembayaran berhasil!");
-              window.location.reload();
+              window.location.href = `/order/${data.orderId}`;
             },
-            onPending: () => toast.info("Pembayaran sedang diproses."),
+            onPending: () => {
+              toast.info("Pembayaran sedang diproses.");
+              window.location.href = `/order/${data.orderId}?status=pending`;
+            },
             onError: () => toast.error("Pembayaran gagal. Silakan coba lagi."),
             onClose: () => toast("Pembayaran dibatalkan."),
           });

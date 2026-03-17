@@ -92,7 +92,7 @@ export function usePayment() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function initiatePayment({ plan, amount, items, mode = "popup", callbacks }: InitiatePaymentParams) {
+  async function initiatePayment({ plan, mode = "popup", callbacks }: InitiatePaymentParams) {
     setLoading(true);
     setError(null);
 
@@ -100,7 +100,7 @@ export function usePayment() {
       const response = await fetch("/api/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, amount, items }),
+        body: JSON.stringify({ plan }),
       });
 
       if (!response.ok) {
@@ -121,16 +121,17 @@ export function usePayment() {
           },
           onClose: callbacks?.onClose,
         });
-        return;
+        return data;
       }
 
       if (mode === "redirect") {
         window.location.href = data.payment_url;
-        return;
+        return data;
       }
 
       await loadDokuScript();
       loadJokulCheckout(data.payment_url);
+      return data;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {

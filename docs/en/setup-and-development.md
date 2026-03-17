@@ -21,6 +21,7 @@ The repository now includes a Vitest-based test suite with:
 
 - Node-side unit and route handler tests
 - JSDOM component and hook tests via Testing Library
+- Playwright smoke tests for public routes
 - Mocked integrations for Supabase, AI providers, Midtrans, Doku, and Resend
 
 ## Environment Variables
@@ -34,6 +35,7 @@ Set the following:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 MIDTRANS_SERVER_KEY=your-midtrans-server-key
@@ -57,11 +59,12 @@ Notes:
 
 - `NEXT_PUBLIC_APP_URL` is used by `config/site.ts` to build the site base URL
 - If Supabase vars are missing, auth-aware areas will not function but the app still renders
+- `SUPABASE_SERVICE_ROLE_KEY` is required for webhook writes, profile updates, order lookups, and admin reporting
 - `MIDTRANS_SERVER_KEY` is server-only; never prefix it with `NEXT_PUBLIC_`
 - `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` is the publishable key used to open the Snap popup on the frontend
 - `EMAIL_FROM` defaults to `KilatKoding <noreply@kilatkoding.com>` if not set; set it to match your verified Resend sender domain
 - `DOKU_CLIENT_ID` and `DOKU_SECRET_KEY` are server-only; never prefix them with `NEXT_PUBLIC_`
-- `ADMIN_EMAILS` is a comma-separated list of emails allowed to access `/admin`; if empty, all authenticated users can access it
+- `ADMIN_EMAILS` is now a bootstrap list: matching users are upserted into `user_roles` as `admin` on first login
 - AI vars are optional; AI features are disabled when keys are not set
 - `AI_DEFAULT_PROVIDER` defaults to `openai`; set to `anthropic` to use Claude
 
@@ -107,14 +110,7 @@ npx supabase db push
 # supabase/migrations/20260316000003_create_payments.sql
 # supabase/migrations/20260316000004_create_waitlist.sql
 # supabase/migrations/20260316000005_create_ai_usage.sql
-```
-
-### 4. Generate TypeScript Types
-
-After applying migrations:
-
-```bash
-npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+# supabase/migrations/20260317000006_add_admin_roles_and_billing_hardening.sql
 ```
 
 ## Midtrans Setup
@@ -164,20 +160,23 @@ The admin page at `/admin` shows:
 - Total revenue from `PAID` payments
 - Active subscription count
 - Paid plan count
-- Last 20 payments table
+- Paginated payments table
 
-Access is controlled by `ADMIN_EMAILS`. If the env var is not set, any authenticated user can access `/admin`. Set it to a comma-separated list to restrict access.
+Access is controlled by `user_roles`. `ADMIN_EMAILS` is only used to bootstrap initial admin role assignments.
 
 ## Common Commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the local development server |
+| `npm run env:check` | Validate required and optional environment variables |
 | `npm run build` | Create a production build |
 | `npm run start` | Start the production server after build |
 | `npm run lint` | Run ESLint across the repo |
+| `npm run typecheck` | Run TypeScript checks without emitting output |
 | `npm run test` | Run the full automated test suite once |
 | `npm run test:watch` | Run the test suite in watch mode |
+| `npm run e2e` | Run Playwright smoke tests |
 
 ## Local Development Flow
 
@@ -190,4 +189,5 @@ Access is controlled by `ADMIN_EMAILS`. If the env var is not set, any authentic
 
 - `app/layout.tsx` builds `metadataBase` from `VERCEL_URL` when available, otherwise falls back to `http://localhost:3000`
 - The app uses `next/font/google` for Geist — production build requires network access the first time
+- Run `npx playwright install chromium` once before the first local `npm run e2e`
 - No project-specific deployment config has been added yet; Vercel defaults work out of the box

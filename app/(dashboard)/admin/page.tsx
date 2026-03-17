@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +28,13 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { AdminRevenueChart } from "@/components/dashboard/admin-revenue-chart";
+import { getAuthenticatedUser } from "@/lib/data/auth";
+import {
+  getAdminMetrics,
+  getAdminPaymentsPage,
+  getAdminRevenueByDay,
+} from "@/lib/data/admin";
+import { isAdminUser } from "@/lib/data/user-roles";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -37,11 +43,6 @@ export const metadata = createMetadata({
   path: "/admin",
   noIndex: true,
 });
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim())
-  .filter(Boolean);
 
 const PAGE_SIZE = 10;
 
@@ -69,55 +70,26 @@ function formatDate(iso: string) {
   }).format(new Date(iso));
 }
 
-type Payment = {
-  id: string;
-  amount: number;
-  status: string;
-  provider: string;
-  external_id: string;
-  created_at: string;
-};
-
 async function AdminContent({ page }: { page: number }) {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
+  const user = await getAuthenticatedUser();
+  if (!user) redirect("/auth/login");
 
-  if (error || !data?.claims) redirect("/auth/login");
-
-  const email = data.claims.email as string;
-  if (ADMIN_EMAILS.length > 0 && !ADMIN_EMAILS.includes(email)) {
+  if (!(await isAdminUser(user.id, user.email))) {
     redirect("/dashboard");
   }
 
-  const offset = (page - 1) * PAGE_SIZE;
-
-  const [paymentsResult, allPaymentsResult, subscriptionsResult] =
+  const [{ payments, total }, metrics, chartData] =
     await Promise.all([
-      supabase
-        .from("payments")
-        .select("id, amount, status, provider, external_id, created_at")
-        .order("created_at", { ascending: false })
-        .range(offset, offset + PAGE_SIZE - 1),
-      supabase
-        .from("payments")
-        .select("amount, status, created_at")
-        .order("created_at", { ascending: false }),
-      supabase.from("subscriptions").select("plan, status"),
+      getAdminPaymentsPage(page, PAGE_SIZE),
+      getAdminMetrics(),
+      getAdminRevenueByDay(),
     ]);
 
-  const payments: Payment[] = paymentsResult.data ?? [];
-  const allPayments = allPaymentsResult.data ?? [];
-  const subscriptions = subscriptionsResult.data ?? [];
-
-  const totalRevenue = allPayments
-    .filter((p) => p.status === "PAID")
-    .reduce((sum, p) => sum + p.amount, 0);
-  const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE").length;
-  const paidSubs = subscriptions.filter((s) => s.plan !== "FREE").length;
-  const freeSubs = subscriptions.filter((s) => s.plan === "FREE").length;
-  const totalPages = Math.max(1, Math.ceil(allPayments.length / PAGE_SIZE));
-
-  const chartData = buildChartData(allPayments);
+  const totalRevenue = metrics?.total_revenue ?? 0;
+  const activeSubs = metrics?.active_subscriptions ?? 0;
+  const paidSubs = metrics?.paid_subscriptions ?? 0;
+  const freeSubs = metrics?.free_subscriptions ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="flex flex-col gap-6">
@@ -135,7 +107,7 @@ async function AdminContent({ page }: { page: number }) {
 
       <div>
         <h1 className="text-2xl font-bold">Admin</h1>
-        <p className="text-muted-foreground text-sm mt-1">{email}</p>
+        <p className="text-muted-foreground text-sm mt-1">{user.email}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -232,30 +204,6 @@ function StatCard({ label, value }: { label: string; value: string }) {
       </CardContent>
     </Card>
   );
-}
-
-function buildChartData(
-  payments: { amount: number; status: string; created_at: string }[]
-) {
-  const map: Record<string, number> = {};
-  const last14 = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (13 - i));
-    return d.toISOString().slice(0, 10);
-  });
-  last14.forEach((d) => (map[d] = 0));
-
-  payments
-    .filter((p) => p.status === "PAID")
-    .forEach((p) => {
-      const day = p.created_at.slice(0, 10);
-      if (day in map) map[day] = (map[day] ?? 0) + p.amount;
-    });
-
-  return last14.map((date) => ({
-    date,
-    revenue: map[date] ?? 0,
-  }));
 }
 
 export default function AdminPage({

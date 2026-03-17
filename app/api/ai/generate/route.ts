@@ -3,6 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getModel, type AIProvider } from "@/lib/ai/provider";
 import { authorizeAIRequest } from "@/lib/ai/middleware";
 import { trackUsage } from "@/lib/ai/usage";
+import {
+  applyRateLimitHeaders,
+  createRateLimitResponse,
+  getAiRateLimitConfig,
+  takeRateLimit,
+} from "@/lib/rate-limit";
 import { aiGenerateRequestSchema } from "@/lib/validations";
 
 export async function POST(request: NextRequest) {
@@ -22,6 +28,11 @@ export async function POST(request: NextRequest) {
   const selectedProvider = provider ?? "openai";
   const auth = await authorizeAIRequest(selectedProvider);
   if (auth instanceof Response) return auth;
+  const rateLimit = takeRateLimit(getAiRateLimitConfig(auth.userId, auth.plan));
+
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit, "Terlalu banyak request AI. Coba lagi sebentar.");
+  }
 
   const model = getModel(selectedProvider);
 
@@ -39,5 +50,5 @@ export async function POST(request: NextRequest) {
     usage.outputTokens ?? 0
   );
 
-  return NextResponse.json({ text, usage });
+  return applyRateLimitHeaders(NextResponse.json({ text, usage }), rateLimit);
 }

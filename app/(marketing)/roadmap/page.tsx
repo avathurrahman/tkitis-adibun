@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TemplateBanner } from "@/components/ui/template-banner";
+import { roadmapPageConfig, type RoadmapStatus } from "@/config/roadmap";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -9,40 +10,6 @@ export const metadata = createMetadata({
     "Rencana pengembangan KilatKoding ke depan. Lihat fitur yang sedang dibangun dan yang akan datang.",
   path: "/roadmap",
 });
-
-type RoadmapStatus = "shipped" | "in-progress" | "planned";
-
-type RoadmapItem = {
-  title: string;
-  description: string;
-  status: RoadmapStatus;
-  quarter?: string;
-};
-
-const items: RoadmapItem[] = [
-  // Shipped
-  { title: "Supabase Auth lengkap", description: "Email, Google OAuth, Magic Link, OTP verification", status: "shipped" },
-  { title: "Midtrans Snap integration", description: "Payment gateway Indonesia #1 dengan webhook verification", status: "shipped" },
-  { title: "Doku JOKUL integration", description: "Alternative payment gateway untuk jangkauan lebih luas", status: "shipped" },
-  { title: "Resend + React Email", description: "Email transaksional dengan template Bahasa Indonesia", status: "shipped" },
-  { title: "Admin dashboard", description: "Revenue chart, user stats, payment overview", status: "shipped" },
-  { title: "MDX Blog system", description: "Blog dengan frontmatter, reading time, tags", status: "shipped" },
-  { title: "44 UI Components", description: "shadcn/ui lengkap dengan dark mode", status: "shipped" },
-  { title: "Marketing funnel pages", description: "Landing page 10 seksi + waitlist, compare, roadmap, status", status: "shipped" },
-
-  // In Progress
-  { title: "Subscription management UI", description: "Upgrade/downgrade plan, cancel subscription flow", status: "in-progress", quarter: "Q2 2026" },
-  { title: "Team / multi-tenant", description: "Invite anggota tim, role-based access (owner, member, viewer)", status: "in-progress", quarter: "Q2 2026" },
-  { title: "API keys management", description: "Create, revoke, scope API keys untuk produk kamu", status: "in-progress", quarter: "Q2 2026" },
-
-  // Planned
-  { title: "Onboarding wizard", description: "Multi-step welcome flow untuk increase activation", status: "planned", quarter: "Q2 2026" },
-  { title: "Notification system", description: "In-app notification center + real-time dengan Supabase Realtime", status: "planned", quarter: "Q3 2026" },
-  { title: "Usage metering", description: "Track dan tampilkan usage per-feature dengan limit indicator", status: "planned", quarter: "Q3 2026" },
-  { title: "Referral program", description: "Referral link, earnings tracker, automatic discount", status: "planned", quarter: "Q3 2026" },
-  { title: "WhatsApp OTP integration", description: "Verifikasi via WhatsApp untuk pasar Indonesia", status: "planned", quarter: "Q4 2026" },
-  { title: "Expo React Native starter", description: "Companion mobile app template dengan shared auth", status: "planned", quarter: "Q4 2026" },
-];
 
 const columns: { status: RoadmapStatus; label: string; badgeVariant: "default" | "secondary" | "outline" }[] = [
   { status: "shipped", label: "✅ Shipped", badgeVariant: "default" },
@@ -70,7 +37,7 @@ export default function RoadmapPage() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {columns.map((col) => {
-          const colItems = items.filter((i) => i.status === col.status);
+          const colItems = roadmapPageConfig.items.filter((item) => item.status === col.status);
           return (
             <div key={col.status} className="space-y-3">
               <div className="flex items-center gap-2">
@@ -106,7 +73,7 @@ export default function RoadmapPage() {
       </div>
 
       <div className="text-center text-sm text-muted-foreground pt-4">
-        Terakhir diperbarui: 16 Maret 2026
+        Terakhir diperbarui: {roadmapPageConfig.lastUpdated}
       </div>
     </div>
     </>

@@ -1,3 +1,5 @@
+import { resetRateLimitStore } from "@/lib/rate-limit";
+
 const createClientMock = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -6,7 +8,12 @@ vi.mock("@/lib/supabase/server", () => ({
 
 describe("app/api/waitlist/route", () => {
   beforeEach(() => {
+    resetRateLimitStore();
     createClientMock.mockReset();
+  });
+
+  afterEach(() => {
+    resetRateLimitStore();
   });
 
   it("validates email addresses", async () => {
@@ -110,6 +117,53 @@ describe("app/api/waitlist/route", () => {
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toEqual({
       error: "Gagal mendaftar. Coba lagi.",
+    });
+  });
+
+  it("rate limits repeated signups from the same IP", async () => {
+    const insertMock = vi.fn().mockResolvedValue({ error: null });
+
+    createClientMock.mockResolvedValue({
+      from: vi.fn(() => ({
+        insert: insertMock,
+      })),
+    });
+
+    const { POST } = await import("@/app/api/waitlist/route");
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await POST(
+        new Request("http://localhost/api/waitlist", {
+          body: JSON.stringify({
+            email: `member${attempt}@example.com`,
+            name: "Member",
+          }),
+          headers: {
+            "x-forwarded-for": "198.51.100.8",
+          },
+          method: "POST",
+        })
+      );
+
+      expect(response.status).toBe(200);
+    }
+
+    const response = await POST(
+      new Request("http://localhost/api/waitlist", {
+        body: JSON.stringify({
+          email: "member-final@example.com",
+          name: "Member",
+        }),
+        headers: {
+          "x-forwarded-for": "198.51.100.8",
+        },
+        method: "POST",
+      })
+    );
+
+    expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toEqual({
+      error: "Terlalu banyak pendaftaran. Coba lagi nanti.",
     });
   });
 });

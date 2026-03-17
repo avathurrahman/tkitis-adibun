@@ -15,6 +15,7 @@
 | `lib/` | Utility bersama, factory Supabase client, dan helper payment |
 | `lib/payments/` | Client payment gateway dan helper functions |
 | `lib/ai/` | Factory provider AI, tracking usage, dan middleware |
+| `lib/rate-limit.ts` | Helper rate limiting berbasis memori dan header respons standar |
 | `app/api/` | API route handler (payment, webhook) |
 | `emails/` | Template React Email |
 | `hooks/` | Hook React client-side untuk state auth dan subscription |
@@ -50,6 +51,7 @@
 | `/contact` | `app/(marketing)/contact/page.tsx` | Formulir kontak |
 | `/open` | `app/(marketing)/open/page.tsx` | Metrik startup terbuka |
 | `/order/[id]` | `app/(marketing)/order/[id]/page.tsx` | Konfirmasi pesanan / pasca-pembelian |
+| `/payment/callback` | `app/payment/callback/route.ts` | Redirect kompatibilitas untuk return URL payment provider |
 | `/privacy` | `app/(marketing)/privacy/page.tsx` | Kebijakan privasi |
 | `/roadmap` | `app/(marketing)/roadmap/page.tsx` | Roadmap produk publik |
 | `/status` | `app/(marketing)/status/page.tsx` | Status layanan |
@@ -65,7 +67,7 @@
 | `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profil + ganti password |
 | `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Tampilan paket + alur pembayaran |
 | `/dashboard/components` | `app/(dashboard)/dashboard/components/page.tsx` | Showcase komponen untuk UI dashboard dan admin |
-| `/admin` | `app/(dashboard)/admin/page.tsx` | Dashboard admin (dibatasi oleh `ADMIN_EMAILS`) |
+| `/admin` | `app/(dashboard)/admin/page.tsx` | Dashboard admin (dibatasi oleh `user_roles`) |
 
 ### Route Auth
 
@@ -85,6 +87,8 @@
 | Route | Method | Tujuan |
 | --- | --- | --- |
 | `/api/payments` | POST | Membuat payment session (token Midtrans Snap atau URL checkout Doku), menyimpan catatan pembayaran pending |
+| `/api/profile` | POST | Memperbarui field profil user yang sedang login |
+| `/api/subscription` | POST | Menangani aksi cancel/resume subscription |
 | `/api/webhooks/midtrans` | POST | Memverifikasi tanda tangan, memperbarui pembayaran + langganan |
 | `/api/webhooks/doku` | POST | Memverifikasi notifikasi, memperbarui pembayaran + langganan |
 | `/api/contact` | POST | Handler pengiriman formulir kontak |
@@ -256,14 +260,15 @@ Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-r
 
 ## Schema Database
 
-Migrasi ada di `supabase/migrations/`. Empat tabel sudah didefinisikan:
+Migrasi ada di `supabase/migrations/`. Lima tabel inti plus satu tabel kontrol akses sudah didefinisikan:
 
 | Tabel | Kolom Penting | Catatan |
 | --- | --- | --- |
 | `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-dibuat saat user signup via trigger |
 | `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Mulai sebagai FREE; auto-dibuat saat signup via trigger |
-| `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Mendukung Midtrans dan Doku |
+| `payments` | `user_id`, `amount` (IDR), `plan`, `provider` (MIDTRANS/DOKU), `external_id` | Mendukung Midtrans dan Doku dengan metadata plan milik server |
 | `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens`, `created_at` | RLS + index di (user_id, created_at) untuk query usage bulanan |
+| `user_roles` | `user_id`, `role` (`member`/`admin`) | Source of truth akses admin |
 
 Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis user.
 

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import {
+  getPaymentByExternalId,
+  type PaymentRecord,
+  updatePaymentByExternalId,
+} from "@/lib/data/payments";
+import { activateSubscriptionForPayment } from "@/lib/data/subscriptions";
 import {
   verifyDokuNotification,
   isDokuPaymentSuccess,
@@ -21,42 +26,56 @@ export async function POST(request: NextRequest) {
   }
 
   const invoiceNumber = body.order.invoice_number;
-  const paymentStatus = isDokuPaymentSuccess(body) ? "PAID" : getPaymentStatus(body.transaction.status);
+  const existingPayment = await getPaymentByExternalId(invoiceNumber);
+  if (!existingPayment) {
+    return NextResponse.json({ error: "Payment record not found" }, { status: 404 });
+  }
 
-  const supabase = await createClient();
+  const nextStatus = resolveFinalStatus(
+    existingPayment.status,
+    isDokuPaymentSuccess(body) ? "PAID" : getPaymentStatus(body.transaction.status),
+  );
+  const paidAt =
+    nextStatus === "PAID"
+      ? existingPayment.paid_at ?? new Date().toISOString()
+      : null;
 
-  const { data: payment, error: paymentError } = await supabase
-    .from("payments")
-    .update({
-      status: paymentStatus,
-      payment_type: body.channel.id,
-      paid_at: paymentStatus === "PAID" ? new Date().toISOString() : null,
-      metadata: body,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("external_id", invoiceNumber)
-    .select("user_id")
-    .single();
+  const { data: payment, error: paymentError } = await updatePaymentByExternalId(invoiceNumber, {
+    metadata: body,
+    paid_at: paidAt,
+    payment_type: body.channel.id,
+    status: nextStatus,
+    updated_at: new Date().toISOString(),
+  });
 
   if (paymentError || !payment) {
     console.error("Failed to update payment:", paymentError);
     return NextResponse.json({ error: "Payment record not found" }, { status: 404 });
   }
 
-  if (paymentStatus === "PAID") {
-    await supabase
-      .from("subscriptions")
-      .update({
-        status: "ACTIVE",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", payment.user_id);
+  if (nextStatus === "PAID" && existingPayment.status !== "PAID") {
+    await activateSubscriptionForPayment(
+      payment.user_id,
+      payment.plan,
+      paidAt ? new Date(paidAt) : new Date(),
+    );
   }
 
   return NextResponse.json({ received: true });
 }
 
-function getPaymentStatus(status: string): string {
+function resolveFinalStatus(
+  currentStatus: PaymentRecord["status"],
+  incomingStatus: PaymentRecord["status"],
+): PaymentRecord["status"] {
+  if (currentStatus === "PAID" && incomingStatus !== "REFUNDED") {
+    return "PAID";
+  }
+
+  return incomingStatus;
+}
+
+function getPaymentStatus(status: string): PaymentRecord["status"] {
   switch (status) {
     case "EXPIRED":
       return "EXPIRED";

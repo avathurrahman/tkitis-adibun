@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-build:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +24,34 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+          NEXT_PUBLIC_APP_URL: https://example.com
+          NEXT_PUBLIC_MIDTRANS_CLIENT_KEY: placeholder
+          MIDTRANS_SERVER_KEY: placeholder
+          RESEND_API_KEY: placeholder
+          DOKU_CLIENT_ID: placeholder
+          DOKU_SECRET_KEY: placeholder
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E smoke test
+        run: npm run e2e
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
           NEXT_PUBLIC_APP_URL: https://example.com
           NEXT_PUBLIC_MIDTRANS_CLIENT_KEY: placeholder
           MIDTRANS_SERVER_KEY: placeholder

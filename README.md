@@ -11,11 +11,12 @@ Boilerplate Next.js untuk developer Indonesia yang mau build SaaS dengan cepat �
 - **Framework:** Next.js (App Router), React 19, TypeScript 5 (strict)
 - **Styling:** Tailwind CSS 3, shadcn/ui (44 components, new-york style)
 - **Auth:** Supabase SSR — email/password, Google OAuth, Magic Link
+- **Access control:** role-based admin access via `user_roles` + legacy `ADMIN_EMAILS` bootstrap
 - **Payments:** Midtrans (Snap) + Doku (JOKUL) — keduanya payment gateway Indonesia
 - **Email:** Resend + React Email — template welcome & invoice dalam Bahasa Indonesia
 - **Blog:** MDX dengan frontmatter, reading time, dan tag support
-- **Database:** Supabase PostgreSQL — migrations untuk `profiles`, `subscriptions`, `payments` (semua dengan RLS)
-- **CI:** GitHub Actions (lint + build on push/PR)
+- **Database:** Supabase PostgreSQL — migrations untuk `profiles`, `subscriptions`, `payments`, `user_roles`, `waitlist`, `ai_usage` (semua dengan RLS)
+- **CI:** GitHub Actions (`lint` + `typecheck` + `test` + `build` + Playwright smoke test)
 
 ---
 
@@ -40,6 +41,7 @@ Salin `.env.example` ke `.env.local` dan isi nilai berikut:
 # Supabase — dari Project Settings > API
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
 # URL aplikasi
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -59,13 +61,14 @@ NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=
 RESEND_API_KEY=
 EMAIL_FROM=KilatKoding <noreply@yourdomain.com>
 
-# Admin — email yang boleh akses /admin (comma-separated)
+# Admin bootstrap — email di sini akan di-sync ke role admin saat login pertama
 ADMIN_EMAILS=you@example.com
 ```
 
 Catatan penting:
 - `MIDTRANS_SERVER_KEY`, `DOKU_CLIENT_ID`, dan `DOKU_SECRET_KEY` adalah server-only — jangan beri prefix `NEXT_PUBLIC_`
-- `ADMIN_EMAILS` kosong = semua user authenticated bisa akses `/admin`
+- `SUPABASE_SERVICE_ROLE_KEY` dipakai untuk webhook, billing writes, dan reporting admin
+- `ADMIN_EMAILS` sekarang hanya untuk bootstrap awal admin; source of truth akses admin ada di tabel `user_roles`
 - `EMAIL_FROM` default ke `KilatKoding <noreply@kilatkoding.com>` jika tidak diset
 
 ---
@@ -76,7 +79,11 @@ Catatan penting:
 | --- | --- |
 | `npm install` | Install dependencies |
 | `npm run dev` | Jalankan dev server |
+| `npm run env:check` | Cek env vars yang wajib dan opsional |
 | `npm run lint` | Jalankan ESLint |
+| `npm run typecheck` | Jalankan TypeScript tanpa emit |
+| `npm test` | Jalankan unit + DOM tests |
+| `npm run e2e` | Jalankan Playwright smoke tests |
 | `npm run build` | Build production |
 | `npm run start` | Jalankan production server |
 
@@ -101,6 +108,8 @@ Migrations tersedia di `supabase/migrations/`:
 | `20260316000002_create_subscriptions.sql` | Tabel `subscriptions` + FREE tier trigger |
 | `20260316000003_create_payments.sql` | Tabel `payments` + enums (plan, status, provider) |
 | `20260316000004_create_waitlist.sql` | Tabel `waitlist` |
+| `20260316000005_create_ai_usage.sql` | Tabel `ai_usage` |
+| `20260317000006_add_admin_roles_and_billing_hardening.sql` | Tabel `user_roles`, metadata plan pembayaran, index/reporting admin |
 
 Cara apply:
 
@@ -132,3 +141,11 @@ Repo ini menyertakan konfigurasi untuk beberapa AI coding tools:
 | `.windsurfrules` | Windsurf | Rules untuk Windsurf AI editor |
 
 Semua config file ini dirancang untuk memberikan konteks yang akurat tentang stack, konvensi, dan struktur project — supaya AI suggestions lebih relevan dan tidak menyarankan pola yang tidak sesuai.
+
+## Operational Notes
+
+- `POST /api/payments` sekarang memakai katalog plan di server. Client tidak bisa lagi menentukan nominal pembayaran sendiri.
+- Billing user mendukung cancel/resume di akhir periode, dan subscription berbayar otomatis turun ke `FREE` setelah periode aktif berakhir bila tidak diperpanjang.
+- `/admin` sekarang memerlukan role admin. User yang email-nya ada di `ADMIN_EMAILS` akan otomatis di-bootstrap ke role `admin` saat login pertama.
+- Endpoint publik dan endpoint AI/payment sekarang punya proteksi rate limiting dasar berbasis memori dengan header `X-RateLimit-*`.
+- Payment provider return URL diarahkan ke `/order/[id]`, dan `/payment/callback` disediakan sebagai fallback redirect kompatibilitas.

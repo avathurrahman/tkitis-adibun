@@ -1,9 +1,16 @@
-const createClientMock = vi.fn();
+const getPaymentByExternalIdMock = vi.fn();
+const updatePaymentByExternalIdMock = vi.fn();
+const activateSubscriptionForPaymentMock = vi.fn();
 const verifyDokuNotificationMock = vi.fn();
 const isDokuPaymentSuccessMock = vi.fn();
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: createClientMock,
+vi.mock("@/lib/data/payments", () => ({
+  getPaymentByExternalId: getPaymentByExternalIdMock,
+  updatePaymentByExternalId: updatePaymentByExternalIdMock,
+}));
+
+vi.mock("@/lib/data/subscriptions", () => ({
+  activateSubscriptionForPayment: activateSubscriptionForPaymentMock,
 }));
 
 vi.mock("@/lib/payments/doku", () => ({
@@ -13,7 +20,9 @@ vi.mock("@/lib/payments/doku", () => ({
 
 describe("app/api/webhooks/doku/route", () => {
   beforeEach(() => {
-    createClientMock.mockReset();
+    getPaymentByExternalIdMock.mockReset();
+    updatePaymentByExternalIdMock.mockReset();
+    activateSubscriptionForPaymentMock.mockReset();
     verifyDokuNotificationMock.mockReset();
     isDokuPaymentSuccessMock.mockReset();
     process.env.DOKU_CLIENT_ID = "mall-123";
@@ -55,23 +64,7 @@ describe("app/api/webhooks/doku/route", () => {
   it("returns 404 when the payment does not exist", async () => {
     verifyDokuNotificationMock.mockReturnValue(true);
     isDokuPaymentSuccessMock.mockReturnValue(false);
-
-    createClientMock.mockResolvedValue({
-      from: vi.fn(() => ({
-        update: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            select: vi.fn(() => ({
-              single: vi.fn().mockResolvedValue({
-                data: null,
-                error: {
-                  message: "missing",
-                },
-              }),
-            })),
-          })),
-        })),
-      })),
-    });
+    getPaymentByExternalIdMock.mockResolvedValue(null);
 
     const { POST } = await import("@/app/api/webhooks/doku/route");
     const response = await POST(
@@ -106,35 +99,18 @@ describe("app/api/webhooks/doku/route", () => {
   it("marks paid notifications and activates the subscription", async () => {
     verifyDokuNotificationMock.mockReturnValue(true);
     isDokuPaymentSuccessMock.mockReturnValue(true);
-
-    const paymentsUpdateMock = vi.fn(() => ({
-      eq: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({
-            data: {
-              user_id: "user-1",
-            },
-            error: null,
-          }),
-        })),
-      })),
-    }));
-    const subscriptionEqMock = vi.fn().mockResolvedValue({
-      error: null,
+    getPaymentByExternalIdMock.mockResolvedValue({
+      paid_at: null,
+      plan: "PRO",
+      status: "PENDING",
+      user_id: "user-1",
     });
-
-    createClientMock.mockResolvedValue({
-      from: vi.fn((table: string) =>
-        table === "payments"
-          ? {
-              update: paymentsUpdateMock,
-            }
-          : {
-              update: vi.fn(() => ({
-                eq: subscriptionEqMock,
-              })),
-            }
-      ),
+    updatePaymentByExternalIdMock.mockResolvedValue({
+      data: {
+        plan: "PRO",
+        user_id: "user-1",
+      },
+      error: null,
     });
 
     const { POST } = await import("@/app/api/webhooks/doku/route");
@@ -161,14 +137,19 @@ describe("app/api/webhooks/doku/route", () => {
       }) as never
     );
 
-    expect(paymentsUpdateMock).toHaveBeenCalledWith(
+    expect(updatePaymentByExternalIdMock).toHaveBeenCalledWith(
+      "KK-ORDER-1",
       expect.objectContaining({
         paid_at: expect.any(String),
         payment_type: "VIRTUAL_ACCOUNT_BCA",
         status: "PAID",
       })
     );
-    expect(subscriptionEqMock).toHaveBeenCalledWith("user_id", "user-1");
+    expect(activateSubscriptionForPaymentMock).toHaveBeenCalledWith(
+      "user-1",
+      "PRO",
+      expect.any(Date),
+    );
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       received: true,
@@ -178,31 +159,18 @@ describe("app/api/webhooks/doku/route", () => {
   it("maps unsuccessful statuses without activating subscriptions", async () => {
     verifyDokuNotificationMock.mockReturnValue(true);
     isDokuPaymentSuccessMock.mockReturnValue(false);
-
-    const paymentsUpdateMock = vi.fn(() => ({
-      eq: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({
-            data: {
-              user_id: "user-1",
-            },
-            error: null,
-          }),
-        })),
-      })),
-    }));
-    const subscriptionsUpdateMock = vi.fn();
-
-    createClientMock.mockResolvedValue({
-      from: vi.fn((table: string) =>
-        table === "payments"
-          ? {
-              update: paymentsUpdateMock,
-            }
-          : {
-              update: subscriptionsUpdateMock,
-            }
-      ),
+    getPaymentByExternalIdMock.mockResolvedValue({
+      paid_at: null,
+      plan: "PRO",
+      status: "PENDING",
+      user_id: "user-1",
+    });
+    updatePaymentByExternalIdMock.mockResolvedValue({
+      data: {
+        plan: "PRO",
+        user_id: "user-1",
+      },
+      error: null,
     });
 
     const { POST } = await import("@/app/api/webhooks/doku/route");
@@ -229,13 +197,14 @@ describe("app/api/webhooks/doku/route", () => {
       }) as never
     );
 
-    expect(paymentsUpdateMock).toHaveBeenCalledWith(
+    expect(updatePaymentByExternalIdMock).toHaveBeenCalledWith(
+      "KK-ORDER-1",
       expect.objectContaining({
         paid_at: null,
         status: "FAILED",
       })
     );
-    expect(subscriptionsUpdateMock).not.toHaveBeenCalled();
+    expect(activateSubscriptionForPaymentMock).not.toHaveBeenCalled();
     expect(response.status).toBe(200);
   });
 });

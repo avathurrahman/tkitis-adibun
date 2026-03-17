@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import {
+  getPaymentByExternalId,
+  type PaymentRecord,
+  updatePaymentByExternalId,
+} from "@/lib/data/payments";
+import { activateSubscriptionForPayment } from "@/lib/data/subscriptions";
 import {
   verifyMidtransSignature,
   isMidtransPaymentSuccess,
@@ -20,22 +25,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const supabase = await createClient();
+  const existingPayment = await getPaymentByExternalId(order_id);
+  if (!existingPayment) {
+    return NextResponse.json(
+      { error: "Payment record not found" },
+      { status: 404 }
+    );
+  }
 
-  const paymentStatus = isMidtransPaymentSuccess(body) ? "PAID" : getPaymentStatus(body.transaction_status);
+  const nextStatus = resolveFinalStatus(
+    existingPayment.status,
+    isMidtransPaymentSuccess(body) ? "PAID" : getPaymentStatus(body.transaction_status),
+  );
+  const paidAt =
+    nextStatus === "PAID"
+      ? existingPayment.paid_at ?? new Date().toISOString()
+      : null;
 
-  const { data: payment, error: paymentError } = await supabase
-    .from("payments")
-    .update({
-      status: paymentStatus,
-      payment_type: body.payment_type ?? null,
-      paid_at: paymentStatus === "PAID" ? new Date().toISOString() : null,
-      metadata: body,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("external_id", order_id)
-    .select("user_id, subscription_id")
-    .single();
+  const { data: payment, error: paymentError } = await updatePaymentByExternalId(order_id, {
+    metadata: body,
+    paid_at: paidAt,
+    payment_type: body.payment_type ?? null,
+    status: nextStatus,
+    updated_at: new Date().toISOString(),
+  });
 
   if (paymentError || !payment) {
     console.error("Failed to update payment:", paymentError);
@@ -45,20 +58,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (paymentStatus === "PAID") {
-    await supabase
-      .from("subscriptions")
-      .update({
-        status: "ACTIVE",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", payment.user_id);
+  if (nextStatus === "PAID" && existingPayment.status !== "PAID") {
+    await activateSubscriptionForPayment(
+      payment.user_id,
+      payment.plan,
+      paidAt ? new Date(paidAt) : new Date(),
+    );
   }
 
   return NextResponse.json({ received: true });
 }
 
-function getPaymentStatus(transactionStatus: string): string {
+function resolveFinalStatus(
+  currentStatus: PaymentRecord["status"],
+  incomingStatus: PaymentRecord["status"],
+): PaymentRecord["status"] {
+  if (currentStatus === "PAID" && incomingStatus !== "REFUNDED") {
+    return "PAID";
+  }
+
+  return incomingStatus;
+}
+
+function getPaymentStatus(transactionStatus: string): PaymentRecord["status"] {
   switch (transactionStatus) {
     case "expire":
       return "EXPIRED";

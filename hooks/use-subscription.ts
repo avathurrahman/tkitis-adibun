@@ -3,17 +3,9 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "./use-auth";
+import type { Row } from "@/types/database";
 
-type Subscription = {
-  id: string;
-  plan: "FREE" | "BASIC" | "PRO" | "ULTIMATE";
-  status: "ACTIVE" | "CANCELED" | "PAST_DUE" | "UNPAID";
-  current_period_start: string | null;
-  current_period_end: string | null;
-  cancel_at_period_end: boolean;
-  created_at: string;
-  updated_at: string;
-};
+type Subscription = Row<"subscriptions">;
 
 export function useSubscription() {
   const { user, loading: authLoading } = useAuth();
@@ -30,16 +22,25 @@ export function useSubscription() {
     }
 
     const supabase = createClient();
+    const userId = user.id;
 
-    supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
+    async function loadSubscription() {
+      try {
+        const { data } = await supabase
+          .from("subscriptions")
+          .select("*")
+          .eq("user_id", userId)
+          .single();
+
         setSubscription(data);
+      } catch {
+        setSubscription(null);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    void loadSubscription();
   }, [user, authLoading]);
 
   const isPro = subscription?.plan === "PRO" || subscription?.plan === "ULTIMATE";

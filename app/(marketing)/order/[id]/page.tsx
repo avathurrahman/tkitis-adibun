@@ -1,10 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PaymentStatusBadge } from "@/components/dashboard/payment-status-badge";
 import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Download, ArrowRight, BookOpen, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { planLabels } from "@/config/subscriptions";
+import { getOrderSummary } from "@/lib/data/payments";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -39,10 +42,16 @@ const nextSteps = [
 
 export default async function OrderSuccessPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ status?: string }>;
 }) {
   const { id } = await params;
+  const { status: fallbackStatus } = await searchParams;
+  const payment = await getOrderSummary(id);
+  const status = payment?.status ?? fallbackStatus?.toUpperCase() ?? "PENDING";
+  const isPaid = status === "PAID";
 
   return (
     <>
@@ -53,14 +62,25 @@ export default async function OrderSuccessPage({
           <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
         <div className="space-y-2">
-          <Badge variant="outline" className="border-green-500/30 text-green-600 dark:text-green-400">
-            Pembayaran Berhasil
+          <Badge
+            variant="outline"
+            className={
+              isPaid
+                ? "border-green-500/30 text-green-600 dark:text-green-400"
+                : "border-yellow-500/30 text-yellow-600 dark:text-yellow-400"
+            }
+          >
+            {isPaid ? "Pembayaran Berhasil" : "Pembayaran Diproses"}
           </Badge>
           <h1 className="text-3xl font-bold tracking-tight">
-            Selamat! Kamu resmi jadi member KilatKoding. 🎉
+            {isPaid
+              ? "Selamat! Pembayaran kamu sudah kami terima."
+              : "Pembayaran kamu sedang kami proses."}
           </h1>
           <p className="text-muted-foreground">
-            Invoice dan instruksi akses sudah dikirim ke email kamu.
+            {isPaid
+              ? "Invoice dan instruksi akses akan mengikuti status pembayaran terakhir."
+              : "Halaman ini akan menampilkan status terbaru order kamu setelah webhook selesai diproses."}
           </p>
         </div>
       </div>
@@ -74,11 +94,15 @@ export default async function OrderSuccessPage({
             <span className="text-muted-foreground">Order ID</span>
             <span className="font-mono text-xs">{id}</span>
             <span className="text-muted-foreground">Status</span>
-            <Badge variant="outline" className="w-fit text-green-600 border-green-500/30 text-xs">
-              Lunas
-            </Badge>
+            <div className="w-fit">
+              <PaymentStatusBadge status={status} showLabel />
+            </div>
+            <span className="text-muted-foreground">Plan</span>
+            <span>{payment ? planLabels[payment.plan] : "Sedang diproses"}</span>
+            <span className="text-muted-foreground">Provider</span>
+            <span>{payment?.provider ?? "-"}</span>
             <span className="text-muted-foreground">Akses</span>
-            <span>Lifetime</span>
+            <span>{isPaid ? "Aktif sesuai plan" : "Menunggu konfirmasi"}</span>
           </div>
         </CardContent>
       </Card>

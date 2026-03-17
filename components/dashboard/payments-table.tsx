@@ -11,24 +11,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PaymentStatusBadge } from "./payment-status-badge";
 
 type Payment = {
+  external_id: string;
   id: string;
-  order_id: string;
   amount: number;
   status: string;
   provider: string;
   created_at: string;
-};
-
-const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  SUCCESS: "default",
-  PENDING: "secondary",
-  FAILED: "destructive",
-  EXPIRED: "outline",
 };
 
 function formatRupiah(amount: number) {
@@ -53,12 +46,16 @@ export function PaymentsTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setPayments([]);
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
     supabase
       .from("payments")
-      .select("id, order_id, amount, status, provider, created_at")
+      .select("id, external_id, amount, status, provider, created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(5)
@@ -98,13 +95,11 @@ export function PaymentsTable() {
             <TableBody>
               {payments.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-mono text-xs">{p.order_id}</TableCell>
+                  <TableCell className="font-mono text-xs">{p.external_id}</TableCell>
                   <TableCell>{formatRupiah(p.amount)}</TableCell>
                   <TableCell className="capitalize text-sm">{p.provider}</TableCell>
                   <TableCell>
-                    <Badge variant={statusVariant[p.status] ?? "secondary"}>
-                      {p.status}
-                    </Badge>
+                    <PaymentStatusBadge status={p.status} showLabel />
                   </TableCell>
                   <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                     {formatDate(p.created_at)}

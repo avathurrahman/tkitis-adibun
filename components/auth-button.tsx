@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRoleForCurrentUser } from "@/lib/data/user-roles";
 import { LogoutButton } from "./logout-button";
 
 export async function AuthButton() {
@@ -37,6 +38,8 @@ export async function AuthButton() {
   }
 
   const email = user.email as string;
+  const userId = user.sub as string;
+  const role = await getUserRoleForCurrentUser(userId, email);
   const initials = email.slice(0, 2).toUpperCase();
 
   return (
@@ -70,13 +73,17 @@ export async function AuthButton() {
         <DropdownMenuItem asChild>
           <Link href="/dashboard/components">Component Showcase</Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
-          Admin
-        </DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          <Link href="/admin">Admin Dashboard</Link>
-        </DropdownMenuItem>
+        {role === "admin" && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+              Admin
+            </DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link href="/admin">Admin Dashboard</Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <LogoutButton asMenuItem />

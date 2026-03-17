@@ -13,7 +13,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
+    "moduleDetection": "force",
     "incremental": true,
+    "types": ["node", "vitest/globals"],
     "plugins": [
       {
         "name": "next"

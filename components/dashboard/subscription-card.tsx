@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { planLabels } from "@/config/subscriptions";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,13 +22,6 @@ function periodProgress(start: string | null, end: string | null): number {
   const elapsed = Date.now() - new Date(start).getTime();
   return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
 }
-
-const planLabel: Record<string, string> = {
-  FREE: "Gratis",
-  BASIC: "Basic",
-  PRO: "Pro",
-  ULTIMATE: "Ultimate",
-};
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   ACTIVE: "default",
@@ -77,7 +71,7 @@ export function SubscriptionCard() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Subscription</CardTitle>
           <div className="flex gap-2">
-            <Badge variant="outline">{planLabel[subscription.plan] ?? subscription.plan}</Badge>
+            <Badge variant="outline">{planLabels[subscription.plan] ?? subscription.plan}</Badge>
             <Badge variant={statusVariant[subscription.status] ?? "secondary"}>
               {subscription.status}
             </Badge>
@@ -97,7 +91,7 @@ export function SubscriptionCard() {
         )}
         {!isPro && (
           <Button size="sm" asChild>
-            <Link href="/#pricing">Upgrade ke Pro</Link>
+            <Link href="/dashboard/billing">Upgrade Paket</Link>
           </Button>
         )}
         {subscription.cancel_at_period_end && (

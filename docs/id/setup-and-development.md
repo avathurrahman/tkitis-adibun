@@ -21,6 +21,7 @@ Repository ini sekarang sudah punya test suite berbasis Vitest dengan:
 
 - Unit test dan route handler test di environment Node
 - Test hook dan komponen di JSDOM lewat Testing Library
+- Playwright smoke test untuk route publik
 - Integrasi yang dimock untuk Supabase, AI provider, Midtrans, Doku, dan Resend
 
 ## Environment Variable
@@ -34,6 +35,7 @@ Isi dengan nilai-nilai berikut:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=url-project-kamu
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=publishable-atau-anon-key-kamu
+SUPABASE_SERVICE_ROLE_KEY=service-role-key-kamu
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 MIDTRANS_SERVER_KEY=server-key-midtrans-kamu
@@ -57,11 +59,12 @@ Catatan:
 
 - `NEXT_PUBLIC_APP_URL` dipakai oleh `config/site.ts` untuk membangun base URL site
 - Kalau Supabase vars belum diset, area yang membutuhkan auth tidak akan berfungsi, tapi app tetap bisa dirender
+- `SUPABASE_SERVICE_ROLE_KEY` dibutuhkan untuk write webhook, update profil, lookup order, dan reporting admin
 - `MIDTRANS_SERVER_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
 - `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` adalah publishable key untuk membuka Snap popup di frontend
 - `EMAIL_FROM` defaultnya `KilatKoding <noreply@kilatkoding.com>` kalau tidak diset; sesuaikan dengan domain pengirim yang sudah diverifikasi di Resend
 - `DOKU_CLIENT_ID` dan `DOKU_SECRET_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
-- `ADMIN_EMAILS` adalah daftar email yang dipisahkan koma yang boleh mengakses `/admin`; kalau kosong, semua user yang sudah login bisa mengaksesnya
+- `ADMIN_EMAILS` sekarang hanya daftar bootstrap; user yang cocok akan di-upsert ke `user_roles` sebagai `admin` saat login pertama
 - Variabel AI bersifat opsional; fitur AI nonaktif kalau key belum diset
 - `AI_DEFAULT_PROVIDER` defaultnya `openai`; set ke `anthropic` untuk pakai Claude
 
@@ -107,14 +110,7 @@ npx supabase db push
 # supabase/migrations/20260316000003_create_payments.sql
 # supabase/migrations/20260316000004_create_waitlist.sql
 # supabase/migrations/20260316000005_create_ai_usage.sql
-```
-
-### 4. Generate TypeScript Types
-
-Setelah migrasi diaplikasikan:
-
-```bash
-npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+# supabase/migrations/20260317000006_add_admin_roles_and_billing_hardening.sql
 ```
 
 ## Setup Midtrans
@@ -164,20 +160,23 @@ Halaman admin di `/admin` menampilkan:
 - Total revenue dari payment yang `PAID`
 - Jumlah subscription aktif
 - Jumlah paket berbayar
-- Tabel 20 payment terbaru
+- Tabel payment terbaru yang sudah dipaginasi
 
-Akses dikontrol oleh `ADMIN_EMAILS`. Kalau env var tidak diset, semua user yang sudah login bisa mengakses `/admin`. Set ke daftar email yang dipisahkan koma untuk membatasi akses.
+Akses dikontrol oleh `user_roles`. `ADMIN_EMAILS` hanya dipakai untuk bootstrap role admin pertama.
 
 ## Perintah Umum
 
 | Perintah | Tujuan |
 | --- | --- |
 | `npm run dev` | Jalankan development server lokal |
+| `npm run env:check` | Validasi env vars wajib dan opsional |
 | `npm run build` | Buat production build |
 | `npm run start` | Jalankan production server setelah build |
 | `npm run lint` | Jalankan ESLint di seluruh repo |
+| `npm run typecheck` | Jalankan pengecekan TypeScript tanpa emit |
 | `npm run test` | Jalankan seluruh automated test sekali |
 | `npm run test:watch` | Jalankan test suite dalam mode watch |
+| `npm run e2e` | Jalankan Playwright smoke tests |
 
 ## Alur Development Lokal
 
@@ -190,4 +189,5 @@ Akses dikontrol oleh `ADMIN_EMAILS`. Kalau env var tidak diset, semua user yang 
 
 - `app/layout.tsx` membangun `metadataBase` dari `VERCEL_URL` kalau tersedia, kalau tidak fallback ke `http://localhost:3000`
 - App menggunakan `next/font/google` untuk Geist — production build butuh akses jaringan saat pertama kali
+- Jalankan `npx playwright install chromium` sekali sebelum pertama kali memakai `npm run e2e` di lokal
 - Belum ada konfigurasi deployment spesifik yang ditambahkan; default Vercel langsung bisa dipakai

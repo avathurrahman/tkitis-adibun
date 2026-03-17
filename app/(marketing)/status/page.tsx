@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { serviceStatusPageConfig, type ServiceStatus } from "@/config/status-page";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -11,34 +12,6 @@ export const metadata = createMetadata({
     "Status operasional layanan KilatKoding — website, auth, database, email, dan payment.",
   path: "/status",
 });
-
-type ServiceStatus = "operational" | "degraded" | "down";
-
-const services: { name: string; description: string; status: ServiceStatus }[] = [
-  { name: "Website", description: "kilatkoding.com", status: "operational" },
-  { name: "Autentikasi", description: "Login, register, OAuth", status: "operational" },
-  { name: "Database", description: "Supabase Postgres", status: "operational" },
-  { name: "Email", description: "Resend transactional email", status: "operational" },
-  { name: "Payment — Midtrans", description: "Snap payment gateway", status: "operational" },
-  { name: "Payment — Doku", description: "JOKUL payment gateway", status: "operational" },
-  { name: "CDN & Hosting", description: "Vercel Edge Network", status: "operational" },
-  { name: "API", description: "REST API endpoints", status: "operational" },
-];
-
-const incidents: { date: string; title: string; resolved: boolean; detail: string }[] = [
-  {
-    date: "10 Mar 2026",
-    title: "Email pengiriman lambat — diselesaikan",
-    resolved: true,
-    detail: "Resend mengalami degradasi selama ~45 menit. Semua email terkirim setelah pemulihan.",
-  },
-  {
-    date: "1 Feb 2026",
-    title: "Midtrans webhook timeout — diselesaikan",
-    resolved: true,
-    detail: "Webhook Midtrans mengalami delay 2–5 menit. Tidak ada pembayaran yang hilang.",
-  },
-];
 
 const statusConfig: Record<ServiceStatus, { label: string; color: string; icon: typeof CheckCircle2 }> = {
   operational: {
@@ -58,7 +31,7 @@ const statusConfig: Record<ServiceStatus, { label: string; color: string; icon: 
   },
 };
 
-const allOperational = services.every((s) => s.status === "operational");
+const allOperational = serviceStatusPageConfig.services.every((service) => service.status === "operational");
 
 export default function StatusPage() {
   return (
@@ -85,12 +58,12 @@ export default function StatusPage() {
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Terakhir diperbarui: 16 Maret 2026, 09:00 WIB
+          Terakhir diperbarui: {serviceStatusPageConfig.lastUpdated}
         </p>
       </div>
 
       <div className="space-y-2">
-        {services.map((service) => {
+        {serviceStatusPageConfig.services.map((service) => {
           const config = statusConfig[service.status];
           const Icon = config.icon;
           return (
@@ -114,11 +87,11 @@ export default function StatusPage() {
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Riwayat Insiden</h2>
-        {incidents.length === 0 ? (
+        {serviceStatusPageConfig.incidents.length === 0 ? (
           <p className="text-sm text-muted-foreground">Tidak ada insiden dalam 90 hari terakhir.</p>
         ) : (
           <div className="space-y-4">
-            {incidents.map((incident) => (
+            {serviceStatusPageConfig.incidents.map((incident) => (
               <div key={incident.title} className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Badge variant={incident.resolved ? "outline" : "destructive"}>

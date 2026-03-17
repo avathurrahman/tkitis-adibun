@@ -15,6 +15,7 @@
 | `lib/` | Shared utilities, Supabase client factories, and payment helpers |
 | `lib/payments/` | Payment gateway client and helper functions |
 | `lib/ai/` | AI provider factory, usage tracking, and middleware |
+| `lib/rate-limit.ts` | Shared in-memory rate limiting and response header helpers |
 | `app/api/` | API route handlers (payments, webhooks) |
 | `emails/` | React Email templates |
 | `hooks/` | Client-side React hooks for auth and subscription state |
@@ -50,6 +51,7 @@
 | `/contact` | `app/(marketing)/contact/page.tsx` | Contact form |
 | `/open` | `app/(marketing)/open/page.tsx` | Open startup metrics |
 | `/order/[id]` | `app/(marketing)/order/[id]/page.tsx` | Order confirmation / post-purchase |
+| `/payment/callback` | `app/payment/callback/route.ts` | Compatibility redirect for payment provider return URLs |
 | `/privacy` | `app/(marketing)/privacy/page.tsx` | Privacy policy |
 | `/roadmap` | `app/(marketing)/roadmap/page.tsx` | Public product roadmap |
 | `/status` | `app/(marketing)/status/page.tsx` | Service status |
@@ -65,7 +67,7 @@
 | `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profile + password change |
 | `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Plan display + payment flow |
 | `/dashboard/components` | `app/(dashboard)/dashboard/components/page.tsx` | Component showcase for dashboard and admin UI |
-| `/admin` | `app/(dashboard)/admin/page.tsx` | Admin dashboard (gated by `ADMIN_EMAILS`) |
+| `/admin` | `app/(dashboard)/admin/page.tsx` | Admin dashboard (gated by `user_roles`) |
 
 ### Auth Routes
 
@@ -85,6 +87,8 @@
 | Route | Method | Purpose |
 | --- | --- | --- |
 | `/api/payments` | POST | Creates a payment session (Midtrans Snap token or Doku checkout URL), inserts pending payment |
+| `/api/profile` | POST | Updates the authenticated user's profile fields |
+| `/api/subscription` | POST | Handles self-serve cancel/resume subscription actions |
 | `/api/webhooks/midtrans` | POST | Verifies signature, updates payment + subscription |
 | `/api/webhooks/doku` | POST | Verifies notification, updates payment + subscription |
 | `/api/contact` | POST | Contact form submission handler |
@@ -256,14 +260,15 @@ Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ra
 
 ## Database Schema
 
-Migrations are in `supabase/migrations/`. Four tables are defined:
+Migrations are in `supabase/migrations/`. Five core tables plus one access-control table are defined:
 
 | Table | Key Columns | Notes |
 | --- | --- | --- |
 | `profiles` | `id` (FK → `auth.users`), `full_name`, `avatar_url` | Auto-created on user signup via trigger |
 | `subscriptions` | `user_id`, `plan` (enum), `status` (enum) | Starts as FREE; auto-created on signup via trigger |
-| `payments` | `user_id`, `amount` (IDR), `provider` (MIDTRANS/DOKU), `external_id` | Supports Midtrans and Doku |
+| `payments` | `user_id`, `amount` (IDR), `plan`, `provider` (MIDTRANS/DOKU), `external_id` | Supports Midtrans and Doku with server-owned plan metadata |
 | `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens` | Tracks per-user AI token usage; indexed by (user_id, created_at) |
+| `user_roles` | `user_id`, `role` (`member`/`admin`) | Source of truth for admin access |
 
 All tables have Row Level Security enabled with user-scoped read policies.
 

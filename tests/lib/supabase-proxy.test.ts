@@ -52,6 +52,31 @@ describe("lib/supabase/proxy", () => {
     );
   });
 
+  it("keeps public marketing routes accessible when signed out", async () => {
+    vi.doMock("@/lib/utils", () => ({
+      hasEnvVars: true,
+    }));
+    vi.doMock("@supabase/ssr", () => ({
+      createServerClient: createServerClientMock,
+    }));
+
+    createServerClientMock.mockReturnValue({
+      auth: {
+        getClaims: vi.fn().mockResolvedValue({
+          data: null,
+        }),
+      },
+    });
+
+    const { NextRequest } = await import("next/server");
+    const { updateSession } = await import("@/lib/supabase/proxy");
+    const response = await updateSession(
+      new NextRequest("http://localhost/about")
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("preserves cookie updates for authenticated requests", async () => {
     vi.doMock("@/lib/utils", () => ({
       hasEnvVars: true,

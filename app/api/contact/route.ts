@@ -1,19 +1,36 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import {
+  applyRateLimitHeaders,
+  createRateLimitResponse,
+  getPublicRateLimitConfig,
+  takeRateLimit,
+} from "@/lib/rate-limit";
 import { contactRequestSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
+  const rateLimit = takeRateLimit(getPublicRateLimitConfig("contact", req));
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit, "Terlalu banyak pesan. Coba lagi nanti.");
+  }
+
   const resendKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM ?? "KilatKoding <noreply@kilatkoding.com>";
   const emailTo = process.env.CONTACT_EMAIL ?? process.env.EMAIL_FROM ?? "hello@kilatkoding.com";
 
   if (!resendKey) {
-    return NextResponse.json({ error: "Email service not configured." }, { status: 503 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Email service not configured." }, { status: 503 }),
+      rateLimit,
+    );
   }
 
   const parsed = contactRequestSchema.safeParse(await req.json());
   if (!parsed.success) {
-    return NextResponse.json({ error: "Semua field wajib diisi." }, { status: 400 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Semua field wajib diisi." }, { status: 400 }),
+      rateLimit,
+    );
   }
   const { name, email, message } = parsed.data;
 
@@ -28,8 +45,11 @@ export async function POST(req: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ error: "Gagal mengirim pesan." }, { status: 500 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Gagal mengirim pesan." }, { status: 500 }),
+      rateLimit,
+    );
   }
 
-  return NextResponse.json({ success: true });
+  return applyRateLimitHeaders(NextResponse.json({ success: true }), rateLimit);
 }

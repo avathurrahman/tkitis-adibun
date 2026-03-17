@@ -1,16 +1,7 @@
 import { z } from "zod";
 
-export const paymentItemSchema = z.object({
-  id: z.string().trim().min(1),
-  name: z.string().trim().min(1),
-  price: z.number().int().positive(),
-  quantity: z.number().int().positive(),
-});
-
 export const paymentRequestSchema = z.object({
-  plan: z.string().trim().min(1),
-  amount: z.number().int().positive(),
-  items: z.array(paymentItemSchema).min(1),
+  plan: z.enum(["BASIC", "PRO", "ULTIMATE"]),
 });
 
 export const contactRequestSchema = z.object({
@@ -22,6 +13,20 @@ export const contactRequestSchema = z.object({
 export const waitlistRequestSchema = z.object({
   email: z.string().trim().email(),
   name: z.string().trim().max(100).optional(),
+});
+
+export const subscriptionManageRequestSchema = z.object({
+  action: z.enum(["cancel", "resume"]),
+});
+
+export const profileUpdateRequestSchema = z.object({
+  avatar_url: z
+    .string()
+    .trim()
+    .url()
+    .or(z.literal(""))
+    .optional(),
+  full_name: z.string().trim().max(100).optional(),
 });
 
 export const aiGenerateRequestSchema = z.object({

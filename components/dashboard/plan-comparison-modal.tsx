@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckIcon, XIcon } from "lucide-react";
+import { paidPlanCatalog } from "@/config/subscriptions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,9 +68,21 @@ const features: PlanFeature[] = [
 
 const plans = [
   { key: "free" as const, label: "Free", price: "Gratis" },
-  { key: "basic" as const, label: "Basic", price: "Rp 49.000" },
-  { key: "pro" as const, label: "Pro", price: "Rp 99.000" },
-  { key: "ultimate" as const, label: "Ultimate", price: "Rp 299.000" },
+  {
+    key: "basic" as const,
+    label: paidPlanCatalog.BASIC.title,
+    price: `Rp ${paidPlanCatalog.BASIC.price.toLocaleString("id-ID")}`,
+  },
+  {
+    key: "pro" as const,
+    label: paidPlanCatalog.PRO.title,
+    price: `Rp ${paidPlanCatalog.PRO.price.toLocaleString("id-ID")}`,
+  },
+  {
+    key: "ultimate" as const,
+    label: paidPlanCatalog.ULTIMATE.title,
+    price: `Rp ${paidPlanCatalog.ULTIMATE.price.toLocaleString("id-ID")}`,
+  },
 ];
 
 function FeatureValue({ value }: { value: boolean | string }) {

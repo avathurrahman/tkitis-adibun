@@ -1,3 +1,5 @@
+import { resetRateLimitStore } from "@/lib/rate-limit";
+
 const sendEmailMock = vi.fn();
 const ResendMock = vi.fn(function ResendMock() {
   return {
@@ -13,11 +15,16 @@ vi.mock("resend", () => ({
 
 describe("app/api/contact/route", () => {
   beforeEach(() => {
+    resetRateLimitStore();
     sendEmailMock.mockReset();
     ResendMock.mockClear();
     delete process.env.RESEND_API_KEY;
     delete process.env.EMAIL_FROM;
     delete process.env.CONTACT_EMAIL;
+  });
+
+  afterEach(() => {
+    resetRateLimitStore();
   });
 
   it("returns 503 when email delivery is not configured", async () => {
@@ -114,5 +121,50 @@ describe("app/api/contact/route", () => {
     await expect(response.json()).resolves.toEqual({
       error: "Gagal mengirim pesan.",
     });
+  });
+
+  it("rate limits repeated submissions from the same IP", async () => {
+    process.env.RESEND_API_KEY = "resend-key";
+    sendEmailMock.mockResolvedValue({ error: null });
+
+    const { POST } = await import("@/app/api/contact/route");
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await POST(
+        new Request("http://localhost/api/contact", {
+          body: JSON.stringify({
+            email: "member@example.com",
+            message: "Halo",
+            name: "Member",
+          }),
+          headers: {
+            "x-forwarded-for": "203.0.113.10",
+          },
+          method: "POST",
+        })
+      );
+
+      expect(response.status).toBe(200);
+    }
+
+    const response = await POST(
+      new Request("http://localhost/api/contact", {
+        body: JSON.stringify({
+          email: "member@example.com",
+          message: "Halo lagi",
+          name: "Member",
+        }),
+        headers: {
+          "x-forwarded-for": "203.0.113.10",
+        },
+        method: "POST",
+      })
+    );
+
+    expect(response.status).toBe(429);
+    await expect(response.json()).resolves.toEqual({
+      error: "Terlalu banyak pesan. Coba lagi nanti.",
+    });
+    expect(response.headers.get("retry-after")).toBeTruthy();
   });
 });

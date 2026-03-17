@@ -13,13 +13,17 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Dashboard nyata di `/dashboard` (dilindungi auth)
 - Config terpusat di `config/site.ts`
 - File migrasi database untuk tabel `profiles`, `subscriptions`, dan `payments`
+- Type schema Supabase lokal tersedia di `types/database.ts`
+- Akses admin berbasis role lewat tabel `user_roles` dengan bootstrap legacy `ADMIN_EMAILS`
 - Integrasi payment Midtrans (Snap token creation + webhook handler)
 - Integrasi payment Doku (JOKUL Checkout + webhook handler)
+- Katalog billing milik server untuk menjaga nominal plan tetap konsisten
+- Self-serve subscription management (cancel/resume di akhir periode)
 - Integrasi email Resend dengan template React Email (welcome, invoice)
 - Hook client-side auth dan subscription (`use-auth`, `use-subscription`)
 - Integrasi AI via Vercel AI SDK (OpenAI + Anthropic, streaming chat + one-shot generation)
 - Admin dashboard di `/admin` dengan statistik payment dan ringkasan subscription
-- Workflow CI GitHub Actions (lint + build di push/PR)
+- Workflow CI GitHub Actions (`lint` + `typecheck` + `test` + `build` di push/PR)
 - Sistem blog MDX di `/blog` dengan dukungan frontmatter, estimasi waktu baca, dan tag
 - 44 komponen shadcn/ui terpasang (library komponen lengkap)
 - Landing page dengan seksi Hero, Features, Testimonials, Pricing, FAQ, dan CTA
@@ -28,10 +32,12 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Admin dashboard dengan grafik revenue recharts, tabel pembayaran sortable, pagination
 - Halaman settings di `/dashboard/settings` dengan tampilan profil dan ganti password
 - Halaman billing di `/dashboard/billing` dengan tampilan paket dan alur pembayaran (Midtrans/Doku)
+- Fallback route callback payment di `/payment/callback`
+- Rate limiting berbasis memori untuk route contact, waitlist, payment, dan AI dengan header respons standar
 - Notifikasi toast Sonner terhubung secara global
 - Fondasi SEO: metadata per-halaman, canonical URL, Open Graph/Twitter card, JSON-LD, sitemap, dan robots
 - Halaman marketing funnel lengkap: `/about`, `/affiliates`, `/changelog`, `/checkout`, `/compare`, `/contact`, `/open`, `/order/[id]`, `/privacy`, `/roadmap`, `/status`, `/terms`, `/use-cases`, `/waitlist`
-- Automated test berbasis Vitest + Testing Library yang mencakup route API, payment provider/webhook, guard AI, helper MDX, hook client, dan form utama
+- Automated test berbasis Vitest + Testing Library yang mencakup route API, payment provider/webhook, guard AI, helper MDX, hook client, rate limiting, dan form utama
 
 ## Baseline Paket Yang Terpasang
 
@@ -69,6 +75,8 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Komponen dasar shadcn/ui tersedia di `components/ui`
 - `config/site.ts` dan `config/navigation.ts` untuk metadata dan navigasi terpusat
 - `POST /api/payments` — membuat payment session (token Midtrans Snap atau URL checkout Doku), menyimpan record payment pending
+- `POST /api/profile` — memperbarui data profil user yang sedang login
+- `POST /api/subscription` — menangani aksi cancel/resume subscription
 - `POST /api/webhooks/midtrans` — verifikasi signature, update status payment + subscription
 - `POST /api/webhooks/doku` — verifikasi notifikasi Doku, update status payment + subscription
 - `sendEmail()` di `lib/email.ts` — mengirim template React Email via Resend
@@ -78,10 +86,11 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - `useAIChat()` di `hooks/use-ai-chat.ts` — hook AI chat client-side yang membungkus Vercel AI SDK `useChat`
 - `POST /api/ai/chat` — streaming chat endpoint (dilindungi auth, tracked usage)
 - `POST /api/ai/generate` — endpoint generasi teks one-shot (dilindungi auth, tracked usage)
+- Form publik dan route mutation AI/payment memakai rate limiting berbasis memori dan mengembalikan header `X-RateLimit-*`
 - `getModel()` di `lib/ai/provider.ts` — factory model provider-agnostic (OpenAI/Anthropic)
 - `authorizeAIRequest()` di `lib/ai/middleware.ts` — auth + enforcement limit usage untuk AI route
 - `trackUsage()` / `checkUsageLimit()` di `lib/ai/usage.ts` — tracking token bulanan per-user
-- Admin dashboard di `/admin` — statistik payment, jumlah subscription, tabel payment terbaru (dibatasi oleh `ADMIN_EMAILS`)
+- Admin dashboard di `/admin` — statistik payment, jumlah subscription, tabel payment terbaru (dibatasi role `admin`)
 - Daftar blog di `/blog` — menampilkan semua post MDX yang dipublikasikan dengan tanggal, estimasi baca, dan tag
 - Detail post blog di `/blog/[slug]` — merender konten MDX dengan prose style Tailwind Typography
 - `getAllPosts()` dan `getPostBySlug()` di `lib/mdx.ts` — helper MDX berbasis file system
@@ -89,11 +98,12 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Halaman settings di `/dashboard/settings` — profil dan ganti password
 - Halaman billing di `/dashboard/billing` — tampilan paket dan alur pembayaran (Midtrans/Doku)
 - Halaman marketing funnel lengkap (about, affiliates, changelog, checkout, compare, contact, open, order, privacy, roadmap, status, terms, use-cases, waitlist)
-- `npm run test` — menjalankan 72 automated test untuk fitur server-side dan client-side
+- `npm run typecheck` — verifikasi TypeScript tanpa emit
+- `npm run test` — menjalankan 78 automated test untuk fitur server-side dan client-side
 
 ## Migrasi Database Siap Diaplikasikan
 
-Lima file migrasi tersedia di `supabase/migrations/`:
+Enam file migrasi tersedia di `supabase/migrations/`:
 
 | File | Membuat |
 | --- | --- |
@@ -102,21 +112,20 @@ Lima file migrasi tersedia di `supabase/migrations/`:
 | `20260316000003_create_payments.sql` | Tabel `payments` + enum (plan, status, provider) |
 | `20260316000004_create_waitlist.sql` | Tabel `waitlist` |
 | `20260316000005_create_ai_usage.sql` | Tabel `ai_usage` + RLS + index untuk query usage bulanan |
+| `20260317000006_add_admin_roles_and_billing_hardening.sql` | Tabel `user_roles`, metadata plan payment, index/RPC reporting admin |
 
-Semua tabel sudah dilengkapi RLS. Migrasi belum diaplikasikan ke project Supabase manapun.
+Semua tabel sudah dilengkapi RLS. Repository ini juga sudah menyertakan `types/database.ts`, tapi kamu tetap sebaiknya regenerate type tersebut setelah migrasi diterapkan ke project Supabase live.
 
 ## Yang Masih Belum Ada
 
-- Aplikasikan migrasi ke project Supabase live dan generate `types/database.ts`
 - Opsi email provider Sumopod / Mailketing
-- UI self-serve subscription management (downgrade / cancel flow)
 - Fitur roadmap seperti team / multi-tenant, API key management, notification system, referral, WhatsApp OTP, dan mobile starter
-- Rate limiting dan file upload
+- File upload
 
 ## Langkah Berikutnya
 
-1. Aplikasikan lima migrasi SQL ke project Supabase kamu
-2. Jalankan `npx supabase gen types typescript --project-id YOUR_ID > types/database.ts`
-3. Aktifkan Google OAuth di Supabase dashboard (Authentication > Providers)
-4. Tambahkan semua key yang diperlukan ke `.env.local` (Supabase, Midtrans, Resend, Doku)
-5. Tambahkan email kamu ke env var `ADMIN_EMAILS` untuk mengakses `/admin`
+1. Aplikasikan enam migrasi SQL ke project Supabase kamu
+2. Tambahkan `SUPABASE_SERVICE_ROLE_KEY` ke `.env.local` supaya webhook, profile update, order lookup, dan admin reporting bisa berjalan
+3. Regenerate `types/database.ts` kalau schema live kamu berbeda
+4. Aktifkan Google OAuth di Supabase dashboard (Authentication > Providers)
+5. Gunakan `ADMIN_EMAILS` hanya untuk bootstrap awal, lalu kelola akses admin lewat tabel `user_roles`
