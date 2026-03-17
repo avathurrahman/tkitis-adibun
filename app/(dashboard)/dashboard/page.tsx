@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
+import { getProfileForCurrentUser } from "@/lib/data/profiles";
 import { hasEnvVars } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
@@ -36,7 +37,10 @@ async function DashboardContent() {
   }
 
   const email = data.claims.email as string;
-  const initials = email.slice(0, 2).toUpperCase();
+  const userId = data.claims.sub as string;
+  const profile = await getProfileForCurrentUser(userId);
+  const displayName = profile?.full_name?.trim() || email;
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <div className="flex flex-col gap-6">
@@ -50,13 +54,16 @@ async function DashboardContent() {
 
       <div className="flex items-center gap-4">
         <Avatar className="h-11 w-11">
+          {profile?.avatar_image_url && (
+            <AvatarImage src={profile.avatar_image_url} alt={displayName} />
+          )}
           <AvatarFallback className="bg-primary/10 text-primary font-medium">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div>
           <h1 className="text-xl font-bold">Selamat datang kembali</h1>
-          <p className="text-sm text-muted-foreground">{email}</p>
+          <p className="text-sm text-muted-foreground">{displayName}</p>
         </div>
       </div>
 

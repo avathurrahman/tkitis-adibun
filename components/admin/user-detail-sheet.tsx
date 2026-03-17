@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PaymentStatusBadge } from "@/components/dashboard/payment-status-badge";
@@ -15,8 +16,9 @@ type UserDetail = {
   id: string;
   email: string;
   full_name: string | null;
-  avatar_url: string | null;
+  avatar_image_url: string | null;
   plan: string;
+  role: "member" | "admin";
   status: string;
   created_at: string;
   current_period_end: string | null;
@@ -53,10 +55,16 @@ const planVariant: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 export function UserDetailSheet({
+  currentAdminUserId,
+  onRoleChange,
+  pendingRoleChange = false,
   user,
   open,
   onOpenChange,
 }: {
+  currentAdminUserId?: string;
+  onRoleChange?: (userId: string, nextRole: "member" | "admin") => void;
+  pendingRoleChange?: boolean;
   user: UserDetail | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -77,8 +85,8 @@ export function UserDetailSheet({
         <div className="mt-6 space-y-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-14 w-14">
-              {user.avatar_url && (
-                <AvatarImage src={user.avatar_url} alt={initials} />
+              {user.avatar_image_url && (
+                <AvatarImage src={user.avatar_image_url} alt={initials} />
               )}
               <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
                 {initials}
@@ -88,7 +96,12 @@ export function UserDetailSheet({
               <p className="font-semibold">
                 {user.full_name ?? "Tanpa Nama"}
               </p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <div className="mt-1 flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                  {user.role}
+                </Badge>
+              </div>
             </div>
           </div>
 
@@ -130,6 +143,40 @@ export function UserDetailSheet({
               </div>
             )}
           </div>
+
+          {onRoleChange && (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold">Akses Admin</h4>
+                <p className="text-sm text-muted-foreground">
+                  Promosikan user menjadi admin atau turunkan kembali ke member.
+                </p>
+                <Button
+                  type="button"
+                  variant={user.role === "admin" ? "destructive" : "default"}
+                  disabled={
+                    pendingRoleChange ||
+                    (user.role === "admin" && currentAdminUserId === user.id)
+                  }
+                  onClick={() =>
+                    onRoleChange(user.id, user.role === "admin" ? "member" : "admin")
+                  }
+                >
+                  {pendingRoleChange
+                    ? "Menyimpan..."
+                    : user.role === "admin"
+                      ? "Turunkan ke Member"
+                      : "Jadikan Admin"}
+                </Button>
+                {user.role === "admin" && currentAdminUserId === user.id && (
+                  <p className="text-xs text-muted-foreground">
+                    Akun admin yang sedang aktif tidak bisa menurunkan rolenya sendiri.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
 
           <Separator />
 

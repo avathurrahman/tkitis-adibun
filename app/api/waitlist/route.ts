@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { waitlistRequestSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
-  const rateLimit = takeRateLimit(getPublicRateLimitConfig("waitlist", req));
+  const rateLimit = await takeRateLimit(getPublicRateLimitConfig("waitlist", req));
   if (!rateLimit.allowed) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak pendaftaran. Coba lagi nanti.");
   }

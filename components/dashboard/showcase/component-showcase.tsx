@@ -97,6 +97,7 @@ const mockUsers: UserRow[] = Array.from({ length: 25 }, (_, i) => ({
   email: `user${i + 1}@example.com`,
   full_name: i % 3 === 0 ? null : `User ${i + 1}`,
   plan: ["FREE", "BASIC", "PRO", "ULTIMATE"][i % 4],
+  role: i % 5 === 0 ? "admin" : "member",
   status: "ACTIVE",
   created_at: daysAgo(Math.floor(Math.random() * 90)),
 }));
@@ -186,7 +187,7 @@ export function ComponentShowcase() {
   const userDetail = selectedUser
     ? {
         ...selectedUser,
-        avatar_url: null,
+        avatar_image_url: null,
         current_period_end: daysAgo(-30),
         payments: [
           { id: "p1", amount: 99_000, status: "PAID", provider: "midtrans", created_at: daysAgo(5) },

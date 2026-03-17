@@ -1,6 +1,10 @@
 const getPaymentByExternalIdMock = vi.fn();
 const updatePaymentByExternalIdMock = vi.fn();
 const activateSubscriptionForPaymentMock = vi.fn();
+const claimWebhookEventMock = vi.fn();
+const createAuditLogMock = vi.fn();
+const markWebhookEventFailedMock = vi.fn();
+const markWebhookEventProcessedMock = vi.fn();
 const verifyMidtransSignatureMock = vi.fn();
 const isMidtransPaymentSuccessMock = vi.fn();
 
@@ -13,6 +17,16 @@ vi.mock("@/lib/data/subscriptions", () => ({
   activateSubscriptionForPayment: activateSubscriptionForPaymentMock,
 }));
 
+vi.mock("@/lib/data/audit-logs", () => ({
+  createAuditLog: createAuditLogMock,
+}));
+
+vi.mock("@/lib/data/webhook-events", () => ({
+  claimWebhookEvent: claimWebhookEventMock,
+  markWebhookEventFailed: markWebhookEventFailedMock,
+  markWebhookEventProcessed: markWebhookEventProcessedMock,
+}));
+
 vi.mock("@/lib/payments/midtrans", () => ({
   isMidtransPaymentSuccess: isMidtransPaymentSuccessMock,
   verifyMidtransSignature: verifyMidtransSignatureMock,
@@ -23,6 +37,10 @@ describe("app/api/webhooks/midtrans/route", () => {
     getPaymentByExternalIdMock.mockReset();
     updatePaymentByExternalIdMock.mockReset();
     activateSubscriptionForPaymentMock.mockReset();
+    claimWebhookEventMock.mockReset();
+    createAuditLogMock.mockReset();
+    markWebhookEventFailedMock.mockReset();
+    markWebhookEventProcessedMock.mockReset();
     verifyMidtransSignatureMock.mockReset();
     isMidtransPaymentSuccessMock.mockReset();
   });
@@ -53,6 +71,10 @@ describe("app/api/webhooks/midtrans/route", () => {
   it("returns 404 when the payment does not exist", async () => {
     verifyMidtransSignatureMock.mockReturnValue(true);
     isMidtransPaymentSuccessMock.mockReturnValue(false);
+    claimWebhookEventMock.mockResolvedValue({
+      id: "evt-1",
+      should_process: true,
+    });
     getPaymentByExternalIdMock.mockResolvedValue(null);
 
     const { POST } = await import("@/app/api/webhooks/midtrans/route");
@@ -71,6 +93,16 @@ describe("app/api/webhooks/midtrans/route", () => {
     );
 
     expect(response.status).toBe(404);
+    expect(markWebhookEventFailedMock).toHaveBeenCalledWith(
+      "evt-1",
+      "Payment record not found",
+    );
+    expect(createAuditLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorEmail: "midtrans@system.local",
+        type: "payment.failed",
+      }),
+    );
     await expect(response.json()).resolves.toEqual({
       error: "Payment record not found",
     });
@@ -79,6 +111,10 @@ describe("app/api/webhooks/midtrans/route", () => {
   it("marks paid payments and activates the subscription", async () => {
     verifyMidtransSignatureMock.mockReturnValue(true);
     isMidtransPaymentSuccessMock.mockReturnValue(true);
+    claimWebhookEventMock.mockResolvedValue({
+      id: "evt-1",
+      should_process: true,
+    });
     getPaymentByExternalIdMock.mockResolvedValue({
       paid_at: null,
       plan: "PRO",
@@ -125,6 +161,13 @@ describe("app/api/webhooks/midtrans/route", () => {
       "PRO",
       expect.any(Date),
     );
+    expect(markWebhookEventProcessedMock).toHaveBeenCalledWith("evt-1");
+    expect(createAuditLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorEmail: "midtrans@system.local",
+        type: "payment.success",
+      }),
+    );
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
       received: true,
@@ -134,6 +177,10 @@ describe("app/api/webhooks/midtrans/route", () => {
   it("maps unsuccessful transaction statuses without activating subscriptions", async () => {
     verifyMidtransSignatureMock.mockReturnValue(true);
     isMidtransPaymentSuccessMock.mockReturnValue(false);
+    claimWebhookEventMock.mockResolvedValue({
+      id: "evt-1",
+      should_process: true,
+    });
     getPaymentByExternalIdMock.mockResolvedValue({
       paid_at: null,
       plan: "PRO",
@@ -171,6 +218,44 @@ describe("app/api/webhooks/midtrans/route", () => {
       })
     );
     expect(activateSubscriptionForPaymentMock).not.toHaveBeenCalled();
+    expect(markWebhookEventProcessedMock).toHaveBeenCalledWith("evt-1");
+    expect(createAuditLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorEmail: "midtrans@system.local",
+        type: "payment.failed",
+      }),
+    );
     expect(response.status).toBe(200);
+  });
+
+  it("returns duplicate for previously processed events", async () => {
+    verifyMidtransSignatureMock.mockReturnValue(true);
+    claimWebhookEventMock.mockResolvedValue({
+      id: "evt-1",
+      should_process: false,
+    });
+
+    const { POST } = await import("@/app/api/webhooks/midtrans/route");
+    const response = await POST(
+      new Request("http://localhost/api/webhooks/midtrans", {
+        body: JSON.stringify({
+          gross_amount: "100000",
+          order_id: "KK-ORDER-1",
+          payment_type: "bank_transfer",
+          signature_key: "valid",
+          status_code: "200",
+          transaction_status: "settlement",
+        }),
+        method: "POST",
+      }) as never
+    );
+
+    expect(getPaymentByExternalIdMock).not.toHaveBeenCalled();
+    expect(updatePaymentByExternalIdMock).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      duplicate: true,
+      received: true,
+    });
   });
 });

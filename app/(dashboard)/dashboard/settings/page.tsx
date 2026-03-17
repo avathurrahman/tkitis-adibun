@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { UpdatePasswordForm } from "@/components/update-password-form";
 import { getProfileForCurrentUser } from "@/lib/data/profiles";
@@ -79,6 +79,9 @@ async function SettingsContent() {
         </CardHeader>
         <CardContent className="flex items-center gap-4">
           <Avatar className="h-14 w-14">
+            {profile?.avatar_image_url && (
+              <AvatarImage src={profile.avatar_image_url} alt={displayName} />
+            )}
             <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
               {initials}
             </AvatarFallback>
@@ -104,9 +107,12 @@ async function SettingsContent() {
         </CardHeader>
         <CardContent>
           <ProfileForm
+            avatarImageUrl={profile?.avatar_image_url ?? null}
+            avatarPath={profile?.avatar_path ?? null}
             avatarUrl={profile?.avatar_url ?? null}
             email={email}
             fullName={profile?.full_name ?? null}
+            userId={userId}
           />
         </CardContent>
       </Card>

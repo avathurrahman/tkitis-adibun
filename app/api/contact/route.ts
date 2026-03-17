@@ -9,7 +9,7 @@ import {
 import { contactRequestSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
-  const rateLimit = takeRateLimit(getPublicRateLimitConfig("contact", req));
+  const rateLimit = await takeRateLimit(getPublicRateLimitConfig("contact", req));
   if (!rateLimit.allowed) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak pesan. Coba lagi nanti.");
   }

@@ -16,7 +16,7 @@ describe("lib/rate-limit", () => {
     resetRateLimitStore();
   });
 
-  it("blocks after the configured limit and resets after the window", () => {
+  it("blocks after the configured limit and resets after the window", async () => {
     const config = {
       key: "127.0.0.1",
       limit: 2,
@@ -24,15 +24,15 @@ describe("lib/rate-limit", () => {
       windowMs: 1_000,
     };
 
-    expect(takeRateLimit(config)).toMatchObject({
+    await expect(takeRateLimit(config)).resolves.toMatchObject({
       allowed: true,
       remaining: 1,
     });
-    expect(takeRateLimit(config)).toMatchObject({
+    await expect(takeRateLimit(config)).resolves.toMatchObject({
       allowed: true,
       remaining: 0,
     });
-    expect(takeRateLimit(config)).toMatchObject({
+    await expect(takeRateLimit(config)).resolves.toMatchObject({
       allowed: false,
       remaining: 0,
       retryAfter: 1,
@@ -40,7 +40,7 @@ describe("lib/rate-limit", () => {
 
     vi.advanceTimersByTime(1_001);
 
-    expect(takeRateLimit(config)).toMatchObject({
+    await expect(takeRateLimit(config)).resolves.toMatchObject({
       allowed: true,
       remaining: 1,
     });

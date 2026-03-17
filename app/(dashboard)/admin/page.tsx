@@ -27,14 +27,20 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { AdminUserManagement } from "@/components/admin/admin-user-management";
+import { AuditLog } from "@/components/admin/audit-log";
+import { WebhookEventsTable } from "@/components/admin/webhook-events-table";
 import { AdminRevenueChart } from "@/components/dashboard/admin-revenue-chart";
 import { getAuthenticatedUser } from "@/lib/data/auth";
+import { getRecentAuditLogs } from "@/lib/data/audit-logs";
 import {
   getAdminMetrics,
   getAdminPaymentsPage,
   getAdminRevenueByDay,
+  getAdminUsers,
 } from "@/lib/data/admin";
 import { isAdminUser } from "@/lib/data/user-roles";
+import { getRecentWebhookEvents } from "@/lib/data/webhook-events";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -78,11 +84,14 @@ async function AdminContent({ page }: { page: number }) {
     redirect("/dashboard");
   }
 
-  const [{ payments, total }, metrics, chartData] =
+  const [{ payments, total }, metrics, chartData, users, webhookEvents, auditLogs] =
     await Promise.all([
       getAdminPaymentsPage(page, PAGE_SIZE),
       getAdminMetrics(),
       getAdminRevenueByDay(),
+      getAdminUsers(),
+      getRecentWebhookEvents(),
+      getRecentAuditLogs(),
     ]);
 
   const totalRevenue = metrics?.total_revenue ?? 0;
@@ -118,6 +127,42 @@ async function AdminContent({ page }: { page: number }) {
       </div>
 
       <AdminRevenueChart data={chartData} />
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Manajemen Pengguna</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Cari user, lihat detail billing, dan kelola role admin tanpa query manual.
+          </p>
+        </div>
+        <AdminUserManagement currentAdminUserId={user.id} users={users} />
+      </div>
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Webhook Events</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Pantau event Midtrans dan Doku, termasuk retry yang gagal dan duplicate delivery.
+          </p>
+        </div>
+        <WebhookEventsTable events={webhookEvents} />
+      </div>
+
+      <Separator />
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Audit Trail</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Lihat perubahan profil, aksi admin, dan event pembayaran terbaru tanpa inspect log manual.
+          </p>
+        </div>
+        <AuditLog entries={auditLogs} />
+      </div>
 
       <Separator />
 

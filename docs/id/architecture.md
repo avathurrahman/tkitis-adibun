@@ -15,8 +15,10 @@
 | `lib/` | Utility bersama, factory Supabase client, dan helper payment |
 | `lib/payments/` | Client payment gateway dan helper functions |
 | `lib/ai/` | Factory provider AI, tracking usage, dan middleware |
-| `lib/rate-limit.ts` | Helper rate limiting berbasis memori dan header respons standar |
+| `lib/rate-limit.ts` | Helper rate limiting persisten berbasis Supabase dengan fallback memori dan header respons standar |
 | `app/api/` | API route handler (payment, webhook) |
+| `lib/data/` | Helper akses data server-side untuk billing, profile, role, webhook event, dan audit log |
+| `lib/storage/` | Konfigurasi upload avatar dan helper signed URL/storage cleanup |
 | `emails/` | Template React Email |
 | `hooks/` | Hook React client-side untuk state auth dan subscription |
 | `supabase/migrations/` | File migrasi SQL untuk schema database |
@@ -88,13 +90,16 @@
 | --- | --- | --- |
 | `/api/payments` | POST | Membuat payment session (token Midtrans Snap atau URL checkout Doku), menyimpan catatan pembayaran pending |
 | `/api/profile` | POST | Memperbarui field profil user yang sedang login |
+| `/api/profile/avatar` | POST | Membuat signed upload URL untuk avatar Supabase Storage |
 | `/api/subscription` | POST | Menangani aksi cancel/resume subscription |
-| `/api/webhooks/midtrans` | POST | Memverifikasi tanda tangan, memperbarui pembayaran + langganan |
-| `/api/webhooks/doku` | POST | Memverifikasi notifikasi, memperbarui pembayaran + langganan |
+| `/api/webhooks/midtrans` | POST | Memverifikasi tanda tangan, mencatat/dedupe delivery webhook, memperbarui pembayaran + langganan |
+| `/api/webhooks/doku` | POST | Memverifikasi notifikasi, mencatat/dedupe delivery webhook, memperbarui pembayaran + langganan |
+| `/api/admin/users/role` | POST | Promote/demote role user dari dashboard admin |
 | `/api/contact` | POST | Handler pengiriman formulir kontak |
 | `/api/waitlist` | POST | Handler pendaftaran waitlist |
 | `/api/ai/chat` | POST | Streaming chat dilindungi auth |
 | `/api/ai/generate` | POST | One-shot generation dilindungi auth |
+| `/api/health` | GET | Health/readiness check untuk konfigurasi dan akses database server-side |
 
 ### File App-Level
 
@@ -260,7 +265,7 @@ Yang sudah terpasang (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-r
 
 ## Schema Database
 
-Migrasi ada di `supabase/migrations/`. Lima tabel inti plus satu tabel kontrol akses sudah didefinisikan:
+Migrasi ada di `supabase/migrations/`. Tabel inti aplikasi, observability, dan kontrol akses sudah didefinisikan:
 
 | Tabel | Kolom Penting | Catatan |
 | --- | --- | --- |
@@ -269,6 +274,9 @@ Migrasi ada di `supabase/migrations/`. Lima tabel inti plus satu tabel kontrol a
 | `payments` | `user_id`, `amount` (IDR), `plan`, `provider` (MIDTRANS/DOKU), `external_id` | Mendukung Midtrans dan Doku dengan metadata plan milik server |
 | `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens`, `created_at` | RLS + index di (user_id, created_at) untuk query usage bulanan |
 | `user_roles` | `user_id`, `role` (`member`/`admin`) | Source of truth akses admin |
+| `webhook_events` | `provider`, `event_key`, `external_id`, `status`, `payload` | Ledger webhook durable untuk duplicate protection dan retry-safe processing |
+| `rate_limit_buckets` | `namespace`, `subject_key`, `count`, `reset_at` | Rate limiting persisten lintas restart dan multi-instance |
+| `audit_logs` | `type`, `actor_user_id`, `actor_email`, `description`, `metadata` | Audit trail operasional untuk aksi profil, payment, dan admin |
 
 Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis user.
 
@@ -290,4 +298,4 @@ Semua tabel sudah mengaktifkan Row Level Security dengan policy read berbasis us
 
 - TypeScript types dari schema Supabase belum di-generate (butuh project yang sudah terhubung dengan migrasi diaplikasikan)
 - Belum ada domain/service layer (query langsung ada di page component untuk sekarang)
-- Belum ada layer khusus untuk rate limiting atau file upload
+- Fondasi team / multi-tenant masih belum tersedia

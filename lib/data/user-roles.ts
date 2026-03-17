@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, hasServiceRoleEnv } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { DbEnum } from "@/types/database";
 
@@ -51,4 +51,17 @@ export async function getUserRoleForCurrentUser(
 
 export async function isAdminUser(userId: string, email: string) {
   return (await getUserRoleForCurrentUser(userId, email)) === "admin";
+}
+
+export async function setUserRoleForUser(userId: string, role: AppRole) {
+  if (!hasServiceRoleEnv) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
+  }
+
+  const adminClient = createAdminClient();
+  return adminClient.from("user_roles").upsert({
+    role,
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  });
 }

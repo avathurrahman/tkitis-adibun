@@ -1,27 +1,133 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProfileAvatar } from "@/components/dashboard/profile-avatar";
+import {
+  AVATAR_ALLOWED_TYPES,
+  AVATAR_BUCKET,
+  AVATAR_MAX_BYTES,
+  isSupportedAvatarType,
+} from "@/lib/storage/avatar-config";
+import { createClient } from "@/lib/supabase/client";
 
 export function ProfileForm({
+  avatarImageUrl,
+  avatarPath,
   avatarUrl,
   email,
   fullName,
+  userId,
 }: {
+  avatarImageUrl: string | null;
+  avatarPath: string | null;
   avatarUrl: string | null;
   email: string;
   fullName: string | null;
+  userId: string;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
   const [formState, setFormState] = useState({
+    avatar_path: avatarPath ?? "",
     avatar_url: avatarUrl ?? "",
     full_name: fullName ?? "",
   });
+  const displayName = formState.full_name.trim() || email;
+  const avatarPreview =
+    uploadedPreviewUrl ??
+    (formState.avatar_path ? avatarImageUrl : formState.avatar_url || null);
+
+  useEffect(() => {
+    return () => {
+      if (uploadedPreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(uploadedPreviewUrl);
+      }
+    };
+  }, [uploadedPreviewUrl]);
+
+  async function handleAvatarUpload(file: File) {
+    if (file.size > AVATAR_MAX_BYTES) {
+      toast.error("Ukuran avatar maksimal 2MB.");
+      return;
+    }
+
+    if (!isSupportedAvatarType(file.type)) {
+      toast.error(`Format avatar harus salah satu dari: ${AVATAR_ALLOWED_TYPES.join(", ")}`);
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileSize: file.size,
+          fileType: file.type,
+          userId,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error ?? "Gagal menyiapkan upload avatar.");
+        return;
+      }
+
+      const supabase = createClient();
+      const { error } = await supabase.storage.from(AVATAR_BUCKET).uploadToSignedUrl(
+        data.path,
+        data.token,
+        file,
+        {
+          cacheControl: "3600",
+          contentType: file.type,
+          upsert: true,
+        },
+      );
+
+      if (error) {
+        toast.error("Gagal mengunggah avatar.");
+        return;
+      }
+
+      if (uploadedPreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(uploadedPreviewUrl);
+      }
+
+      setUploadedPreviewUrl(URL.createObjectURL(file));
+      setFormState((current) => ({
+        ...current,
+        avatar_path: data.path,
+      }));
+      toast.success("Avatar berhasil diunggah. Simpan profil untuk menerapkan.");
+    } catch {
+      toast.error("Gagal mengunggah avatar.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
+  function handleAvatarClear() {
+    if (uploadedPreviewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(uploadedPreviewUrl);
+    }
+
+    setUploadedPreviewUrl(null);
+    setFormState((current) => ({
+      ...current,
+      avatar_path: "",
+    }));
+    toast.success("Avatar upload dihapus dari profil. Simpan perubahan untuk menerapkan.");
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,6 +159,31 @@ export function ProfileForm({
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <ProfileAvatar
+            src={avatarPreview}
+            fallback={displayName}
+            editable
+            onUpload={handleAvatarUpload}
+          />
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Avatar</p>
+            <p className="text-xs text-muted-foreground">
+              Upload JPG, PNG, WebP, atau GIF sampai 2MB. Avatar upload akan diprioritaskan
+              dibanding URL manual.
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAvatarClear}
+          disabled={uploadingAvatar || !formState.avatar_path}
+        >
+          Hapus Avatar Upload
+        </Button>
+      </div>
       <div className="grid gap-2">
         <Label htmlFor="profile-email">Email</Label>
         <Input id="profile-email" value={email} disabled readOnly />
@@ -85,9 +216,12 @@ export function ProfileForm({
           }
           placeholder="https://..."
         />
+        <p className="text-xs text-muted-foreground">
+          URL ini dipakai sebagai fallback jika kamu tidak memakai avatar upload dari storage.
+        </p>
       </div>
       <div>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || uploadingAvatar}>
           {pending ? "Menyimpan..." : "Simpan Profil"}
         </Button>
       </div>

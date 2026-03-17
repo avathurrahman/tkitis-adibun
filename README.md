@@ -15,7 +15,7 @@ Boilerplate Next.js untuk developer Indonesia yang mau build SaaS dengan cepat �
 - **Payments:** Midtrans (Snap) + Doku (JOKUL) — keduanya payment gateway Indonesia
 - **Email:** Resend + React Email — template welcome & invoice dalam Bahasa Indonesia
 - **Blog:** MDX dengan frontmatter, reading time, dan tag support
-- **Database:** Supabase PostgreSQL — migrations untuk `profiles`, `subscriptions`, `payments`, `user_roles`, `waitlist`, `ai_usage` (semua dengan RLS)
+- **Database:** Supabase PostgreSQL — migrations untuk `profiles`, `subscriptions`, `payments`, `user_roles`, `waitlist`, `ai_usage`, `webhook_events`, `rate_limit_buckets`, dan `audit_logs` (semua dengan RLS)
 - **CI:** GitHub Actions (`lint` + `typecheck` + `test` + `build` + Playwright smoke test)
 
 ---
@@ -68,6 +68,7 @@ ADMIN_EMAILS=you@example.com
 Catatan penting:
 - `MIDTRANS_SERVER_KEY`, `DOKU_CLIENT_ID`, dan `DOKU_SECRET_KEY` adalah server-only — jangan beri prefix `NEXT_PUBLIC_`
 - `SUPABASE_SERVICE_ROLE_KEY` dipakai untuk webhook, billing writes, dan reporting admin
+- `SUPABASE_SERVICE_ROLE_KEY` juga dipakai untuk signed avatar URLs, persistent rate limiting, audit log, dan health check database
 - `ADMIN_EMAILS` sekarang hanya untuk bootstrap awal admin; source of truth akses admin ada di tabel `user_roles`
 - `EMAIL_FROM` default ke `KilatKoding <noreply@kilatkoding.com>` jika tidak diset
 
@@ -110,6 +111,10 @@ Migrations tersedia di `supabase/migrations/`:
 | `20260316000004_create_waitlist.sql` | Tabel `waitlist` |
 | `20260316000005_create_ai_usage.sql` | Tabel `ai_usage` |
 | `20260317000006_add_admin_roles_and_billing_hardening.sql` | Tabel `user_roles`, metadata plan pembayaran, index/reporting admin |
+| `20260317000007_add_avatar_storage.sql` | Kolom `profiles.avatar_path` + bucket/policy Supabase Storage untuk avatar |
+| `20260317000008_add_webhook_events.sql` | Tabel `webhook_events` + RPC claim idempotent untuk webhook Midtrans/Doku |
+| `20260317000009_add_persistent_rate_limits.sql` | Tabel `rate_limit_buckets` + RPC rate limiting persisten |
+| `20260317000010_add_audit_logs.sql` | Tabel `audit_logs` untuk jejak aksi admin, profile, dan payment |
 
 Cara apply:
 
@@ -147,5 +152,9 @@ Semua config file ini dirancang untuk memberikan konteks yang akurat tentang sta
 - `POST /api/payments` sekarang memakai katalog plan di server. Client tidak bisa lagi menentukan nominal pembayaran sendiri.
 - Billing user mendukung cancel/resume di akhir periode, dan subscription berbayar otomatis turun ke `FREE` setelah periode aktif berakhir bila tidak diperpanjang.
 - `/admin` sekarang memerlukan role admin. User yang email-nya ada di `ADMIN_EMAILS` akan otomatis di-bootstrap ke role `admin` saat login pertama.
-- Endpoint publik dan endpoint AI/payment sekarang punya proteksi rate limiting dasar berbasis memori dengan header `X-RateLimit-*`.
+- Endpoint publik dan endpoint AI/payment sekarang memakai rate limiting persisten berbasis Supabase saat `SUPABASE_SERVICE_ROLE_KEY` tersedia, dengan fallback memori di local/dev dan header `X-RateLimit-*`.
+- Avatar profil sekarang bisa di-upload ke Supabase Storage melalui signed upload URL, dan object lama ikut dibersihkan saat avatar diganti/dihapus.
+- Webhook Midtrans/Doku sekarang punya event log, duplicate protection, dan retry-safe processing lewat tabel `webhook_events`.
+- `/admin` sekarang menampilkan manajemen user, recent webhook events, dan audit trail dari event nyata.
+- `GET /api/health` tersedia untuk health check konfigurasi utama dan konektivitas database server-side.
 - Payment provider return URL diarahkan ke `/order/[id]`, dan `/payment/callback` disediakan sebagai fallback redirect kompatibilitas.

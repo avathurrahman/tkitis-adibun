@@ -19,7 +19,13 @@ export const subscriptionManageRequestSchema = z.object({
   action: z.enum(["cancel", "resume"]),
 });
 
+export const adminRoleUpdateRequestSchema = z.object({
+  role: z.enum(["member", "admin"]),
+  user_id: z.string().trim().uuid(),
+});
+
 export const profileUpdateRequestSchema = z.object({
+  avatar_path: z.string().trim().max(255).or(z.literal("")).optional(),
   avatar_url: z
     .string()
     .trim()

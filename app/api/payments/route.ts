@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const userId = authData.claims.sub as string;
   const userEmail = authData.claims.email as string;
-  const rateLimit = takeRateLimit(getPaymentRateLimitConfig(userId));
+  const rateLimit = await takeRateLimit(getPaymentRateLimitConfig(userId));
 
   if (!rateLimit.allowed) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak percobaan pembayaran. Coba lagi nanti.");

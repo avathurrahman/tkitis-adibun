@@ -7,6 +7,7 @@ import {
   CreditCardIcon,
   LogInIcon,
   ShieldIcon,
+  UserCircleIcon,
   UserPlusIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -14,50 +15,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTableToolbar } from "@/components/dashboard/data-table-toolbar";
+import type { AuditEntry, AuditEventType } from "@/lib/data/audit-logs";
 import { cn } from "@/lib/utils";
 
-export type AuditEventType =
-  | "user.signup"
-  | "user.login"
-  | "subscription.change"
-  | "payment.success"
-  | "payment.failed"
-  | "admin.action";
-
-export type AuditEntry = {
-  id: string;
-  type: AuditEventType;
-  actor_email: string;
-  description: string;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-};
+export type { AuditEntry, AuditEventType };
 
 const eventIcons: Record<AuditEventType, LucideIcon> = {
+  "admin.action": ShieldIcon,
+  "payment.failed": CreditCardIcon,
+  "payment.success": CreditCardIcon,
+  "profile.update": UserCircleIcon,
+  "subscription.change": ShieldIcon,
   "user.signup": UserPlusIcon,
   "user.login": LogInIcon,
-  "subscription.change": ShieldIcon,
-  "payment.success": CreditCardIcon,
-  "payment.failed": CreditCardIcon,
-  "admin.action": ShieldIcon,
 };
 
 const eventColors: Record<AuditEventType, string> = {
+  "admin.action": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  "payment.failed": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  "payment.success": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  "profile.update": "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400",
+  "subscription.change": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
   "user.signup": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   "user.login": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  "subscription.change": "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  "payment.success": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  "payment.failed": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  "admin.action": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
 };
 
 const typeLabels: Record<AuditEventType, string> = {
+  "admin.action": "Admin",
+  "payment.failed": "Payment Failed",
+  "payment.success": "Payment",
+  "profile.update": "Profile",
+  "subscription.change": "Subscription",
   "user.signup": "Signup",
   "user.login": "Login",
-  "subscription.change": "Subscription",
-  "payment.success": "Payment",
-  "payment.failed": "Payment Failed",
-  "admin.action": "Admin",
 };
 
 const PAGE_SIZE = 15;

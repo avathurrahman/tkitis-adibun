@@ -39,6 +39,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      audit_logs: {
+        Row: {
+          actor_email: string;
+          actor_user_id: string | null;
+          created_at: string;
+          description: string;
+          id: string;
+          metadata: Json | null;
+          type: string;
+        };
+        Insert: {
+          actor_email: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          description: string;
+          id?: string;
+          metadata?: Json | null;
+          type: string;
+        };
+        Update: {
+          actor_email?: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          description?: string;
+          id?: string;
+          metadata?: Json | null;
+          type?: string;
+        };
+        Relationships: [];
+      };
       payments: {
         Row: {
           amount: number;
@@ -93,8 +123,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      rate_limit_buckets: {
+        Row: {
+          count: number;
+          created_at: string;
+          namespace: string;
+          reset_at: string;
+          subject_key: string;
+          updated_at: string;
+        };
+        Insert: {
+          count?: number;
+          created_at?: string;
+          namespace: string;
+          reset_at: string;
+          subject_key: string;
+          updated_at?: string;
+        };
+        Update: {
+          count?: number;
+          created_at?: string;
+          namespace?: string;
+          reset_at?: string;
+          subject_key?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
+          avatar_path: string | null;
           avatar_url: string | null;
           created_at: string;
           full_name: string | null;
@@ -102,6 +160,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          avatar_path?: string | null;
           avatar_url?: string | null;
           created_at?: string;
           full_name?: string | null;
@@ -109,6 +168,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          avatar_path?: string | null;
           avatar_url?: string | null;
           created_at?: string;
           full_name?: string | null;
@@ -177,6 +237,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      webhook_events: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          event_key: string;
+          event_type: string;
+          external_id: string;
+          id: string;
+          payload: Json;
+          processed_at: string | null;
+          provider: Database["public"]["Enums"]["payment_provider"];
+          status: Database["public"]["Enums"]["webhook_event_status"];
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          event_key: string;
+          event_type: string;
+          external_id: string;
+          id?: string;
+          payload: Json;
+          processed_at?: string | null;
+          provider: Database["public"]["Enums"]["payment_provider"];
+          status?: Database["public"]["Enums"]["webhook_event_status"];
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          event_key?: string;
+          event_type?: string;
+          external_id?: string;
+          id?: string;
+          payload?: Json;
+          processed_at?: string | null;
+          provider?: Database["public"]["Enums"]["payment_provider"];
+          status?: Database["public"]["Enums"]["webhook_event_status"];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       waitlist: {
         Row: {
           created_at: string;
@@ -220,6 +322,44 @@ export type Database = {
           revenue: number;
         }[];
       };
+      claim_webhook_event: {
+        Args: {
+          p_event_key: string;
+          p_event_type: string;
+          p_external_id: string;
+          p_payload: Json;
+          p_provider: Database["public"]["Enums"]["payment_provider"];
+        };
+        Returns: {
+          created_at: string;
+          error_message: string | null;
+          event_key: string;
+          event_type: string;
+          external_id: string;
+          id: string;
+          payload: Json;
+          processed_at: string | null;
+          provider: Database["public"]["Enums"]["payment_provider"];
+          should_process: boolean;
+          status: Database["public"]["Enums"]["webhook_event_status"];
+          updated_at: string;
+        }[];
+      };
+      consume_rate_limit: {
+        Args: {
+          p_limit: number;
+          p_namespace: string;
+          p_subject_key: string;
+          p_window_seconds: number;
+        };
+        Returns: {
+          allowed: boolean;
+          limit: number;
+          remaining: number;
+          reset_at: string;
+          retry_after: number;
+        }[];
+      };
     };
     Enums: {
       app_role: "member" | "admin";
@@ -227,6 +367,7 @@ export type Database = {
       payment_status: "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "EXPIRED";
       plan: "FREE" | "BASIC" | "PRO" | "ULTIMATE";
       subscription_status: "ACTIVE" | "CANCELED" | "PAST_DUE" | "UNPAID";
+      webhook_event_status: "processing" | "processed" | "failed";
     };
     CompositeTypes: Record<string, never>;
   };

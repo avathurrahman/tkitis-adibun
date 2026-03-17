@@ -15,8 +15,10 @@
 | `lib/` | Shared utilities, Supabase client factories, and payment helpers |
 | `lib/payments/` | Payment gateway client and helper functions |
 | `lib/ai/` | AI provider factory, usage tracking, and middleware |
-| `lib/rate-limit.ts` | Shared in-memory rate limiting and response header helpers |
+| `lib/rate-limit.ts` | Shared persistent rate limiting with Supabase fallback to memory and response header helpers |
 | `app/api/` | API route handlers (payments, webhooks) |
+| `lib/data/` | Server-side data access helpers for billing, profiles, roles, webhook events, and audit logs |
+| `lib/storage/` | Avatar upload/storage configuration and signed URL helpers |
 | `emails/` | React Email templates |
 | `hooks/` | Client-side React hooks for auth and subscription state |
 | `supabase/migrations/` | SQL migration files for database schema |
@@ -88,13 +90,16 @@
 | --- | --- | --- |
 | `/api/payments` | POST | Creates a payment session (Midtrans Snap token or Doku checkout URL), inserts pending payment |
 | `/api/profile` | POST | Updates the authenticated user's profile fields |
+| `/api/profile/avatar` | POST | Issues signed upload URLs for Supabase Storage avatars |
 | `/api/subscription` | POST | Handles self-serve cancel/resume subscription actions |
-| `/api/webhooks/midtrans` | POST | Verifies signature, updates payment + subscription |
-| `/api/webhooks/doku` | POST | Verifies notification, updates payment + subscription |
+| `/api/webhooks/midtrans` | POST | Verifies signature, logs/deduplicates webhook delivery, updates payment + subscription |
+| `/api/webhooks/doku` | POST | Verifies notification, logs/deduplicates webhook delivery, updates payment + subscription |
+| `/api/admin/users/role` | POST | Promotes or demotes a user role from the admin dashboard |
 | `/api/contact` | POST | Contact form submission handler |
 | `/api/waitlist` | POST | Waitlist sign-up handler |
 | `/api/ai/chat` | POST | Streaming chat (auth + plan-gated) |
 | `/api/ai/generate` | POST | One-shot text generation (auth + plan-gated) |
+| `/api/health` | GET | Health/readiness check for configuration and server-side database access |
 
 ### App-Level Files
 
@@ -260,7 +265,7 @@ Currently installed (44 total): `accordion`, `alert`, `alert-dialog`, `aspect-ra
 
 ## Database Schema
 
-Migrations are in `supabase/migrations/`. Five core tables plus one access-control table are defined:
+Migrations are in `supabase/migrations/`. Core product, observability, and access-control tables are defined:
 
 | Table | Key Columns | Notes |
 | --- | --- | --- |
@@ -269,6 +274,9 @@ Migrations are in `supabase/migrations/`. Five core tables plus one access-contr
 | `payments` | `user_id`, `amount` (IDR), `plan`, `provider` (MIDTRANS/DOKU), `external_id` | Supports Midtrans and Doku with server-owned plan metadata |
 | `ai_usage` | `user_id`, `provider`, `model`, `prompt_tokens`, `completion_tokens` | Tracks per-user AI token usage; indexed by (user_id, created_at) |
 | `user_roles` | `user_id`, `role` (`member`/`admin`) | Source of truth for admin access |
+| `webhook_events` | `provider`, `event_key`, `external_id`, `status`, `payload` | Durable webhook ledger powering duplicate protection and retry-safe processing |
+| `rate_limit_buckets` | `namespace`, `subject_key`, `count`, `reset_at` | Persistent rate limiting across restarts and multiple instances |
+| `audit_logs` | `type`, `actor_user_id`, `actor_email`, `description`, `metadata` | Admin-facing operational/audit trail for profile, payment, and admin actions |
 
 All tables have Row Level Security enabled with user-scoped read policies.
 
@@ -290,4 +298,4 @@ All tables have Row Level Security enabled with user-scoped read policies.
 
 - No TypeScript types generated from Supabase schema yet (needs live project with migrations applied)
 - No domain/service layer (queries live directly in page components for now)
-- No dedicated rate limiting or file upload layer yet
+- Team / multi-tenant foundation is still not present

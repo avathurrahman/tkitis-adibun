@@ -21,6 +21,7 @@ export type UserRow = {
   email: string;
   full_name: string | null;
   plan: string;
+  role: "member" | "admin";
   status: string;
   created_at: string;
 };
@@ -30,6 +31,11 @@ const planVariant: Record<string, "default" | "secondary" | "outline"> = {
   BASIC: "secondary",
   PRO: "default",
   ULTIMATE: "default",
+};
+
+const roleVariant: Record<"member" | "admin", "outline" | "default"> = {
+  admin: "default",
+  member: "outline",
 };
 
 function formatDate(iso: string) {
@@ -51,6 +57,7 @@ export function UserTable({
 }) {
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("ALL");
+  const [roleFilter, setRoleFilter] = useState("ALL");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -66,8 +73,11 @@ export function UserTable({
     if (planFilter !== "ALL") {
       result = result.filter((u) => u.plan === planFilter);
     }
+    if (roleFilter !== "ALL") {
+      result = result.filter((u) => u.role === roleFilter);
+    }
     return result;
-  }, [users, search, planFilter]);
+  }, [users, search, planFilter, roleFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice(
@@ -81,6 +91,7 @@ export function UserTable({
         { key: "email", label: "Email" },
         { key: "full_name", label: "Nama" },
         { key: "plan", label: "Plan" },
+        { key: "role", label: "Role" },
         { key: "status", label: "Status" },
         { key: "created_at", label: "Tanggal Daftar" },
       ]);
@@ -123,6 +134,19 @@ export function UserTable({
                 { label: "Ultimate", value: "ULTIMATE" },
               ],
             },
+            {
+              value: roleFilter,
+              onChange: (v) => {
+                setRoleFilter(v);
+                setPage(1);
+              },
+              placeholder: "Semua Role",
+              options: [
+                { label: "Semua Role", value: "ALL" },
+                { label: "Admin", value: "admin" },
+                { label: "Member", value: "member" },
+              ],
+            },
           ]}
         >
           <ExportButton onExport={handleExport} />
@@ -135,6 +159,7 @@ export function UserTable({
                 <TableHead>Email</TableHead>
                 <TableHead className="hidden sm:table-cell">Nama</TableHead>
                 <TableHead>Plan</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead className="hidden sm:table-cell">Tanggal Daftar</TableHead>
                 {onViewUser && <TableHead className="w-10" />}
               </TableRow>
@@ -143,7 +168,7 @@ export function UserTable({
               {paginated.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={onViewUser ? 5 : 4}
+                    colSpan={onViewUser ? 6 : 5}
                     className="text-center text-muted-foreground py-8"
                   >
                     Tidak ada pengguna ditemukan.
@@ -161,6 +186,11 @@ export function UserTable({
                     <TableCell>
                       <Badge variant={planVariant[user.plan] ?? "outline"}>
                         {user.plan}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={roleVariant[user.role] ?? "outline"}>
+                        {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">

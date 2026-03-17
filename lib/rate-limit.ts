@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createAdminClient, hasServiceRoleEnv } from "@/lib/supabase/admin";
 import type { Plan } from "@/lib/ai/usage";
 
 type RateLimitBucket = {
@@ -22,6 +23,8 @@ type RateLimitConfig = {
 };
 
 const rateLimitStore = getRateLimitStore();
+const RATE_LIMIT_CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
+const RATE_LIMIT_RETENTION_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 const CONTACT_RATE_LIMIT = {
   limit: 5,
@@ -66,6 +69,7 @@ const AI_RATE_LIMITS: Record<Plan, Omit<RateLimitConfig, "key">> = {
 
 declare global {
   var __kilatkodingRateLimitStore: Map<string, RateLimitBucket> | undefined;
+  var __kilatkodingRateLimitCleanupAt: number | undefined;
 }
 
 function getRateLimitStore() {
@@ -125,7 +129,7 @@ export function getAiRateLimitConfig(userId: string, plan: Plan): RateLimitConfi
   };
 }
 
-export function takeRateLimit(config: RateLimitConfig): RateLimitResult {
+function takeInMemoryRateLimit(config: RateLimitConfig): RateLimitResult {
   const now = Date.now();
   pruneExpiredBuckets(now);
 
@@ -169,6 +173,70 @@ export function takeRateLimit(config: RateLimitConfig): RateLimitResult {
   };
 }
 
+async function takePersistentRateLimit(config: RateLimitConfig): Promise<RateLimitResult | null> {
+  if (!hasServiceRoleEnv) {
+    return null;
+  }
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient.rpc("consume_rate_limit", {
+    p_limit: config.limit,
+    p_namespace: config.namespace,
+    p_subject_key: config.key,
+    p_window_seconds: Math.ceil(config.windowMs / 1000),
+  });
+
+  if (error || !data?.[0]) {
+    throw error ?? new Error("Failed to consume persistent rate limit");
+  }
+
+  void cleanupExpiredRateLimitBuckets();
+
+  return {
+    allowed: data[0].allowed,
+    limit: data[0].limit,
+    remaining: data[0].remaining,
+    resetAt: new Date(data[0].reset_at).getTime(),
+    retryAfter: data[0].retry_after,
+  };
+}
+
+async function cleanupExpiredRateLimitBuckets() {
+  if (!hasServiceRoleEnv) {
+    return;
+  }
+
+  const now = Date.now();
+  const lastCleanupAt = globalThis.__kilatkodingRateLimitCleanupAt ?? 0;
+
+  if (now - lastCleanupAt < RATE_LIMIT_CLEANUP_INTERVAL_MS) {
+    return;
+  }
+
+  globalThis.__kilatkodingRateLimitCleanupAt = now;
+
+  try {
+    const adminClient = createAdminClient();
+    const cutoff = new Date(now - RATE_LIMIT_RETENTION_WINDOW_MS).toISOString();
+    await adminClient.from("rate_limit_buckets").delete().lt("reset_at", cutoff);
+  } catch (error) {
+    console.error("Failed to clean up persistent rate limit buckets:", error);
+  }
+}
+
+export async function takeRateLimit(config: RateLimitConfig): Promise<RateLimitResult> {
+  try {
+    const persistentResult = await takePersistentRateLimit(config);
+    if (persistentResult) {
+      return persistentResult;
+    }
+  } catch (error) {
+    console.error("Failed to use persistent rate limit backend:", error);
+  }
+
+  return takeInMemoryRateLimit(config);
+}
+
 export function applyRateLimitHeaders(response: Response, rateLimit?: RateLimitResult | null) {
   if (!rateLimit) {
     return response;
@@ -201,4 +269,5 @@ export function createRateLimitResponse(rateLimit: RateLimitResult, error: strin
 
 export function resetRateLimitStore() {
   rateLimitStore.clear();
+  globalThis.__kilatkodingRateLimitCleanupAt = 0;
 }

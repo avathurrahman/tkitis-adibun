@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const selectedProvider = provider ?? "openai";
   const auth = await authorizeAIRequest(selectedProvider);
   if (auth instanceof Response) return auth;
-  const rateLimit = takeRateLimit(getAiRateLimitConfig(auth.userId, auth.plan));
+  const rateLimit = await takeRateLimit(getAiRateLimitConfig(auth.userId, auth.plan));
 
   if (!rateLimit.allowed) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak request AI. Coba lagi sebentar.");
