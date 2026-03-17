@@ -50,19 +50,32 @@ export async function AuthButton() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <p className="text-xs text-muted-foreground truncate">{email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+          Workspace
+        </DropdownMenuLabel>
         <DropdownMenuItem asChild>
           <Link href="/dashboard">Dashboard</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/billing">Billing</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/dashboard/settings">Pengaturan</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/dashboard/billing">Billing</Link>
+          <Link href="/dashboard/components">Component Showcase</Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+          Admin
+        </DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href="/admin">Admin Dashboard</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

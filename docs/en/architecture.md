@@ -64,6 +64,7 @@
 | `/dashboard` | `app/(dashboard)/dashboard/page.tsx` | Main user dashboard |
 | `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profile + password change |
 | `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Plan display + payment flow |
+| `/dashboard/components` | `app/(dashboard)/dashboard/components/page.tsx` | Component showcase for dashboard and admin UI |
 | `/admin` | `app/(dashboard)/admin/page.tsx` | Admin dashboard (gated by `ADMIN_EMAILS`) |
 
 ### Auth Routes

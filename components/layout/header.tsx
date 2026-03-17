@@ -55,30 +55,40 @@ export function Header({ variant = "marketing" }: { variant?: HeaderVariant }) {
                 <span className="sr-only">Buka menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0">
+            <SheetContent side="right" className="w-80 p-0 sm:w-[420px]">
               <SheetHeader className="px-4 pt-4 pb-2">
                 <SheetTitle className="text-left">{siteConfig.name}</SheetTitle>
               </SheetHeader>
               <ScrollArea className="h-[calc(100vh-80px)]">
-                <div className="px-2 pb-6 space-y-1">
+                <div className="space-y-4 px-3 pb-6">
                   {entries.map((entry) => {
                     if (isNavGroup(entry)) {
                       return (
-                        <div key={entry.label} className="space-y-1 pt-2">
+                        <div key={entry.label} className="space-y-2 rounded-lg border p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            {entry.label}
+                          </p>
                           {entry.children.map((group) => (
-                            <div key={group.group} className="space-y-0.5">
-                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-3 pt-3 pb-1">
+                            <div key={group.group} className="space-y-1.5">
+                              <p className="px-1 pt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground first:pt-0">
                                 {group.group}
                               </p>
                               {group.items.map((item) => (
                                 <Button
                                   key={item.href}
                                   variant="ghost"
-                                  className="w-full justify-start h-auto py-2 px-3"
+                                  className="h-auto w-full justify-start px-3 py-3"
                                   asChild
                                 >
                                   <Link href={item.href}>
-                                    <span className="text-sm">{item.label}</span>
+                                    <span className="flex flex-col items-start text-left">
+                                      <span className="text-sm font-medium">{item.label}</span>
+                                      {item.description && (
+                                        <span className="text-xs text-muted-foreground whitespace-normal">
+                                          {item.description}
+                                        </span>
+                                      )}
+                                    </span>
                                   </Link>
                                 </Button>
                               ))}
@@ -92,10 +102,19 @@ export function Header({ variant = "marketing" }: { variant?: HeaderVariant }) {
                       <Button
                         key={entry.href}
                         variant="ghost"
-                        className="w-full justify-start"
+                        className="h-auto w-full justify-start rounded-lg border px-3 py-3"
                         asChild
                       >
-                        <Link href={entry.href}>{entry.label}</Link>
+                        <Link href={entry.href}>
+                          <span className="flex flex-col items-start text-left">
+                            <span className="text-sm font-medium">{entry.label}</span>
+                            {entry.description && (
+                              <span className="text-xs text-muted-foreground whitespace-normal">
+                                {entry.description}
+                              </span>
+                            )}
+                          </span>
+                        </Link>
                       </Button>
                     );
                   })}

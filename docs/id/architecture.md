@@ -64,6 +64,7 @@
 | `/dashboard` | `app/(dashboard)/dashboard/page.tsx` | Dashboard utama pengguna |
 | `/dashboard/settings` | `app/(dashboard)/dashboard/settings/page.tsx` | Profil + ganti password |
 | `/dashboard/billing` | `app/(dashboard)/dashboard/billing/page.tsx` | Tampilan paket + alur pembayaran |
+| `/dashboard/components` | `app/(dashboard)/dashboard/components/page.tsx` | Showcase komponen untuk UI dashboard dan admin |
 | `/admin` | `app/(dashboard)/admin/page.tsx` | Dashboard admin (dibatasi oleh `ADMIN_EMAILS`) |
 
 ### Route Auth
