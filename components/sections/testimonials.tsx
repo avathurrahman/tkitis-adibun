@@ -54,7 +54,7 @@ export function TestimonialsSection() {
         </div>
         <Carousel
           opts={{ align: "start", loop: true }}
-          className="w-full"
+          className="marketing-testimonials w-full"
         >
           <CarouselContent className="-ml-4">
             {testimonials.map((t) => (
@@ -85,8 +85,8 @@ export function TestimonialsSection() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
+          <CarouselPrevious className="marketing-testimonials__control hidden sm:flex" />
+          <CarouselNext className="marketing-testimonials__control hidden sm:flex" />
         </Carousel>
       </div>
     </section>

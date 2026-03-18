@@ -41,7 +41,7 @@ export function FaqSection() {
             Pertanyaan Umum
           </h2>
         </div>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="marketing-faq w-full">
           {faqs.map((faq, i) => (
             <AccordionItem key={i} value={`item-${i}`}>
               <AccordionTrigger className="text-left text-sm font-medium">

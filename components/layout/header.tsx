@@ -47,7 +47,8 @@ export function Header({ variant = "marketing" }: { variant?: HeaderVariant }) {
         </div>
 
         <div className="flex items-center gap-3">
-          {variant === "marketing" ? <DesignSwitcher /> : <ThemeSwitcher />}
+          {variant === "marketing" ? <DesignSwitcher /> : null}
+          <ThemeSwitcher />
           <div className="hidden md:block">
             <Suspense>
               <AuthButton />

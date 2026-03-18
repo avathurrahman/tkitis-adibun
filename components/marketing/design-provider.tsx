@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useTheme } from "next-themes";
 import {
   defaultMarketingDesignId,
   getMarketingDesignPreset,
@@ -15,6 +16,7 @@ import {
   marketingDesignPresets,
   type MarketingDesignId,
   type MarketingDesignPreset,
+  type MarketingTheme,
 } from "@/config/marketing-designs";
 
 const STORAGE_KEY = "kilatkoding-marketing-design";
@@ -48,6 +50,7 @@ export function MarketingDesignProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const { resolvedTheme } = useTheme();
   const [designId, setDesignIdState] =
     useState<MarketingDesignId>(defaultMarketingDesignId);
 
@@ -64,20 +67,24 @@ export function MarketingDesignProvider({
     () => getMarketingDesignPreset(designId),
     [designId],
   );
+  const activeTheme: MarketingTheme =
+    resolvedTheme === "dark" ? "dark" : "light";
 
   useEffect(() => {
     document.body.dataset.marketingDesign = designId;
     document.body.dataset.marketingDesignFamily = activeDesign.family;
-    document.body.dataset.marketingDesignMode = activeDesign.mode;
-    document.body.style.colorScheme = activeDesign.mode;
+    document.body.dataset.marketingDesignDefaultTheme = activeDesign.defaultTheme;
+    document.body.dataset.marketingTheme = activeTheme;
+    document.body.style.colorScheme = activeTheme;
 
     return () => {
       delete document.body.dataset.marketingDesign;
       delete document.body.dataset.marketingDesignFamily;
-      delete document.body.dataset.marketingDesignMode;
+      delete document.body.dataset.marketingDesignDefaultTheme;
+      delete document.body.dataset.marketingTheme;
       document.body.style.removeProperty("color-scheme");
     };
-  }, [activeDesign.family, activeDesign.mode, designId]);
+  }, [activeDesign.defaultTheme, activeDesign.family, activeTheme, designId]);
 
   const value = useMemo(
     () => ({
@@ -94,6 +101,8 @@ export function MarketingDesignProvider({
       <div
         className="marketing-shell min-h-screen flex flex-col"
         data-design={designId}
+        data-family={activeDesign.family}
+        data-theme={activeTheme}
       >
         {children}
       </div>

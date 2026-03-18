@@ -155,7 +155,7 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 - shadcn/ui with the `new-york` style, base color `neutral`
 - `tailwindcss-animate` for animation helpers
 - Theme switching uses the `class` strategy through `next-themes`
-- Marketing presets are applied through a `data-design` shell plus a mirrored `body[data-marketing-design]` attribute for portal-based overlays
+- Marketing presets are applied through a `data-design` shell plus mirrored `body[data-marketing-design]` attributes, and the active preset layers on top of the resolved light/dark theme instead of replacing it
 - Path aliases: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
 ## Component Layers
@@ -164,7 +164,7 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 
 | File | Purpose |
 | --- | --- |
-| `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, and either the marketing `DesignSwitcher` or dashboard `ThemeSwitcher` |
+| `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, a global `ThemeSwitcher`, and the marketing-only `DesignSwitcher` |
 | `components/layout/footer.tsx` | Shared marketing footer with copyright and `DesignSwitcher` |
 | `components/layout/desktop-nav.tsx` | Desktop navigation bar links |
 | `components/layout/current-year.tsx` | Dynamic copyright year (client component) |
@@ -175,7 +175,7 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 | --- | --- |
 | `components/auth-button.tsx` | Server-side auth-aware nav actions |
 | `components/theme-switcher.tsx` | Light/dark/system mode switcher |
-| `components/marketing/design-provider.tsx` | App-wide preset state, persistence, and `body`/shell attribute synchronization |
+| `components/marketing/design-provider.tsx` | App-wide preset state, persistence, resolved theme sync, and `body`/shell attribute synchronization |
 | `components/marketing/design-switcher.tsx` | Dropdown switcher for the twelve supported marketing presets |
 
 ### Auth Components

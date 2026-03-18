@@ -35,7 +35,7 @@ export function TimelineSection() {
                   }`}
                 />
                 {i < steps.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-border my-1" />
+                  <div className="marketing-timeline__line w-0.5 flex-1 bg-border my-1" />
                 )}
               </div>
 

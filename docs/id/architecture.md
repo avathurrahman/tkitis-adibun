@@ -155,7 +155,7 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 - shadcn/ui dengan style `new-york`, warna dasar `neutral`
 - `tailwindcss-animate` untuk helper animasi
 - Theme switching menggunakan strategi `class` melalui `next-themes`
-- Preset marketing diterapkan lewat shell `data-design` dan atribut `body[data-marketing-design]` untuk overlay yang dirender via portal
+- Preset marketing diterapkan lewat shell `data-design` dan atribut `body[data-marketing-design]`, lalu preset aktif melapisi theme light/dark yang sedang resolved alih-alih menggantikannya
 - Path alias: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
 ## Layer Komponen
@@ -164,7 +164,7 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 
 | File | Tujuan |
 | --- | --- |
-| `components/layout/header.tsx` | Header site: logo, `AuthButton`, dan `DesignSwitcher` untuk marketing atau `ThemeSwitcher` untuk dashboard |
+| `components/layout/header.tsx` | Header site: logo, `AuthButton`, `ThemeSwitcher` global, dan `DesignSwitcher` khusus marketing |
 | `components/layout/footer.tsx` | Footer marketing: copyright dan `DesignSwitcher` |
 | `components/layout/desktop-nav.tsx` | Link navigasi bar desktop |
 | `components/layout/current-year.tsx` | Tahun copyright dinamis (komponen klien) |
@@ -175,7 +175,7 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 | --- | --- |
 | `components/auth-button.tsx` | Aksi header yang sadar auth (server component) |
 | `components/theme-switcher.tsx` | Switcher mode light/dark/system |
-| `components/marketing/design-provider.tsx` | State preset app-wide, persistensi, dan sinkronisasi atribut `body`/shell |
+| `components/marketing/design-provider.tsx` | State preset app-wide, persistensi, sinkronisasi theme yang sedang resolved, dan sinkronisasi atribut `body`/shell |
 | `components/marketing/design-switcher.tsx` | Dropdown switcher untuk dua belas preset marketing yang didukung |
 
 ### Komponen Auth
