@@ -21,7 +21,7 @@ create or replace function public.consume_rate_limit(
 )
 returns table (
   allowed boolean,
-  limit integer,
+  "limit" integer,
   remaining integer,
   reset_at timestamptz,
   retry_after integer
