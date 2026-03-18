@@ -50,29 +50,29 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-20 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <section id="features" className="marketing-section px-4">
+      <div className="marketing-section__inner max-w-5xl">
+        <div className="marketing-section__header">
+          <h2 className="marketing-heading">
             Semua yang kamu butuhkan
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg max-w-xl mx-auto">
+          <p className="marketing-copy mt-4 text-lg max-w-xl mx-auto">
             44 komponen UI dan integrasi backend siap pakai — tidak perlu mulai
             dari nol.
           </p>
         </div>
         <Separator className="mb-12" />
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="marketing-card-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
-            <Card key={feature.title} className="border-border/50">
+            <Card key={feature.title} className="marketing-feature-card border-border/50">
               <CardHeader className="pb-3">
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <feature.icon className="h-5 w-5 text-primary" />
+                <div className="marketing-feature-icon mb-2">
+                  <feature.icon className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-base">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="marketing-copy text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>

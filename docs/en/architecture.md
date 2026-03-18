@@ -5,13 +5,15 @@
 | Path | Purpose |
 | --- | --- |
 | `app/` | App Router routes, layouts, route handlers, and global styles |
+| `app/marketing.css` | Scoped marketing-only design preset tokens, typography, and component styling |
 | `app/(marketing)/` | Public-facing pages (landing page) |
 | `app/(dashboard)/` | Auth-gated dashboard pages |
 | `app/auth/` | Authentication flow pages and OTP route handler |
 | `components/` | Reusable UI and auth components |
+| `components/marketing/` | Marketing-only preset provider and preset switcher |
 | `components/layout/` | Shared `Header` and `Footer` components |
 | `components/ui/` | shadcn/ui primitives |
-| `config/` | Centralized site config and navigation definitions |
+| `config/` | Centralized site config, navigation definitions, and marketing preset registry |
 | `lib/` | Shared utilities, Supabase client factories, and payment helpers |
 | `lib/payments/` | Payment gateway client and helper functions |
 | `lib/ai/` | AI provider factory, usage tracking, and middleware |
@@ -31,7 +33,7 @@
 ## Rendering Model
 
 - Server components are the default for route files in `app/`
-- Client components are used for interactive auth forms and theme switching
+- Client components are used for interactive auth forms, theme switching, and marketing design switching
 - Supabase server access is done through `lib/supabase/server.ts`
 - Supabase browser access is done through `lib/supabase/client.ts`
 - `Suspense` is used around async auth-aware UI (`AuthButton`, `DashboardContent`)
@@ -125,18 +127,19 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 
 `app/layout.tsx` is responsible for:
 
-- Loading the Geist font from Google Fonts
+- Loading the shared font pool used by the default app theme and marketing presets
 - Defining global metadata (`lang="id"`, default Open Graph/Twitter, canonical base URL)
-- Injecting `app/globals.css`
+- Injecting `app/globals.css` and `app/marketing.css`
 - Wrapping the app in `ThemeProvider` from `next-themes`
+- Wrapping the full app in `MarketingDesignProvider` so the selected preset can style marketing and dashboard routes consistently
 
 ### Marketing Layout
 
 `app/(marketing)/layout.tsx`:
 
-- Renders `Header` (site name + auth actions + theme switcher)
-- Renders `Footer` (copyright + theme switcher)
-- Wraps `children` in a `flex-col min-h-screen` container
+- Renders `Header` (site name + auth actions + marketing design switcher)
+- Renders `Footer` (copyright + marketing design switcher)
+- Uses the global preset shell from the root layout while keeping the marketing-specific header/footer structure
 
 ### Dashboard Layout
 
@@ -148,10 +151,11 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 ## Styling System
 
 - Tailwind CSS utility classes
-- CSS custom properties in `app/globals.css`
+- CSS custom properties in `app/globals.css` and `app/marketing.css`
 - shadcn/ui with the `new-york` style, base color `neutral`
 - `tailwindcss-animate` for animation helpers
 - Theme switching uses the `class` strategy through `next-themes`
+- Marketing presets are applied through a `data-design` shell plus a mirrored `body[data-marketing-design]` attribute for portal-based overlays
 - Path aliases: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
 ## Component Layers
@@ -160,8 +164,8 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 
 | File | Purpose |
 | --- | --- |
-| `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, and `ThemeSwitcher` |
-| `components/layout/footer.tsx` | Shared footer with copyright and `ThemeSwitcher` |
+| `components/layout/header.tsx` | Shared site header with branding, `AuthButton`, and either the marketing `DesignSwitcher` or dashboard `ThemeSwitcher` |
+| `components/layout/footer.tsx` | Shared marketing footer with copyright and `DesignSwitcher` |
 | `components/layout/desktop-nav.tsx` | Desktop navigation bar links |
 | `components/layout/current-year.tsx` | Dynamic copyright year (client component) |
 
@@ -171,6 +175,8 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 | --- | --- |
 | `components/auth-button.tsx` | Server-side auth-aware nav actions |
 | `components/theme-switcher.tsx` | Light/dark/system mode switcher |
+| `components/marketing/design-provider.tsx` | App-wide preset state, persistence, and `body`/shell attribute synchronization |
+| `components/marketing/design-switcher.tsx` | Dropdown switcher for the twelve supported marketing presets |
 
 ### Auth Components
 

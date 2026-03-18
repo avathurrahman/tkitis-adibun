@@ -54,6 +54,27 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
       },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        body: [
+          "var(--marketing-font-body)",
+          "var(--font-geist-sans)",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: [
+          "var(--marketing-font-display)",
+          "var(--font-geist-sans)",
+          "ui-serif",
+          "serif",
+        ],
+        mono: [
+          "var(--marketing-font-mono)",
+          "var(--font-jetbrains-mono)",
+          "ui-monospace",
+          "monospace",
+        ],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

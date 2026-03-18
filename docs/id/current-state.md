@@ -27,6 +27,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Workflow CI GitHub Actions (`lint` + `typecheck` + `test` + `build` di push/PR)
 - Sistem blog MDX di `/blog` dengan dukungan frontmatter, estimasi waktu baca, dan tag
 - 44 komponen shadcn/ui terpasang (library komponen lengkap)
+- Sistem preset desain marketing dengan dua belas preset yang bisa dipilih: `default`, `monochrome`, `newsprint`, `luxury`, `academia`, `saas`, `professional`, `enterprise`, `neo-brutalism`, `bauhaus`, `web3`, dan `terminal`
 - Landing page dengan seksi Hero, Features, Testimonials, Pricing, FAQ, dan CTA
 - Header sticky dengan nav desktop, drawer Sheet mobile, tombol auth Avatar + DropdownMenu
 - Dashboard dengan subscription card, tabel pembayaran, navigasi breadcrumb
@@ -73,6 +74,7 @@ KilatKoding adalah boilerplate Next.js yang dibikin khusus untuk developer Indon
 - Aplikasi bisa dijalankan dengan `npm run dev`
 - Linting lolos dengan `npm run lint`
 - Landing page di `/` dengan branding KilatKoding, `Header`, dan `Footer`
+- Route marketing sekarang mendukung switcher preset dengan dua belas sistem visual yang tetap memakai satu route tree yang sama
 - Alur auth: sign up, sign in (password + Google OAuth + Magic Link), forgot password, update password
 - Dashboard di `/dashboard` — dilindungi auth, menampilkan info user yang sedang login
 - Refresh session dan gating auth berjalan melalui `proxy.ts`

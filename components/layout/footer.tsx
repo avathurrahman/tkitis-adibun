@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CurrentYear } from "@/components/layout/current-year";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import { DesignSwitcher } from "@/components/marketing/design-switcher";
 import { siteConfig } from "@/config/site";
 import { Github, Twitter } from "lucide-react";
 
@@ -30,11 +30,11 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="w-full border-t bg-muted/20">
+    <footer className="marketing-footer w-full border-t bg-muted/20">
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1 space-y-3">
-            <Link href="/" className="font-bold text-base">
+            <Link href="/" className="marketing-brand font-bold text-base">
               {siteConfig.name}
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -87,7 +87,7 @@ export function Footer() {
           <p>
             &copy; <CurrentYear /> {siteConfig.name} — Dibangun untuk developer Indonesia
           </p>
-          <ThemeSwitcher />
+          <DesignSwitcher />
         </div>
       </div>
     </footer>

@@ -34,10 +34,10 @@ export const faqs = [
 
 export function FaqSection() {
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <section className="marketing-section px-4">
+      <div className="marketing-section__inner max-w-2xl">
+        <div className="marketing-section__header">
+          <h2 className="marketing-heading">
             Pertanyaan Umum
           </h2>
         </div>

@@ -14,15 +14,17 @@ const tools = ["Claude Code", "GitHub Copilot", "Cursor", "Windsurf"];
 
 export function AiOptimizedSection() {
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <section className="marketing-section px-4">
+      <div className="marketing-section__inner max-w-4xl">
+        <div className="marketing-ai-grid grid grid-cols-1 items-center gap-12">
           <div className="space-y-5">
-            <Badge variant="outline">AI-Friendly Codebase</Badge>
-            <h2 className="text-3xl font-bold tracking-tight">
+            <Badge variant="outline" className="marketing-eyebrow">
+              AI-Friendly Codebase
+            </Badge>
+            <h2 className="marketing-heading">
               Kompatibel sama Claude Code, Copilot, dan AI tools lainnya.
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="marketing-copy leading-relaxed">
               KilatKoding didesain supaya AI bisa bantu kamu coding lebih efektif.
               Codebase yang clean dan terstruktur bikin AI tools bisa ngerti konteks
               dengan benar — jadi saran yang keluar lebih relevan.
@@ -38,20 +40,20 @@ export function AiOptimizedSection() {
           </div>
 
           <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="marketing-eyebrow text-muted-foreground">
               Sudah dioptimalkan untuk
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="marketing-ai-tools">
               {tools.map((tool) => (
                 <div
                   key={tool}
-                  className="rounded-lg border bg-muted/30 p-4 text-center font-medium text-sm"
+                  className="marketing-ai-tool text-sm"
                 >
                   {tool}
                 </div>
               ))}
             </div>
-            <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground leading-relaxed">
+            <div className="marketing-ai-note text-sm leading-relaxed">
               <span className="font-mono text-xs block mb-2 text-primary">CLAUDE.md</span>
               KilatKoding + Claude Code = development 10× lebih cepat. AI bisa langsung
               ngerti arsitektur, payment flow, dan konvensi kode tanpa penjelasan panjang.

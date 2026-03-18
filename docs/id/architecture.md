@@ -5,13 +5,15 @@
 | Path | Tujuan |
 | --- | --- |
 | `app/` | Route, layout, route handler, dan global style App Router |
+| `app/marketing.css` | Token, tipografi, dan styling preset desain khusus marketing |
 | `app/(marketing)/` | Halaman publik (landing page) |
 | `app/(dashboard)/` | Halaman dashboard yang dilindungi auth |
 | `app/auth/` | Halaman alur autentikasi dan OTP route handler |
 | `components/` | Komponen UI dan auth yang reusable |
+| `components/marketing/` | Provider preset dan switcher preset khusus marketing |
 | `components/layout/` | Komponen `Header` dan `Footer` yang dipakai bersama |
 | `components/ui/` | Primitive shadcn/ui |
-| `config/` | Config site dan definisi navigasi terpusat |
+| `config/` | Config site, definisi navigasi, dan registry preset marketing |
 | `lib/` | Utility bersama, factory Supabase client, dan helper payment |
 | `lib/payments/` | Client payment gateway dan helper functions |
 | `lib/ai/` | Factory provider AI, tracking usage, dan middleware |
@@ -31,7 +33,7 @@
 ## Model Rendering
 
 - Server component adalah default untuk file route di `app/`
-- Client component digunakan untuk form auth interaktif dan theme switcher
+- Client component digunakan untuk form auth interaktif, theme switcher, dan switcher desain marketing
 - Akses Supabase di server menggunakan `lib/supabase/server.ts`
 - Akses Supabase di browser menggunakan `lib/supabase/client.ts`
 - `Suspense` digunakan di sekitar UI async yang sadar auth (`AuthButton`, `DashboardContent`)
@@ -125,18 +127,19 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 
 `app/layout.tsx` bertugas:
 
-- Memuat font Geist dari Google Fonts
+- Memuat kumpulan font bersama yang dipakai theme default dan preset marketing
 - Mendefinisikan metadata global (`lang="id"`, Open Graph/Twitter default, canonical base URL)
-- Menyuntikkan `app/globals.css`
+- Menyuntikkan `app/globals.css` dan `app/marketing.css`
 - Membungkus app dalam `ThemeProvider` dari `next-themes`
+- Membungkus seluruh app dengan `MarketingDesignProvider` supaya preset terpilih bisa ikut mewarnai route marketing dan dashboard secara konsisten
 
 ### Marketing Layout
 
 `app/(marketing)/layout.tsx`:
 
-- Merender `Header` (nama site + aksi auth + theme switcher)
-- Merender `Footer` (copyright + theme switcher)
-- Membungkus `children` dalam container `flex-col min-h-screen`
+- Merender `Header` (nama site + aksi auth + switcher preset marketing)
+- Merender `Footer` (copyright + switcher preset marketing)
+- Memakai shell preset global dari root layout sambil mempertahankan struktur header/footer khusus marketing
 
 ### Dashboard Layout
 
@@ -148,10 +151,11 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 ## Sistem Styling
 
 - Utility class Tailwind CSS
-- CSS custom property di `app/globals.css`
+- CSS custom property di `app/globals.css` dan `app/marketing.css`
 - shadcn/ui dengan style `new-york`, warna dasar `neutral`
 - `tailwindcss-animate` untuk helper animasi
 - Theme switching menggunakan strategi `class` melalui `next-themes`
+- Preset marketing diterapkan lewat shell `data-design` dan atribut `body[data-marketing-design]` untuk overlay yang dirender via portal
 - Path alias: `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils`, `@/config`
 
 ## Layer Komponen
@@ -160,8 +164,8 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 
 | File | Tujuan |
 | --- | --- |
-| `components/layout/header.tsx` | Header site: logo, `AuthButton`, `ThemeSwitcher` |
-| `components/layout/footer.tsx` | Footer site: copyright, `ThemeSwitcher` |
+| `components/layout/header.tsx` | Header site: logo, `AuthButton`, dan `DesignSwitcher` untuk marketing atau `ThemeSwitcher` untuk dashboard |
+| `components/layout/footer.tsx` | Footer marketing: copyright dan `DesignSwitcher` |
 | `components/layout/desktop-nav.tsx` | Link navigasi bar desktop |
 | `components/layout/current-year.tsx` | Tahun copyright dinamis (komponen klien) |
 
@@ -171,6 +175,8 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 | --- | --- |
 | `components/auth-button.tsx` | Aksi header yang sadar auth (server component) |
 | `components/theme-switcher.tsx` | Switcher mode light/dark/system |
+| `components/marketing/design-provider.tsx` | State preset app-wide, persistensi, dan sinkronisasi atribut `body`/shell |
+| `components/marketing/design-switcher.tsx` | Dropdown switcher untuk dua belas preset marketing yang didukung |
 
 ### Komponen Auth
 

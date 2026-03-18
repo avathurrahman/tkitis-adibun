@@ -10,28 +10,30 @@ const steps = [
 
 export function TimelineSection() {
   return (
-    <section className="py-20 px-4 bg-muted/30">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-12 space-y-3">
-          <Badge variant="secondary">Timeline Realistis</Badge>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <section className="marketing-section marketing-section--muted px-4">
+      <div className="marketing-section__inner max-w-2xl">
+        <div className="marketing-section__header mb-12 space-y-3">
+          <Badge variant="secondary" className="marketing-eyebrow">
+            Timeline Realistis
+          </Badge>
+          <h2 className="marketing-heading">
             Dari nol sampai launch dalam 7 hari.
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="marketing-copy text-lg">
             Kamu fokus bikin produk. Boilerplate ngurus yang boring.
           </p>
         </div>
 
-        <div>
+        <div className="marketing-timeline p-6 sm:p-8">
           {steps.map((step, i) => (
-            <div key={step.day} className="flex gap-4">
+            <div key={step.day} className="marketing-timeline__item flex gap-4">
               {/* Dot + line column */}
               <div className="flex flex-col items-center flex-shrink-0 w-8">
-                <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 z-10 ${
-                  step.active
-                    ? "bg-primary border-primary"
-                    : "bg-background border-border"
-                }`} />
+                <div
+                  className={`marketing-timeline__dot w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 z-10 ${
+                    step.active ? "marketing-timeline__dot--active" : ""
+                  }`}
+                />
                 {i < steps.length - 1 && (
                   <div className="w-0.5 flex-1 bg-border my-1" />
                 )}
@@ -49,7 +51,7 @@ export function TimelineSection() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground italic">
+        <p className="marketing-note mt-8 text-center text-sm italic">
           Intinya: kamu bisa launch minggu ini. Kalau mau.
         </p>
       </div>

@@ -4,17 +4,17 @@ import { Separator } from "@/components/ui/separator";
 
 export function CtaSection() {
   return (
-    <section className="py-20 px-4 bg-muted/30">
-      <div className="max-w-2xl mx-auto text-center">
+    <section className="marketing-section marketing-section--muted px-4">
+      <div className="marketing-section__inner max-w-2xl text-center">
         <Separator className="mb-12" />
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="marketing-heading">
           Siap bangun produkmu?
         </h2>
-        <p className="mt-4 text-muted-foreground text-lg">
+        <p className="marketing-copy mt-4 text-lg">
           Mulai dari fondasi yang kuat. Setup dalam hitungan menit, bukan
           minggu.
         </p>
-        <div className="mt-8 flex flex-wrap gap-4 justify-center">
+        <div className="marketing-hero__actions mt-8 justify-center">
           <Button size="lg" asChild>
             <Link href="/auth/sign-up">Mulai Gratis Sekarang</Link>
           </Button>

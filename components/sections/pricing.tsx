@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 const plans = [
   {
@@ -85,17 +86,22 @@ export function PricingSection() {
   const [isEarlyBird, setIsEarlyBird] = useState(false);
 
   return (
-    <section id="pricing" className="py-20 px-4 bg-muted/30">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10 space-y-3">
-          <Badge variant="secondary">Harga</Badge>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <section
+      id="pricing"
+      className="marketing-section marketing-section--muted px-4"
+    >
+      <div className="marketing-section__inner max-w-5xl">
+        <div className="marketing-section__header mb-10 space-y-3">
+          <Badge variant="secondary" className="marketing-eyebrow">
+            Harga
+          </Badge>
+          <h2 className="marketing-heading">
             Investasi sekali, ship selamanya.
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="marketing-copy text-lg">
             Bayar satu kali, pakai untuk semua proyek. No subscription.
           </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
+          <div className="marketing-pricing-toggle mt-6 inline-flex flex-wrap items-center justify-center gap-3 px-4 py-3">
             <Label htmlFor="billing-toggle" className="text-sm">
               Harga Normal
             </Label>
@@ -111,11 +117,14 @@ export function PricingSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="marketing-pricing-grid grid-cols-1 sm:grid-cols-3">
           {plans.map((plan) => (
             <Card
               key={plan.name}
-              className={plan.badge ? "border-primary shadow-lg relative" : "border-border/50"}
+              className={cn(
+                "marketing-pricing-card border-border/50",
+                plan.badge && "marketing-pricing-card--featured border-primary shadow-lg relative",
+              )}
             >
               {plan.badge && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap">
@@ -154,7 +163,7 @@ export function PricingSection() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
+        <p className="marketing-note mt-8 text-center text-sm">
           Semua harga dalam Rupiah (IDR). Beli sekali, pakai selamanya.
         </p>
       </div>

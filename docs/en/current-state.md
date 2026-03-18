@@ -27,6 +27,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - GitHub Actions CI workflow (`lint` + `typecheck` + `test` + `build` on push/PR)
 - MDX blog system at `/blog` with frontmatter, reading time, and tag support
 - 44 shadcn/ui components installed (full component library)
+- Marketing design preset system with twelve selectable presets: `default`, `monochrome`, `newsprint`, `luxury`, `academia`, `saas`, `professional`, `enterprise`, `neo-brutalism`, `bauhaus`, `web3`, and `terminal`
 - Landing page with Hero, Features, Testimonials, Pricing, FAQ, and CTA sections
 - Sticky header with desktop nav, mobile Sheet drawer, Avatar + DropdownMenu auth button
 - Dashboard with subscription card, payments table, breadcrumb nav
@@ -72,6 +73,7 @@ KilatKoding is a Next.js boilerplate built specifically for Indonesian developer
 - The app runs with `npm run dev`
 - Linting passes with `npm run lint`
 - Landing page at `/` with KilatKoding branding, shared `Header` and `Footer`
+- Marketing routes support a preset switcher with twelve scoped visual systems without duplicating the route tree
 - Auth flows: sign up, sign in (password + Google OAuth + Magic Link), forgot password, update password
 - Dashboard at `/dashboard` — auth-gated, shows authenticated user info
 - Session refresh and auth gating run through `proxy.ts`

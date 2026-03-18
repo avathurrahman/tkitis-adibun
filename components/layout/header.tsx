@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Menu } from "lucide-react";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { DesignSwitcher } from "@/components/marketing/design-switcher";
 import { siteConfig } from "@/config/site";
 import { marketingNav, dashboardNav, isNavGroup, type NavEntry } from "@/config/navigation";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DesktopNav } from "@/components/layout/desktop-nav";
+import { cn } from "@/lib/utils";
 
 type HeaderVariant = "marketing" | "dashboard";
 
@@ -28,10 +30,15 @@ export function Header({ variant = "marketing" }: { variant?: HeaderVariant }) {
   const entries = navEntries[variant];
 
   return (
-    <header className="w-full border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header
+      className={cn(
+        "w-full border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        variant === "marketing" && "marketing-header",
+      )}
+    >
       <div className="max-w-5xl mx-auto flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-2">
-          <Link href="/" className="font-semibold text-sm mr-2">
+          <Link href="/" className="marketing-brand font-semibold text-sm mr-2">
             {siteConfig.name}
           </Link>
           <div className="hidden md:flex">
@@ -40,7 +47,7 @@ export function Header({ variant = "marketing" }: { variant?: HeaderVariant }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeSwitcher />
+          {variant === "marketing" ? <DesignSwitcher /> : <ThemeSwitcher />}
           <div className="hidden md:block">
             <Suspense>
               <AuthButton />

@@ -21,22 +21,25 @@ const tasks = [
 
 export function PainPointsSection() {
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-10 space-y-3">
-          <Badge variant="outline" className="text-destructive border-destructive/30">
+    <section className="marketing-section px-4">
+      <div className="marketing-section__inner max-w-3xl">
+        <div className="mb-10 space-y-3 text-left">
+          <Badge
+            variant="outline"
+            className="marketing-eyebrow text-destructive border-destructive/30"
+          >
             Tanpa KilatKoding
           </Badge>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="marketing-heading">
             Ini yang bakal kamu hadapi kalau setup dari nol.
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="marketing-copy text-lg">
             Kebanyakan developer stuck di sini. Padahal ini semua belum termasuk bikin
             fitur utama produk kamu.
           </p>
         </div>
 
-        <div className="rounded-lg border overflow-hidden">
+        <div className="marketing-table-shell overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
@@ -76,7 +79,7 @@ export function PainPointsSection() {
           </Table>
         </div>
 
-        <p className="mt-6 text-center text-muted-foreground italic text-sm">
+        <p className="marketing-note mt-6 text-center italic text-sm">
           Capek? Sama. Makanya KilatKoding dibuat.
         </p>
       </div>

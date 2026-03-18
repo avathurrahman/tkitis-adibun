@@ -41,13 +41,13 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section id="testimonials" className="py-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+    <section id="testimonials" className="marketing-section px-4">
+      <div className="marketing-section__inner max-w-4xl">
+        <div className="marketing-section__header">
+          <h2 className="marketing-heading">
             Dipercaya Developer Indonesia
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
+          <p className="marketing-copy mt-4 text-lg">
             Dari indie hacker sampai startup, KilatKoding mempercepat
             development mereka.
           </p>
@@ -62,9 +62,9 @@ export function TestimonialsSection() {
                 key={t.name}
                 className="pl-4 md:basis-1/2"
               >
-                <Card className="h-full border-border/50">
+                <Card className="marketing-testimonial-card h-full border-border/50">
                   <CardContent className="pt-6 flex flex-col gap-4 h-full">
-                    <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                    <p className="marketing-testimonial-quote marketing-copy flex-1">
                       &ldquo;{t.quote}&rdquo;
                     </p>
                     <div className="flex items-center gap-3">
