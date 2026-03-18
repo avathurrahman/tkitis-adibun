@@ -3,13 +3,28 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Mail, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { hasEnvVars } from "@/lib/utils";
 
 export function VerifyEmailClient() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  if (!hasEnvVars) {
+    return (
+      <>
+        <TemplateBanner description="Halaman verifikasi email — ganti noreply@kilatkoding.com dengan domain email produkmu" />
+        <div className="min-h-screen flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full">
+            <SupabaseEnvNotice />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   async function handleResend() {
     setLoading(true);

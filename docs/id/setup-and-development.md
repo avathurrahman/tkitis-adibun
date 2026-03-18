@@ -38,6 +38,13 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=publishable-atau-anon-key-kamu
 SUPABASE_SERVICE_ROLE_KEY=service-role-key-kamu
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+NEXT_PUBLIC_ENABLE_AUTH=true
+NEXT_PUBLIC_ENABLE_WAITLIST=true
+NEXT_PUBLIC_ENABLE_CONTACT=true
+NEXT_PUBLIC_ENABLE_PAYMENTS=true
+NEXT_PUBLIC_ENABLE_ADMIN=true
+NEXT_PUBLIC_ENABLE_AI=true
+
 MIDTRANS_SERVER_KEY=server-key-midtrans-kamu
 NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=client-key-midtrans-kamu
 
@@ -58,6 +65,10 @@ ANTHROPIC_API_KEY=api-key-anthropic-kamu
 Catatan:
 
 - `NEXT_PUBLIC_APP_URL` dipakai oleh `config/site.ts` untuk membangun base URL site
+- Starter sekarang degrade dengan aman: config yang belum lengkap hanya mematikan fitur terkait, bukan membuat seluruh app crash
+- Kalau ada fitur yang memang tidak dipakai di app kamu, set toggle `NEXT_PUBLIC_ENABLE_*` terkait ke `false` supaya UI menandainya sebagai fitur yang sengaja dimatikan
+- `npm run env:check` sekarang menampilkan fitur mana yang sudah siap, mana yang masih fallback mode, dan mana yang dimatikan lewat toggle
+- `/api/health` sekarang menyertakan ringkasan kesiapan per fitur
 - Kalau Supabase vars belum diset, area yang membutuhkan auth tidak akan berfungsi, tapi app tetap bisa dirender
 - `SUPABASE_SERVICE_ROLE_KEY` dibutuhkan untuk write webhook, update profil, lookup order, dan reporting admin
 - `MIDTRANS_SERVER_KEY` hanya untuk server; jangan pakai prefix `NEXT_PUBLIC_`
@@ -180,10 +191,13 @@ Akses dikontrol oleh `user_roles`. `ADMIN_EMAILS` hanya dipakai untuk bootstrap 
 
 ## Alur Development Lokal
 
-1. Salin `.env.example` ke `.env.local` dan isi nilai Supabase
-2. Jalankan `npm run dev`
-3. Buka `http://localhost:3000`
-4. Test: landing page, sign up (email + Google), sign in (password + Magic Link), dashboard
+1. Salin `.env.example` ke `.env.local`
+2. Matikan fitur yang tidak dipakai dengan set `NEXT_PUBLIC_ENABLE_*` terkait ke `false`
+3. Isi env var yang dibutuhkan oleh fitur yang tetap aktif
+4. Jalankan `npm run env:check` untuk melihat fitur mana yang sudah siap dan mana yang masih fallback mode
+5. Jalankan `npm run dev`
+6. Buka `http://localhost:3000`
+7. Test route yang memang kamu biarkan aktif
 
 ## Catatan Deployment
 

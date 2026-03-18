@@ -1,3 +1,4 @@
+import { authFeatureEnabled } from "@/lib/config/public-features";
 import { createAdminClient, hasServiceRoleEnv } from "@/lib/supabase/admin";
 import { resolveProfileAvatarUrl } from "@/lib/storage/avatars";
 import { createClient } from "@/lib/supabase/server";
@@ -11,6 +12,10 @@ type ProfileSummary = Pick<
 };
 
 export async function getProfileForCurrentUser(userId: string): Promise<ProfileSummary | null> {
+  if (!authFeatureEnabled) {
+    return null;
+  }
+
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")

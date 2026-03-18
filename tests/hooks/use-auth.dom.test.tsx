@@ -8,6 +8,15 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: createClientMock,
 }));
 
+vi.mock("@/lib/utils", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/utils")>();
+
+  return {
+    ...actual,
+    hasEnvVars: true,
+  };
+});
+
 describe("hooks/use-auth", () => {
   beforeEach(() => {
     createClientMock.mockReset();

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getSupabaseConfigError, hasSupabasePublicEnv } from "@/lib/config/public-features";
 import type { Database } from "@/types/database";
 
 /**
@@ -8,6 +9,10 @@ import type { Database } from "@/types/database";
  * it.
  */
 export async function createClient() {
+  if (!hasSupabasePublicEnv) {
+    throw new Error(getSupabaseConfigError());
+  }
+
   const cookieStore = await cookies();
 
   return createServerClient<Database>(

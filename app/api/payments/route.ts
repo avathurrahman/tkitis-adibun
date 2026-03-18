@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getFeatureAvailability, resolvePaymentProvider } from "@/lib/config/features";
 import { createClient } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
 import { getPaidPlan } from "@/config/subscriptions";
@@ -14,9 +15,13 @@ import { paymentRequestSchema } from "@/lib/validations";
 
 type PaymentProvider = "midtrans" | "doku";
 
-const PROVIDER = (process.env.PAYMENT_PROVIDER ?? "doku") as PaymentProvider;
-
 export async function POST(request: NextRequest) {
+  const paymentsFeature = getFeatureAvailability("payments");
+  if (!paymentsFeature.enabled) {
+    return NextResponse.json({ error: paymentsFeature.message }, { status: 503 });
+  }
+
+  const PROVIDER = resolvePaymentProvider() as PaymentProvider;
   const supabase = await createClient();
   const { data: authData, error: authError } = await supabase.auth.getClaims();
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getFeatureAvailability } from "@/lib/config/features";
 import { getAuthenticatedUser } from "@/lib/data/auth";
 import {
   AVATAR_ALLOWED_TYPES,
@@ -10,6 +11,11 @@ import {
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
+  const authFeature = getFeatureAvailability("auth");
+  if (!authFeature.enabled) {
+    return NextResponse.json({ error: authFeature.message }, { status: 503 });
+  }
+
   const user = await getAuthenticatedUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -8,12 +8,38 @@ vi.mock("@/lib/supabase/server", () => ({
 
 describe("app/api/waitlist/route", () => {
   beforeEach(() => {
+    vi.resetModules();
     resetRateLimitStore();
     createClientMock.mockReset();
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "anon-key";
   });
 
   afterEach(() => {
     resetRateLimitStore();
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  });
+
+  it("returns 503 when waitlist storage is not configured", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    const { POST } = await import("@/app/api/waitlist/route");
+    const response = await POST(
+      new Request("http://localhost/api/waitlist", {
+        body: JSON.stringify({
+          email: "member@example.com",
+        }),
+        method: "POST",
+      })
+    );
+
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Waitlist butuh Supabase public env dan tabel waitlist yang sudah dimigrasikan. Isi NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY atau set NEXT_PUBLIC_ENABLE_WAITLIST=false kalau page ini belum dipakai.",
+    });
   });
 
   it("validates email addresses", async () => {

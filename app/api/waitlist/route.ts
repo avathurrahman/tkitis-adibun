@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getFeatureAvailability } from "@/lib/config/features";
 import {
   applyRateLimitHeaders,
   createRateLimitResponse,
@@ -12,6 +13,14 @@ export async function POST(req: Request) {
   const rateLimit = await takeRateLimit(getPublicRateLimitConfig("waitlist", req));
   if (!rateLimit.allowed) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak pendaftaran. Coba lagi nanti.");
+  }
+
+  const waitlistFeature = getFeatureAvailability("waitlist");
+  if (!waitlistFeature.enabled) {
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: waitlistFeature.message }, { status: 503 }),
+      rateLimit,
+    );
   }
 
   const parsed = waitlistRequestSchema.safeParse(await req.json());

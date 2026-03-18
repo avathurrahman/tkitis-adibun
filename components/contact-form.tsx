@@ -2,15 +2,24 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 
-export function ContactForm() {
+type ContactFormNotice = {
+  description: string;
+  missingEnv: string[];
+  title: string;
+  toggleEnv?: string;
+} | null;
+
+export function ContactForm({ notice = null }: { notice?: ContactFormNotice }) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const disabled = Boolean(notice);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,14 +67,22 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {notice ? (
+        <FeatureNotice
+          description={notice.description}
+          missingEnv={notice.missingEnv}
+          title={notice.title}
+          toggleEnv={notice.toggleEnv}
+        />
+      ) : null}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="name">Nama</Label>
-          <Input id="name" name="name" placeholder="Nama kamu" required />
+          <Input id="name" name="name" placeholder="Nama kamu" required disabled={disabled} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="nama@domain.com" required />
+          <Input id="email" name="email" type="email" placeholder="nama@domain.com" required disabled={disabled} />
         </div>
       </div>
       <div className="space-y-1.5">
@@ -76,11 +93,12 @@ export function ContactForm() {
           placeholder="Ceritakan apa yang ingin kamu tanyakan atau sampaikan..."
           rows={5}
           required
+          disabled={disabled}
         />
       </div>
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading || disabled} className="w-full">
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Kirim Pesan
+        {disabled ? "Form Kontak Belum Aktif" : "Kirim Pesan"}
       </Button>
     </form>
   );

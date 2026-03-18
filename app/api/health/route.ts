@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+import {
+  getFeatureAvailabilityMap,
+  resolvePaymentProvider,
+} from "@/lib/config/features";
+import { hasSupabasePublicEnv } from "@/lib/config/public-features";
 import { createAdminClient, hasServiceRoleEnv } from "@/lib/supabase/admin";
 
 type HealthCheck = {
@@ -7,12 +12,10 @@ type HealthCheck = {
 };
 
 export async function GET() {
+  const features = getFeatureAvailabilityMap();
   const checks = {
     resend: Boolean(process.env.RESEND_API_KEY),
-    supabase_public: Boolean(
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    ),
+    supabase_public: hasSupabasePublicEnv,
     supabase_service_role: hasServiceRoleEnv,
   };
 
@@ -21,7 +24,9 @@ export async function GET() {
     ok: null,
   };
 
-  if (hasServiceRoleEnv) {
+  const needsDatabaseCheck = features.admin.enabled || features.payments.enabled;
+
+  if (needsDatabaseCheck && hasServiceRoleEnv) {
     const startedAt = Date.now();
     const { error } = await createAdminClient()
       .from("profiles")
@@ -32,16 +37,29 @@ export async function GET() {
     database.ok = !error;
   }
 
-  const status =
-    checks.supabase_public && (database.ok === null || database.ok)
-      ? "ok"
-      : "degraded";
+  const hasMissingConfig = Object.values(features).some(
+    (feature) => !feature.enabled && !feature.disabledByFlag,
+  );
+  const status = !hasMissingConfig && (database.ok === null || database.ok)
+    ? "ok"
+    : "degraded";
 
   return NextResponse.json(
     {
       checks,
       database,
-      payment_provider: process.env.PAYMENT_PROVIDER ?? "doku",
+      features: Object.fromEntries(
+        Object.entries(features).map(([key, feature]) => [
+          key,
+          {
+            disabled_by_flag: feature.disabledByFlag,
+            enabled: feature.enabled,
+            message: feature.message,
+            missing_env: feature.missingEnv,
+          },
+        ]),
+      ),
+      payment_provider: resolvePaymentProvider(),
       status,
       timestamp: new Date().toISOString(),
     },

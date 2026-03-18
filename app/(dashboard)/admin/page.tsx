@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +32,7 @@ import { AdminUserManagement } from "@/components/admin/admin-user-management";
 import { AuditLog } from "@/components/admin/audit-log";
 import { WebhookEventsTable } from "@/components/admin/webhook-events-table";
 import { AdminRevenueChart } from "@/components/dashboard/admin-revenue-chart";
+import { getFeatureAvailability } from "@/lib/config/features";
 import { getAuthenticatedUser } from "@/lib/data/auth";
 import { getRecentAuditLogs } from "@/lib/data/audit-logs";
 import {
@@ -77,6 +79,18 @@ function formatDate(iso: string) {
 }
 
 async function AdminContent({ page }: { page: number }) {
+  const adminFeature = getFeatureAvailability("admin");
+  if (!adminFeature.enabled) {
+    return (
+      <FeatureNotice
+        description={adminFeature.message}
+        missingEnv={adminFeature.missingEnv}
+        title={adminFeature.title}
+        toggleEnv={adminFeature.toggleEnv}
+      />
+    );
+  }
+
   const user = await getAuthenticatedUser();
   if (!user) redirect("/auth/login");
 

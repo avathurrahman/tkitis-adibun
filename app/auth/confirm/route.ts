@@ -1,9 +1,15 @@
+import { getFeatureAvailability } from "@/lib/config/features";
 import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { type NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
+  const authFeature = getFeatureAvailability("auth");
+  if (!authFeature.enabled) {
+    redirect(`/auth/error?error=${encodeURIComponent(authFeature.message)}`);
+  }
+
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;

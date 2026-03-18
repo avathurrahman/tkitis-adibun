@@ -182,6 +182,7 @@ Route groups use parentheses in the folder name and do not affect the URL. They 
 | `components/update-password-form.tsx` | Password update form |
 | `components/logout-button.tsx` | Sign-out action button |
 | `components/auth/supabase-env-notice.tsx` | Warning banner when Supabase env vars are missing |
+| `components/config/feature-notice.tsx` | Shared notice for disabled or partially configured features |
 | `components/contact-form.tsx` | Contact form with fields and submission handling |
 
 ### Landing Page Sections

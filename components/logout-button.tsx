@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { hasEnvVars } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { forwardRef } from "react";
 
@@ -12,6 +13,11 @@ export const LogoutButton = forwardRef<
   const router = useRouter();
 
   const logout = async () => {
+    if (!hasEnvVars) {
+      router.push("/");
+      return;
+    }
+
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/auth/login");

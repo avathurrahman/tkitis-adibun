@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { createClient } from "@/lib/supabase/server";
+import { getFeatureAvailability } from "@/lib/config/features";
 import { hasEnvVars } from "@/lib/utils";
 import {
   paidPlans,
@@ -47,6 +49,8 @@ type Subscription = {
 async function BillingContent() {
   if (!hasEnvVars) return <SupabaseEnvNotice />;
 
+  const billingFeature = getFeatureAvailability("billing");
+  const paymentsFeature = getFeatureAvailability("payments");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
 
@@ -85,7 +89,7 @@ async function BillingContent() {
 
       <div className="flex flex-wrap gap-3">
         <PlanComparisonModal currentPlan={currentPlan} />
-        {isPaid && !sub?.cancel_at_period_end && (
+        {billingFeature.enabled && isPaid && !sub?.cancel_at_period_end && (
           <SubscriptionManageButton
             action="cancel"
             label="Batalkan di akhir periode"
@@ -93,7 +97,7 @@ async function BillingContent() {
             successMessage="Subscription akan berakhir di akhir periode aktif."
           />
         )}
-        {sub?.cancel_at_period_end && (
+        {billingFeature.enabled && sub?.cancel_at_period_end && (
           <SubscriptionManageButton
             action="resume"
             label="Lanjutkan subscription"
@@ -103,6 +107,15 @@ async function BillingContent() {
           />
         )}
       </div>
+
+      {!billingFeature.enabled ? (
+        <FeatureNotice
+          description={billingFeature.message}
+          missingEnv={billingFeature.missingEnv}
+          title={billingFeature.title}
+          toggleEnv={billingFeature.toggleEnv}
+        />
+      ) : null}
 
       <Separator />
 
@@ -190,6 +203,15 @@ async function BillingContent() {
                 {isCurrentPlan ? (
                   <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                     Plan ini sedang aktif di akun kamu.
+                  </div>
+                ) : !paymentsFeature.enabled ? (
+                  <div className="space-y-2">
+                    <div className="rounded-md border border-dashed bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                      {paymentsFeature.title}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {paymentsFeature.message}
+                    </p>
                   </div>
                 ) : (
                   <PaymentButton

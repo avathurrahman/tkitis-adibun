@@ -78,6 +78,7 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 | File | Tujuan |
 | --- | --- |
 | `components/auth/supabase-env-notice.tsx` | Banner peringatan saat env var Supabase tidak ada |
+| `components/config/feature-notice.tsx` | Notice bersama untuk fitur yang dimatikan atau belum lengkap konfigurasinya |
 | `components/auth-button.tsx` | Aksi header yang sadar auth (server component) |
 | `components/logout-button.tsx` | Aksi sign out |
 | `components/login-form.tsx` | Login: tab email/password, tab Magic Link, tombol Google OAuth |
@@ -91,7 +92,9 @@ File ini adalah referensi praktis untuk source file penting yang saat ini ada di
 
 | File | Tujuan |
 | --- | --- |
-| `lib/utils.ts` | Helper `cn()` dan pengecekan env var |
+| `lib/utils.ts` | Helper `cn()` dan pengecekan auth aktif berbasis env |
+| `lib/config/public-features.ts` | Toggle fitur publik bersama dan helper env yang aman untuk client |
+| `lib/config/features.ts` | Peta kesiapan fitur di server untuk UI, route, dan health check |
 | `lib/supabase/client.ts` | Factory browser Supabase client |
 | `lib/supabase/server.ts` | Factory server Supabase client |
 | `lib/supabase/proxy.ts` | Logika refresh session dan redirect yang dipakai `proxy.ts` |

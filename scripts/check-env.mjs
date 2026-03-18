@@ -1,45 +1,136 @@
-const requiredKeys = [
-  "NEXT_PUBLIC_SUPABASE_URL",
-  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-];
-
-const optionalKeys = [
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "NEXT_PUBLIC_APP_URL",
-  "PAYMENT_PROVIDER",
-  "MIDTRANS_SERVER_KEY",
-  "NEXT_PUBLIC_MIDTRANS_CLIENT_KEY",
-  "DOKU_CLIENT_ID",
-  "DOKU_SECRET_KEY",
-  "RESEND_API_KEY",
-  "EMAIL_FROM",
-  "ADMIN_EMAILS",
-  "AI_DEFAULT_PROVIDER",
-  "OPENAI_API_KEY",
-  "ANTHROPIC_API_KEY",
-];
+const disabledValues = new Set(["0", "false", "no", "off"]);
 
 function isMissing(key) {
   const value = process.env[key];
   return !value || value.trim().length === 0;
 }
 
-const missingRequired = requiredKeys.filter(isMissing);
-const missingOptional = optionalKeys.filter(isMissing);
-
-if (missingRequired.length > 0) {
-  console.error("Missing required environment variables:");
-  for (const key of missingRequired) {
-    console.error(`- ${key}`);
+function isFeatureEnabled(key) {
+  const value = process.env[key];
+  if (!value) {
+    return true;
   }
-  process.exitCode = 1;
-} else {
-  console.log("Required environment variables are set.");
+
+  return !disabledValues.has(value.trim().toLowerCase());
 }
 
-if (missingOptional.length > 0) {
-  console.log("\nOptional variables not set yet:");
-  for (const key of missingOptional) {
+function resolvePaymentProvider() {
+  return process.env.PAYMENT_PROVIDER?.trim().toLowerCase() === "midtrans"
+    ? "midtrans"
+    : "doku";
+}
+
+function resolveAIProvider() {
+  return process.env.AI_DEFAULT_PROVIDER?.trim().toLowerCase() === "anthropic"
+    ? "anthropic"
+    : "openai";
+}
+
+function getMissing(keys) {
+  return keys.filter(isMissing);
+}
+
+const supabasePublicKeys = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+];
+
+const paymentProvider = resolvePaymentProvider();
+const aiProvider = resolveAIProvider();
+
+const featureChecks = [
+  {
+    name: "auth",
+    description: "Login, signup, dashboard, dan auth callback",
+    requiredEnv: supabasePublicKeys,
+    toggle: "NEXT_PUBLIC_ENABLE_AUTH",
+  },
+  {
+    name: "waitlist",
+    description: "Form waitlist publik",
+    requiredEnv: supabasePublicKeys,
+    toggle: "NEXT_PUBLIC_ENABLE_WAITLIST",
+  },
+  {
+    name: "contact",
+    description: "Pengiriman form kontak via Resend",
+    requiredEnv: ["RESEND_API_KEY"],
+    toggle: "NEXT_PUBLIC_ENABLE_CONTACT",
+  },
+  {
+    name: "billing",
+    description: "Upgrade, cancel, dan resume subscription",
+    requiredEnv: [...supabasePublicKeys, "SUPABASE_SERVICE_ROLE_KEY"],
+    toggle: "NEXT_PUBLIC_ENABLE_PAYMENTS",
+  },
+  {
+    name: "payments",
+    description: `Checkout ${paymentProvider.toUpperCase()} end-to-end`,
+    requiredEnv:
+      paymentProvider === "midtrans"
+        ? [
+            ...supabasePublicKeys,
+            "SUPABASE_SERVICE_ROLE_KEY",
+            "MIDTRANS_SERVER_KEY",
+            "NEXT_PUBLIC_MIDTRANS_CLIENT_KEY",
+          ]
+        : [
+            ...supabasePublicKeys,
+            "SUPABASE_SERVICE_ROLE_KEY",
+            "DOKU_CLIENT_ID",
+            "DOKU_SECRET_KEY",
+          ],
+    toggle: "NEXT_PUBLIC_ENABLE_PAYMENTS",
+  },
+  {
+    name: "admin",
+    description: "Dashboard admin, reporting, dan role management",
+    requiredEnv: [...supabasePublicKeys, "SUPABASE_SERVICE_ROLE_KEY"],
+    toggle: "NEXT_PUBLIC_ENABLE_ADMIN",
+  },
+  {
+    name: "ai",
+    description: `Route AI (${aiProvider}) dan usage tracking`,
+    requiredEnv:
+      aiProvider === "anthropic"
+        ? [...supabasePublicKeys, "ANTHROPIC_API_KEY"]
+        : [...supabasePublicKeys, "OPENAI_API_KEY"],
+    toggle: "NEXT_PUBLIC_ENABLE_AI",
+  },
+];
+
+const activeMissing = [];
+
+console.log("Feature readiness:");
+
+for (const feature of featureChecks) {
+  const enabled = isFeatureEnabled(feature.toggle);
+  const missing = enabled ? getMissing(feature.requiredEnv) : [];
+
+  if (!enabled) {
+    console.log(`- ${feature.name}: disabled by ${feature.toggle}=false`);
+    continue;
+  }
+
+  if (missing.length === 0) {
+    console.log(`- ${feature.name}: ready`);
+    continue;
+  }
+
+  activeMissing.push({ ...feature, missing });
+  console.log(`- ${feature.name}: fallback mode`);
+  console.log(`  missing: ${missing.join(", ")}`);
+}
+
+console.log("\nOther optional env:");
+for (const key of ["NEXT_PUBLIC_APP_URL", "EMAIL_FROM", "ADMIN_EMAILS"]) {
+  if (isMissing(key)) {
     console.log(`- ${key}`);
   }
+}
+
+if (activeMissing.length === 0) {
+  console.log("\nAll enabled features have the env they need.");
+} else {
+  console.log("\nEnabled features still missing config will stay in fallback mode until configured.");
 }

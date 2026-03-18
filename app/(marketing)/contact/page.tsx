@@ -1,3 +1,4 @@
+import { getFeatureAvailability } from "@/lib/config/features";
 import { ContactForm } from "@/components/contact-form";
 import { Separator } from "@/components/ui/separator";
 import { Mail, MessageCircle } from "lucide-react";
@@ -11,6 +12,8 @@ export const metadata = createMetadata({
 });
 
 export default function ContactPage() {
+  const contactFeature = getFeatureAvailability("contact");
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-16 space-y-10">
       <div className="space-y-2">
@@ -42,7 +45,18 @@ export default function ContactPage() {
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Kirim Pesan</h2>
-        <ContactForm />
+        <ContactForm
+          notice={
+            contactFeature.enabled
+              ? null
+              : {
+                  description: contactFeature.message,
+                  missingEnv: contactFeature.missingEnv,
+                  title: contactFeature.title,
+                  toggleEnv: contactFeature.toggleEnv,
+                }
+          }
+        />
       </div>
     </div>
   );

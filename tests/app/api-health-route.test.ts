@@ -25,6 +25,16 @@ describe("app/api/health/route", () => {
         supabase_public: false,
         supabase_service_role: false,
       },
+      features: {
+        auth: {
+          disabled_by_flag: false,
+          enabled: false,
+          missing_env: [
+            "NEXT_PUBLIC_SUPABASE_URL",
+            "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+          ],
+        },
+      },
       payment_provider: "doku",
       status: "degraded",
     });

@@ -1,3 +1,4 @@
+import { getFeatureAvailability } from "@/lib/config/features";
 import { createMetadata } from "@/lib/seo";
 import { WaitlistPageClient } from "./waitlist-page";
 
@@ -9,5 +10,20 @@ export const metadata = createMetadata({
 });
 
 export default function WaitlistPage() {
-  return <WaitlistPageClient />;
+  const waitlistFeature = getFeatureAvailability("waitlist");
+
+  return (
+    <WaitlistPageClient
+      notice={
+        waitlistFeature.enabled
+          ? null
+          : {
+              description: waitlistFeature.message,
+              missingEnv: waitlistFeature.missingEnv,
+              title: waitlistFeature.title,
+              toggleEnv: waitlistFeature.toggleEnv,
+            }
+      }
+    />
+  );
 }

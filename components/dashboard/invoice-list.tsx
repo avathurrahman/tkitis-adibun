@@ -42,7 +42,11 @@ export function InvoiceList({ limit = 10 }: { limit?: number }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setInvoices([]);
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
     supabase

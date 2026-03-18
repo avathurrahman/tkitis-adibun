@@ -78,6 +78,7 @@ This file is a practical reference for the important source files currently in t
 | File | Purpose |
 | --- | --- |
 | `components/auth/supabase-env-notice.tsx` | Warning banner when Supabase env vars are missing |
+| `components/config/feature-notice.tsx` | Shared notice for disabled or partially configured features |
 | `components/auth-button.tsx` | Server-side auth-aware header actions |
 | `components/logout-button.tsx` | Sign-out action |
 | `components/login-form.tsx` | Sign-in: email/password tab, Magic Link tab, Google OAuth button |
@@ -91,7 +92,9 @@ This file is a practical reference for the important source files currently in t
 
 | File | Purpose |
 | --- | --- |
-| `lib/utils.ts` | `cn()` helper and env-var presence check |
+| `lib/utils.ts` | `cn()` helper and auth-enabled env check |
+| `lib/config/public-features.ts` | Shared public feature toggles and client-safe env helpers |
+| `lib/config/features.ts` | Server-side feature readiness map for UI, routes, and health checks |
 | `lib/supabase/client.ts` | Browser Supabase client factory |
 | `lib/supabase/server.ts` | Server Supabase client factory |
 | `lib/supabase/proxy.ts` | Session refresh and redirect logic used by `proxy.ts` |

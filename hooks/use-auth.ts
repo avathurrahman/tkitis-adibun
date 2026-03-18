@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import { hasEnvVars } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
 export function useAuth() {
@@ -9,6 +10,12 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!hasEnvVars) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
     supabase.auth.getUser().then(({ data }) => {

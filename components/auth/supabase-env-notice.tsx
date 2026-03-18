@@ -1,4 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FeatureNotice } from "@/components/config/feature-notice";
+import {
+  featureToggleEnv,
+  supabasePublicEnvKeys,
+} from "@/lib/config/public-features";
 
 type SupabaseEnvNoticeProps = {
   compact?: boolean;
@@ -10,23 +14,18 @@ export function SupabaseEnvNotice({
   if (compact) {
     return (
       <p className="text-sm text-muted-foreground">
-        Setel env Supabase untuk mengaktifkan auth.
+        Auth belum aktif. Isi env Supabase atau set{" "}
+        <code>{featureToggleEnv.auth}=false</code>.
       </p>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">Supabase belum dikonfigurasi</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">
-          Tambahkan <code>NEXT_PUBLIC_SUPABASE_URL</code> dan{" "}
-          <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> di environment
-          lokal untuk mengaktifkan login, pendaftaran, dan session auth.
-        </p>
-      </CardContent>
-    </Card>
+    <FeatureNotice
+      description="Boilerplate tetap bisa dipakai tanpa auth. Saat kamu siap menyalakannya, isi env Supabase publik untuk login, signup, session, dan dashboard."
+      missingEnv={[...supabasePublicEnvKeys]}
+      title="Auth belum aktif"
+      toggleEnv={featureToggleEnv.auth}
+    />
   );
 }

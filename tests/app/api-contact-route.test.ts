@@ -42,7 +42,8 @@ describe("app/api/contact/route", () => {
 
     expect(response.status).toBe(503);
     await expect(response.json()).resolves.toEqual({
-      error: "Email service not configured.",
+      error:
+        "Form kontak belum aktif. Set RESEND_API_KEY untuk mengirim email dari halaman kontak. Kalau app kamu belum butuh form kontak, set NEXT_PUBLIC_ENABLE_CONTACT=false.",
     });
     expect(ResendMock).not.toHaveBeenCalled();
   });

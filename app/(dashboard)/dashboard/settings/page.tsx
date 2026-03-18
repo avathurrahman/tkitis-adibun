@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getFeatureAvailability } from "@/lib/config/features";
 import { createClient } from "@/lib/supabase/server";
 import { hasEnvVars } from "@/lib/utils";
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
@@ -31,6 +32,7 @@ export const metadata = createMetadata({
 async function SettingsContent() {
   if (!hasEnvVars) return <SupabaseEnvNotice />;
 
+  const profileWritesFeature = getFeatureAvailability("profileWrites");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
 
@@ -110,6 +112,7 @@ async function SettingsContent() {
             avatarImageUrl={profile?.avatar_image_url ?? null}
             avatarPath={profile?.avatar_path ?? null}
             avatarUrl={profile?.avatar_url ?? null}
+            editingEnabled={profileWritesFeature.enabled}
             email={email}
             fullName={profile?.full_name ?? null}
             userId={userId}

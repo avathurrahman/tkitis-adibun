@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { getFeatureAvailability } from "@/lib/config/features";
 import {
   applyRateLimitHeaders,
   createRateLimitResponse,
@@ -14,16 +15,17 @@ export async function POST(req: Request) {
     return createRateLimitResponse(rateLimit, "Terlalu banyak pesan. Coba lagi nanti.");
   }
 
-  const resendKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM ?? "KilatKoding <noreply@kilatkoding.com>";
-  const emailTo = process.env.CONTACT_EMAIL ?? process.env.EMAIL_FROM ?? "hello@kilatkoding.com";
-
-  if (!resendKey) {
+  const contactFeature = getFeatureAvailability("contact");
+  if (!contactFeature.enabled) {
     return applyRateLimitHeaders(
-      NextResponse.json({ error: "Email service not configured." }, { status: 503 }),
+      NextResponse.json({ error: contactFeature.message }, { status: 503 }),
       rateLimit,
     );
   }
+
+  const resendKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM ?? "KilatKoding <noreply@kilatkoding.com>";
+  const emailTo = process.env.CONTACT_EMAIL ?? process.env.EMAIL_FROM ?? "hello@kilatkoding.com";
 
   const parsed = contactRequestSchema.safeParse(await req.json());
   if (!parsed.success) {

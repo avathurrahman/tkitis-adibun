@@ -182,6 +182,7 @@ Route group menggunakan tanda kurung di nama folder dan tidak mempengaruhi URL. 
 | `components/update-password-form.tsx` | Form update password |
 | `components/logout-button.tsx` | Tombol sign out |
 | `components/auth/supabase-env-notice.tsx` | Banner peringatan saat env var Supabase tidak ada |
+| `components/config/feature-notice.tsx` | Notice bersama untuk fitur yang dimatikan atau belum lengkap konfigurasinya |
 | `components/contact-form.tsx` | Formulir kontak dengan field dan penanganan pengiriman |
 
 ### Seksi Landing Page

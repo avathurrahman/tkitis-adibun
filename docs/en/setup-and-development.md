@@ -38,6 +38,13 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+NEXT_PUBLIC_ENABLE_AUTH=true
+NEXT_PUBLIC_ENABLE_WAITLIST=true
+NEXT_PUBLIC_ENABLE_CONTACT=true
+NEXT_PUBLIC_ENABLE_PAYMENTS=true
+NEXT_PUBLIC_ENABLE_ADMIN=true
+NEXT_PUBLIC_ENABLE_AI=true
+
 MIDTRANS_SERVER_KEY=your-midtrans-server-key
 NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=your-midtrans-client-key
 
@@ -58,6 +65,10 @@ ANTHROPIC_API_KEY=your-anthropic-api-key
 Notes:
 
 - `NEXT_PUBLIC_APP_URL` is used by `config/site.ts` to build the site base URL
+- The starter now degrades gracefully: missing config disables the affected feature instead of crashing the whole app
+- If a feature is not relevant to your app, set its `NEXT_PUBLIC_ENABLE_*` toggle to `false` so the UI shows it as intentionally disabled instead of “not configured”
+- `npm run env:check` now reports which enabled features are ready, which are in fallback mode, and which are disabled by toggle
+- `/api/health` now includes a feature-by-feature readiness summary
 - If Supabase vars are missing, auth-aware areas will not function but the app still renders
 - `SUPABASE_SERVICE_ROLE_KEY` is required for webhook writes, profile updates, order lookups, and admin reporting
 - `MIDTRANS_SERVER_KEY` is server-only; never prefix it with `NEXT_PUBLIC_`
@@ -180,10 +191,13 @@ Access is controlled by `user_roles`. `ADMIN_EMAILS` is only used to bootstrap i
 
 ## Local Development Flow
 
-1. Copy `.env.example` to `.env.local` and fill in Supabase values
-2. Run `npm run dev`
-3. Open `http://localhost:3000`
-4. Test: landing page, sign up (email + Google), sign in (password + Magic Link), dashboard
+1. Copy `.env.example` to `.env.local`
+2. Turn off any unused features by setting the related `NEXT_PUBLIC_ENABLE_*` flags to `false`
+3. Fill in the env vars required by the features you kept enabled
+4. Run `npm run env:check` to confirm which enabled features are ready vs still in fallback mode
+5. Run `npm run dev`
+6. Open `http://localhost:3000`
+7. Test the routes you actually kept enabled
 
 ## Deployment Notes
 

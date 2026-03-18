@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { authFeatureEnabled } from "@/lib/config/public-features";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthenticatedUser = {
@@ -8,6 +9,10 @@ export type AuthenticatedUser = {
 
 export const getAuthenticatedUser = cache(
   async (): Promise<AuthenticatedUser | null> => {
+    if (!authFeatureEnabled) {
+      return null;
+    }
+
     const supabase = await createClient();
     const { data, error } = await supabase.auth.getClaims();
 

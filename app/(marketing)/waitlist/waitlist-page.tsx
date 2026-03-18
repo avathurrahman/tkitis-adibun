@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,10 +56,20 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-export function WaitlistPageClient() {
+export function WaitlistPageClient({
+  notice = null,
+}: {
+  notice?: {
+    description: string;
+    missingEnv: string[];
+    title: string;
+    toggleEnv?: string;
+  } | null;
+}) {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const countdown = useCountdown(LAUNCH_DATE);
+  const disabled = Boolean(notice);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -141,9 +152,17 @@ export function WaitlistPageClient() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3 text-left">
+              {notice ? (
+                <FeatureNotice
+                  description={notice.description}
+                  missingEnv={notice.missingEnv}
+                  title={notice.title}
+                  toggleEnv={notice.toggleEnv}
+                />
+              ) : null}
               <div className="space-y-1.5">
                 <Label htmlFor="name">Nama (opsional)</Label>
-                <Input id="name" name="name" placeholder="Nama kamu" />
+                <Input id="name" name="name" placeholder="Nama kamu" disabled={disabled} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email">Email</Label>
@@ -153,14 +172,17 @@ export function WaitlistPageClient() {
                   type="email"
                   placeholder="nama@domain.com"
                   required
+                  disabled={disabled}
                 />
               </div>
-              <Button type="submit" disabled={loading} className="w-full">
+              <Button type="submit" disabled={loading || disabled} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Daftar Waitlist — Gratis
+                {disabled ? "Waitlist Belum Aktif" : "Daftar Waitlist — Gratis"}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Tidak ada spam. Hanya email launch dan promo early bird.
+                {disabled
+                  ? "Aktifkan integrasi waitlist dulu, atau matikan halaman ini lewat feature toggle."
+                  : "Tidak ada spam. Hanya email launch dan promo early bird."}
               </p>
             </form>
           )}

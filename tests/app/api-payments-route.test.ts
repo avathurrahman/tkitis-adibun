@@ -78,6 +78,13 @@ describe("app/api/payments/route", () => {
     syncExpiredSubscriptionMock.mockReset();
     syncExpiredSubscriptionMock.mockResolvedValue(null);
     createPaymentRecordMock.mockResolvedValue({ error: null });
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "anon-key";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role-key";
+    process.env.DOKU_CLIENT_ID = "mall-123";
+    process.env.DOKU_SECRET_KEY = "secret-key";
+    process.env.MIDTRANS_SERVER_KEY = "server-key";
+    process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY = "client-key";
     delete process.env.NEXT_PUBLIC_APP_URL;
     delete process.env.PAYMENT_PROVIDER;
   });
@@ -85,6 +92,32 @@ describe("app/api/payments/route", () => {
   afterEach(() => {
     resetRateLimitStore();
     vi.restoreAllMocks();
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.DOKU_CLIENT_ID;
+    delete process.env.DOKU_SECRET_KEY;
+    delete process.env.MIDTRANS_SERVER_KEY;
+    delete process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
+  });
+
+  it("returns 503 when the configured payment stack is incomplete", async () => {
+    delete process.env.DOKU_CLIENT_ID;
+    delete process.env.DOKU_SECRET_KEY;
+
+    const { POST } = await import("@/app/api/payments/route");
+    const response = await POST(
+      new Request("http://localhost/api/payments", {
+        body: JSON.stringify({ plan: "PRO" }),
+        method: "POST",
+      }) as never
+    );
+
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Checkout DOKU belum aktif. Isi DOKU_CLIENT_ID, DOKU_SECRET_KEY untuk mengaktifkan alur pembayaran end-to-end. Kalau app kamu belum butuh pembayaran, set NEXT_PUBLIC_ENABLE_PAYMENTS=false.",
+    });
   });
 
   it("requires an authenticated user", async () => {

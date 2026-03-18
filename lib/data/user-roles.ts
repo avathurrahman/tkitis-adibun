@@ -1,3 +1,4 @@
+import { authFeatureEnabled } from "@/lib/config/public-features";
 import { createAdminClient, hasServiceRoleEnv } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { DbEnum } from "@/types/database";
@@ -15,6 +16,10 @@ export async function getUserRoleForCurrentUser(
   userId: string,
   email: string,
 ): Promise<AppRole> {
+  if (!authFeatureEnabled) {
+    return getLegacyAdminEmails().includes(email.toLowerCase()) ? "admin" : "member";
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("user_roles")

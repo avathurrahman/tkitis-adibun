@@ -3,6 +3,7 @@
 import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export function ProfileForm({
   avatarImageUrl,
   avatarPath,
   avatarUrl,
+  editingEnabled,
   email,
   fullName,
   userId,
@@ -26,6 +28,7 @@ export function ProfileForm({
   avatarImageUrl: string | null;
   avatarPath: string | null;
   avatarUrl: string | null;
+  editingEnabled: boolean;
   email: string;
   fullName: string | null;
   userId: string;
@@ -131,6 +134,9 @@ export function ProfileForm({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!editingEnabled) {
+      return;
+    }
     setPending(true);
 
     try {
@@ -159,12 +165,19 @@ export function ProfileForm({
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit}>
+      {!editingEnabled ? (
+        <FeatureNotice
+          description="Profil tetap bisa dibaca, tapi penyimpanan perubahan butuh SUPABASE_SERVICE_ROLE_KEY."
+          missingEnv={["SUPABASE_SERVICE_ROLE_KEY"]}
+          title="Edit profil dinonaktifkan"
+        />
+      ) : null}
       <div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <ProfileAvatar
             src={avatarPreview}
             fallback={displayName}
-            editable
+            editable={editingEnabled}
             onUpload={handleAvatarUpload}
           />
           <div className="space-y-1">
@@ -179,7 +192,7 @@ export function ProfileForm({
           type="button"
           variant="outline"
           onClick={handleAvatarClear}
-          disabled={uploadingAvatar || !formState.avatar_path}
+          disabled={!editingEnabled || uploadingAvatar || !formState.avatar_path}
         >
           Hapus Avatar Upload
         </Button>
@@ -192,6 +205,7 @@ export function ProfileForm({
         <Label htmlFor="profile-full-name">Nama lengkap</Label>
         <Input
           id="profile-full-name"
+          disabled={!editingEnabled}
           value={formState.full_name}
           onChange={(event) =>
             setFormState((current) => ({
@@ -207,6 +221,7 @@ export function ProfileForm({
         <Input
           id="profile-avatar-url"
           type="url"
+          disabled={!editingEnabled}
           value={formState.avatar_url}
           onChange={(event) =>
             setFormState((current) => ({
@@ -221,8 +236,8 @@ export function ProfileForm({
         </p>
       </div>
       <div>
-        <Button type="submit" disabled={pending || uploadingAvatar}>
-          {pending ? "Menyimpan..." : "Simpan Profil"}
+        <Button type="submit" disabled={!editingEnabled || pending || uploadingAvatar}>
+          {editingEnabled ? (pending ? "Menyimpan..." : "Simpan Profil") : "Edit Profil Belum Aktif"}
         </Button>
       </div>
     </form>
