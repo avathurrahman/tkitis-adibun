@@ -6,14 +6,18 @@ import { Button } from "@/components/ui/button";
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Mail, Loader2, CheckCircle2 } from "lucide-react";
+import type { SupabasePublicConfig } from "@/lib/config/public-features";
 import { createClient } from "@/lib/supabase/client";
-import { hasEnvVars } from "@/lib/utils";
 
-export function VerifyEmailClient() {
+export function VerifyEmailClient({
+  supabaseConfig,
+}: {
+  supabaseConfig: SupabasePublicConfig;
+}) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
-  if (!hasEnvVars) {
+  if (!supabaseConfig.authEnabled) {
     return (
       <>
         <TemplateBanner description="Halaman verifikasi email — ganti noreply@kilatkoding.com dengan domain email produkmu" />
@@ -29,7 +33,7 @@ export function VerifyEmailClient() {
   async function handleResend() {
     setLoading(true);
     try {
-      const supabase = createClient();
+      const supabase = createClient(supabaseConfig);
       const {
         data: { user },
       } = await supabase.auth.getUser();

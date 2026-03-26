@@ -9,14 +9,11 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: createClientMock,
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-
-  return {
-    ...actual,
-    hasEnvVars: true,
-  };
-});
+const supabaseConfig = {
+  authEnabled: true,
+  supabasePublishableKey: "publishable-key",
+  supabaseUrl: "https://example.supabase.co",
+} as const;
 
 describe("components/forgot-password-form", () => {
   beforeEach(() => {
@@ -37,7 +34,7 @@ describe("components/forgot-password-form", () => {
     const { ForgotPasswordForm } = await import(
       "@/components/forgot-password-form"
     );
-    render(<ForgotPasswordForm />);
+    render(<ForgotPasswordForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("Email"), "member@example.com");
@@ -51,6 +48,7 @@ describe("components/forgot-password-form", () => {
         }
       )
     );
+    expect(createClientMock).toHaveBeenCalledWith(supabaseConfig);
     expect(screen.getByText("Check Your Email")).toBeInTheDocument();
   });
 });

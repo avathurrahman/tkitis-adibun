@@ -30,6 +30,8 @@ Repository ini sekarang sudah punya test suite berbasis Vitest dengan:
 cp .env.example .env.local
 ```
 
+Next.js membaca `.env` dan `.env.local`, tetapi `.env.local` adalah tempat yang paling direkomendasikan untuk secret lokal.
+
 Isi dengan nilai-nilai berikut:
 
 ```env
@@ -67,7 +69,7 @@ Catatan:
 - `NEXT_PUBLIC_APP_URL` dipakai oleh `config/site.ts` untuk membangun base URL site
 - Starter sekarang degrade dengan aman: config yang belum lengkap hanya mematikan fitur terkait, bukan membuat seluruh app crash
 - Kalau ada fitur yang memang tidak dipakai di app kamu, set toggle `NEXT_PUBLIC_ENABLE_*` terkait ke `false` supaya UI menandainya sebagai fitur yang sengaja dimatikan
-- `npm run env:check` sekarang menampilkan fitur mana yang sudah siap, mana yang masih fallback mode, dan mana yang dimatikan lewat toggle
+- `npm run env:check` sekarang memuat file `.env` dan `.env.local` yang sama seperti Next.js, lalu menampilkan fitur mana yang sudah siap, mana yang masih fallback mode, dan mana yang dimatikan lewat toggle
 - `/api/health` sekarang menyertakan ringkasan kesiapan per fitur
 - Kalau Supabase vars belum diset, area yang membutuhkan auth tidak akan berfungsi, tapi app tetap bisa dirender
 - `SUPABASE_SERVICE_ROLE_KEY` dibutuhkan untuk write webhook, update profil, lookup order, dan reporting admin
@@ -78,6 +80,7 @@ Catatan:
 - `ADMIN_EMAILS` sekarang hanya daftar bootstrap; user yang cocok akan di-upsert ke `user_roles` sebagai `admin` saat login pertama
 - Variabel AI bersifat opsional; fitur AI nonaktif kalau key belum diset
 - `AI_DEFAULT_PROVIDER` defaultnya `openai`; set ke `anthropic` untuk pakai Claude
+- Restart `npm run dev` setelah mengubah file env supaya dev server yang sedang jalan membaca nilai terbaru
 
 ## Setup Supabase Dashboard
 

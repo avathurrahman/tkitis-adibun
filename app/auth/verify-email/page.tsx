@@ -1,3 +1,4 @@
+import { getSupabasePublicConfig } from "@/lib/config/public-features";
 import { createMetadata } from "@/lib/seo";
 import { VerifyEmailClient } from "./verify-email-client";
 
@@ -9,5 +10,5 @@ export const metadata = createMetadata({
 });
 
 export default function VerifyEmailPage() {
-  return <VerifyEmailClient />;
+  return <VerifyEmailClient supabaseConfig={getSupabasePublicConfig()} />;
 }

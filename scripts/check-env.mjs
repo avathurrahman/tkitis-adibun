@@ -1,3 +1,9 @@
+import nextEnv from "@next/env";
+
+const { loadEnvConfig } = nextEnv;
+
+loadEnvConfig(process.cwd());
+
 const disabledValues = new Set(["0", "false", "no", "off"]);
 
 function isMissing(key) {

@@ -1,7 +1,8 @@
 "use client";
 
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
-import { cn, hasEnvVars } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import type { SupabasePublicConfig } from "@/lib/config/public-features";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,8 +20,11 @@ import { useState } from "react";
 
 export function SignUpForm({
   className,
+  supabaseConfig,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  supabaseConfig: SupabasePublicConfig;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -28,7 +32,7 @@ export function SignUpForm({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  if (!hasEnvVars) {
+  if (!supabaseConfig.authEnabled) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <SupabaseEnvNotice />
@@ -38,7 +42,7 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
+    const supabase = createClient(supabaseConfig);
     setIsLoading(true);
     setError(null);
 
@@ -66,7 +70,7 @@ export function SignUpForm({
   };
 
   const handleGoogleSignUp = async () => {
-    const supabase = createClient();
+    const supabase = createClient(supabaseConfig);
     setIsLoading(true);
     setError(null);
 

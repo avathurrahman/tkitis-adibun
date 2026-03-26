@@ -30,6 +30,8 @@ The repository now includes a Vitest-based test suite with:
 cp .env.example .env.local
 ```
 
+Next.js reads both `.env` and `.env.local`, but `.env.local` is the recommended place for local secrets.
+
 Set the following:
 
 ```env
@@ -67,7 +69,7 @@ Notes:
 - `NEXT_PUBLIC_APP_URL` is used by `config/site.ts` to build the site base URL
 - The starter now degrades gracefully: missing config disables the affected feature instead of crashing the whole app
 - If a feature is not relevant to your app, set its `NEXT_PUBLIC_ENABLE_*` toggle to `false` so the UI shows it as intentionally disabled instead of “not configured”
-- `npm run env:check` now reports which enabled features are ready, which are in fallback mode, and which are disabled by toggle
+- `npm run env:check` now loads the same `.env` and `.env.local` files that Next.js uses, then reports which enabled features are ready, which are in fallback mode, and which are disabled by toggle
 - `/api/health` now includes a feature-by-feature readiness summary
 - If Supabase vars are missing, auth-aware areas will not function but the app still renders
 - `SUPABASE_SERVICE_ROLE_KEY` is required for webhook writes, profile updates, order lookups, and admin reporting
@@ -78,6 +80,7 @@ Notes:
 - `ADMIN_EMAILS` is now a bootstrap list: matching users are upserted into `user_roles` as `admin` on first login
 - AI vars are optional; AI features are disabled when keys are not set
 - `AI_DEFAULT_PROVIDER` defaults to `openai`; set to `anthropic` to use Claude
+- Restart `npm run dev` after changing env files so the running dev server picks up the new values
 
 ## Supabase Dashboard Setup
 

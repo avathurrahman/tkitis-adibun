@@ -10,14 +10,11 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: createClientMock,
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-
-  return {
-    ...actual,
-    hasEnvVars: true,
-  };
-});
+const supabaseConfig = {
+  authEnabled: true,
+  supabasePublishableKey: "publishable-key",
+  supabaseUrl: "https://example.supabase.co",
+} as const;
 
 describe("components/login-form", () => {
   beforeEach(() => {
@@ -38,7 +35,7 @@ describe("components/login-form", () => {
     });
 
     const { LoginForm } = await import("@/components/login-form");
-    render(<LoginForm />);
+    render(<LoginForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("Email"), "member@example.com");
@@ -51,6 +48,7 @@ describe("components/login-form", () => {
         password: "secret123",
       })
     );
+    expect(createClientMock).toHaveBeenCalledWith(supabaseConfig);
     expect(routerMock.push).toHaveBeenCalledWith("/dashboard");
   });
 
@@ -68,7 +66,7 @@ describe("components/login-form", () => {
     });
 
     const { LoginForm } = await import("@/components/login-form");
-    render(<LoginForm />);
+    render(<LoginForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: "Magic Link" }));
@@ -100,7 +98,7 @@ describe("components/login-form", () => {
     });
 
     const { LoginForm } = await import("@/components/login-form");
-    render(<LoginForm />);
+    render(<LoginForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.click(
@@ -110,5 +108,20 @@ describe("components/login-form", () => {
     await waitFor(() =>
       expect(screen.getByText("Google auth unavailable")).toBeInTheDocument()
     );
+  });
+
+  it("renders the Supabase notice when auth is disabled in the server config", async () => {
+    const { LoginForm } = await import("@/components/login-form");
+    render(
+      <LoginForm
+        supabaseConfig={{
+          authEnabled: false,
+          supabasePublishableKey: null,
+          supabaseUrl: null,
+        }}
+      />
+    );
+
+    expect(screen.getByText("Auth belum aktif")).toBeInTheDocument();
   });
 });

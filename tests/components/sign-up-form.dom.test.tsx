@@ -10,14 +10,11 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: createClientMock,
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-
-  return {
-    ...actual,
-    hasEnvVars: true,
-  };
-});
+const supabaseConfig = {
+  authEnabled: true,
+  supabasePublishableKey: "publishable-key",
+  supabaseUrl: "https://example.supabase.co",
+} as const;
 
 describe("components/sign-up-form", () => {
   beforeEach(() => {
@@ -35,7 +32,7 @@ describe("components/sign-up-form", () => {
     });
 
     const { SignUpForm } = await import("@/components/sign-up-form");
-    render(<SignUpForm />);
+    render(<SignUpForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("Email"), "member@example.com");
@@ -60,7 +57,7 @@ describe("components/sign-up-form", () => {
     });
 
     const { SignUpForm } = await import("@/components/sign-up-form");
-    render(<SignUpForm />);
+    render(<SignUpForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("Email"), "member@example.com");
@@ -77,6 +74,7 @@ describe("components/sign-up-form", () => {
         password: "secret123",
       })
     );
+    expect(createClientMock).toHaveBeenCalledWith(supabaseConfig);
     expect(routerMock.push).toHaveBeenCalledWith("/auth/sign-up-success");
   });
 });

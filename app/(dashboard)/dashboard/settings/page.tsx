@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { getSupabasePublicConfig } from "@/lib/config/public-features";
 import { getFeatureAvailability } from "@/lib/config/features";
 import { createClient } from "@/lib/supabase/server";
-import { hasEnvVars } from "@/lib/utils";
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
 import { ProfileForm } from "@/components/dashboard/profile-form";
 import {
@@ -30,7 +30,9 @@ export const metadata = createMetadata({
 });
 
 async function SettingsContent() {
-  if (!hasEnvVars) return <SupabaseEnvNotice />;
+  const supabaseConfig = getSupabasePublicConfig();
+
+  if (!supabaseConfig.authEnabled) return <SupabaseEnvNotice />;
 
   const profileWritesFeature = getFeatureAvailability("profileWrites");
   const supabase = await createClient();
@@ -125,7 +127,7 @@ async function SettingsContent() {
           <CardTitle className="text-base">Ganti Password</CardTitle>
         </CardHeader>
         <CardContent>
-          <UpdatePasswordForm />
+          <UpdatePasswordForm supabaseConfig={supabaseConfig} />
         </CardContent>
       </Card>
     </div>

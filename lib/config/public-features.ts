@@ -4,6 +4,13 @@ function isPresent(value: string | undefined) {
   return Boolean(value?.trim());
 }
 
+function getTrimmedEnvValue(key: string) {
+  const value = process.env[key];
+  const trimmedValue = value?.trim();
+
+  return trimmedValue ? trimmedValue : null;
+}
+
 function isFeatureFlagEnabled(value: string | undefined) {
   if (!value) {
     return true;
@@ -34,6 +41,30 @@ export const supabasePublicEnvKeys = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
 ] as const;
+
+export type SupabasePublicConfig = {
+  authEnabled: boolean;
+  supabasePublishableKey: string | null;
+  supabaseUrl: string | null;
+};
+
+export function getSupabasePublicConfig(): SupabasePublicConfig {
+  const supabaseUrl = getTrimmedEnvValue("NEXT_PUBLIC_SUPABASE_URL");
+  const supabasePublishableKey = getTrimmedEnvValue(
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  );
+  const hasSupabasePublicEnv = Boolean(
+    supabaseUrl && supabasePublishableKey,
+  );
+
+  return {
+    authEnabled:
+      isFeatureFlagEnabled(process.env.NEXT_PUBLIC_ENABLE_AUTH) &&
+      hasSupabasePublicEnv,
+    supabasePublishableKey,
+    supabaseUrl,
+  };
+}
 
 export function getMissingEnv(keys: readonly string[]) {
   return keys.filter((key) => !isPresent(process.env[key]));

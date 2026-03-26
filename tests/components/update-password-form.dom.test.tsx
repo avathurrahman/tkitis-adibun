@@ -10,14 +10,11 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: createClientMock,
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-
-  return {
-    ...actual,
-    hasEnvVars: true,
-  };
-});
+const supabaseConfig = {
+  authEnabled: true,
+  supabasePublishableKey: "publishable-key",
+  supabaseUrl: "https://example.supabase.co",
+} as const;
 
 describe("components/update-password-form", () => {
   beforeEach(() => {
@@ -38,7 +35,7 @@ describe("components/update-password-form", () => {
     const { UpdatePasswordForm } = await import(
       "@/components/update-password-form"
     );
-    render(<UpdatePasswordForm />);
+    render(<UpdatePasswordForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("New password"), "secret123");
@@ -49,6 +46,7 @@ describe("components/update-password-form", () => {
         password: "secret123",
       })
     );
+    expect(createClientMock).toHaveBeenCalledWith(supabaseConfig);
     expect(routerMock.push).toHaveBeenCalledWith("/protected");
   });
 
@@ -66,7 +64,7 @@ describe("components/update-password-form", () => {
     const { UpdatePasswordForm } = await import(
       "@/components/update-password-form"
     );
-    render(<UpdatePasswordForm />);
+    render(<UpdatePasswordForm supabaseConfig={supabaseConfig} />);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("New password"), "123");

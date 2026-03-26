@@ -1,7 +1,8 @@
 "use client";
 
 import { SupabaseEnvNotice } from "@/components/auth/supabase-env-notice";
-import { cn, hasEnvVars } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import type { SupabasePublicConfig } from "@/lib/config/public-features";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +19,17 @@ import { useState } from "react";
 
 export function ForgotPasswordForm({
   className,
+  supabaseConfig,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  supabaseConfig: SupabasePublicConfig;
+}) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!hasEnvVars) {
+  if (!supabaseConfig.authEnabled) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <SupabaseEnvNotice />
@@ -35,7 +39,7 @@ export function ForgotPasswordForm({
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
+    const supabase = createClient(supabaseConfig);
     setIsLoading(true);
     setError(null);
 
