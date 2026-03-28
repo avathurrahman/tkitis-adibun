@@ -7,6 +7,7 @@ import { DownloadIcon, ReceiptIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import { EmptyState } from "./empty-state";
 
@@ -29,11 +30,11 @@ function formatRupiah(amount: number) {
 }
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 export function InvoiceList({ limit = 10 }: { limit?: number }) {

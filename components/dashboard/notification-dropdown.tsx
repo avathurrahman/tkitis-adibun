@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { id } from "date-fns/locale";
 import { BellIcon, CheckCheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { formatRelativeTimeFromReference } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 
 export type Notification = {
@@ -26,10 +25,12 @@ export function NotificationDropdown({
   notifications,
   onMarkAllRead,
   onMarkRead,
+  referenceTime,
 }: {
   notifications: Notification[];
   onMarkAllRead?: () => void;
   onMarkRead?: (id: string) => void;
+  referenceTime: string;
 }) {
   const [open, setOpen] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -97,10 +98,10 @@ export function NotificationDropdown({
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(notif.created_at), {
-                      addSuffix: true,
-                      locale: id,
-                    })}
+                    {formatRelativeTimeFromReference(
+                      notif.created_at,
+                      referenceTime,
+                    )}
                   </p>
                 </button>
               ))}

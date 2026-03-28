@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PaymentStatusBadge } from "@/components/dashboard/payment-status-badge";
+import { formatDateInJakarta } from "@/lib/format/date";
 
 type UserDetail = {
   id: string;
@@ -40,11 +41,11 @@ function formatRupiah(amount: number) {
 }
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 const planVariant: Record<string, "default" | "secondary" | "outline"> = {

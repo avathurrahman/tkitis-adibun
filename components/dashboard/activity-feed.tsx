@@ -1,7 +1,5 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
-import { id } from "date-fns/locale";
 import {
   CreditCardIcon,
   LogInIcon,
@@ -11,6 +9,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatRelativeTimeFromReference } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 
 export type ActivityType = "login" | "payment" | "ai_usage" | "profile_update";
@@ -44,10 +43,12 @@ export function ActivityFeed({
   activities,
   loading = false,
   limit = 5,
+  referenceTime,
 }: {
   activities: ActivityItem[];
   loading?: boolean;
   limit?: number;
+  referenceTime: string;
 }) {
   if (loading) {
     return (
@@ -104,10 +105,10 @@ export function ActivityFeed({
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(new Date(activity.created_at), {
-                        addSuffix: true,
-                        locale: id,
-                      })}
+                      {formatRelativeTimeFromReference(
+                        activity.created_at,
+                        referenceTime,
+                      )}
                     </p>
                   </div>
                 </div>

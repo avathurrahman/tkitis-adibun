@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableToolbar } from "@/components/dashboard/data-table-toolbar";
 import { ExportButton, downloadFile, toCsv } from "@/components/dashboard/export-button";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { formatDateInJakarta } from "@/lib/format/date";
 
 export type WaitlistEntry = {
   id: string;
@@ -24,13 +25,13 @@ export type WaitlistEntry = {
 };
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(iso));
+  });
 }
 
 const PAGE_SIZE = 10;

@@ -2,12 +2,12 @@
 
 import { Bar, BarChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDayMonthLabel } from "@/lib/format/date";
 
 type ChartPoint = { date: string; revenue: number };
 
 function shortDate(iso: string) {
-  const d = new Date(iso);
-  return `${d.getDate()}/${d.getMonth() + 1}`;
+  return formatDayMonthLabel(iso);
 }
 
 function formatRupiah(v: number) {

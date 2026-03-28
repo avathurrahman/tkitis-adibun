@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { PaymentStatusBadge } from "./payment-status-badge";
 
 type Payment = {
@@ -33,11 +34,11 @@ function formatRupiah(amount: number) {
 }
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 export function PaymentsTable() {

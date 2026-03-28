@@ -3,6 +3,7 @@ import { getAllPosts } from "@/lib/mdx";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -32,7 +33,7 @@ export default function BlogPage() {
                 <Card className="border-border/50 transition-colors group-hover:border-primary/50">
                   <CardHeader className="pb-2">
                     <p className="text-xs text-muted-foreground">
-                      {new Date(post.date).toLocaleDateString("id-ID", {
+                      {formatDateInJakarta(post.date, {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

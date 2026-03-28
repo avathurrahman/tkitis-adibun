@@ -53,7 +53,9 @@ const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
 };
 
 export function DataTab() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(
+    () => new Date("2026-03-28T00:00:00+07:00"),
+  );
   const [open, setOpen] = useState(false);
 
   return (

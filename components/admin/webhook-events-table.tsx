@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatDateInJakarta } from "@/lib/format/date";
 import type { WebhookEventSummary } from "@/lib/data/webhook-events";
 
 const statusVariant: Record<
@@ -29,13 +30,13 @@ function formatDateTime(iso: string | null) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 export function WebhookEventsTable({

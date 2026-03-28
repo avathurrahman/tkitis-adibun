@@ -14,9 +14,7 @@ type FeatureNoticeProps = {
 
 export function FeatureNotice({
   description,
-  missingEnv = [],
   title,
-  toggleEnv,
 }: FeatureNoticeProps) {
   return (
     <Alert>
@@ -24,24 +22,6 @@ export function FeatureNotice({
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
         <p>{description}</p>
-        {missingEnv.length > 0 ? (
-          <p>
-            Env yang dibutuhkan:{" "}
-            {missingEnv.map((name, index) => (
-              <span key={name}>
-                <code>{name}</code>
-                {index < missingEnv.length - 1 ? ", " : ""}
-              </span>
-            ))}
-            .
-          </p>
-        ) : null}
-        {toggleEnv ? (
-          <p>
-            Kalau fitur ini memang belum dipakai di app kamu, set{" "}
-            <code>{toggleEnv}=false</code>.
-          </p>
-        ) : null}
       </AlertDescription>
     </Alert>
   );

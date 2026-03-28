@@ -1,10 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FeatureNotice } from "@/components/config/feature-notice";
 import { Separator } from "@/components/ui/separator";
 import { TemplateBanner } from "@/components/ui/template-banner";
 import { Check, Lock } from "lucide-react";
 import Link from "next/link";
+import {
+  getFeatureAvailability,
+  resolvePaymentProvider,
+} from "@/lib/config/features";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -74,6 +79,9 @@ export default async function CheckoutPage({
 }) {
   const { plan: planKey = "pro" } = await searchParams;
   const plan = plans[planKey] ?? plans.pro;
+  const paymentsFeature = getFeatureAvailability("payments");
+  const paymentProvider = resolvePaymentProvider();
+  const providerLabel = paymentProvider === "midtrans" ? "Midtrans" : "DOKU";
 
   return (
     <>
@@ -124,7 +132,9 @@ export default async function CheckoutPage({
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Lock className="h-3.5 w-3.5 flex-shrink-0" />
-            Pembayaran aman diproses oleh Midtrans. Data kamu tidak disimpan di server kami.
+            {paymentsFeature.enabled
+              ? `Pembayaran aman diproses oleh ${providerLabel}. Data kamu tidak disimpan di server kami.`
+              : "Checkout online belum tersedia untuk app ini saat ini."}
           </div>
 
           <div className="space-y-1">
@@ -151,31 +161,41 @@ export default async function CheckoutPage({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Cara Pembayaran
           </h2>
-          <div className="rounded-lg border bg-muted/20 p-4 space-y-3">
-            <p className="text-sm">
-              Klik tombol di bawah untuk membuka Midtrans Snap — payment gateway terpercaya #1 di
-              Indonesia. Kamu bisa bayar via:
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-4 list-disc">
-              <li>Transfer bank (BCA, Mandiri, BNI, BRI, CIMB)</li>
-              <li>Virtual Account</li>
-              <li>GoPay, OVO, DANA, ShopeePay</li>
-              <li>Kartu kredit / debit Visa & Mastercard</li>
-              <li>Indomaret & Alfamart</li>
-            </ul>
-          </div>
+          {!paymentsFeature.enabled ? (
+            <FeatureNotice
+              description={paymentsFeature.message}
+              missingEnv={paymentsFeature.missingEnv}
+              title={paymentsFeature.title}
+              toggleEnv={paymentsFeature.toggleEnv}
+            />
+          ) : (
+            <>
+              <div className="rounded-lg border bg-muted/20 p-4 space-y-3">
+                <p className="text-sm">
+                  Klik tombol di bawah untuk melanjutkan ke {providerLabel}. Kamu bisa bayar via:
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 ml-4 list-disc">
+                  <li>Transfer bank (BCA, Mandiri, BNI, BRI, CIMB)</li>
+                  <li>Virtual Account</li>
+                  <li>GoPay, OVO, DANA, ShopeePay</li>
+                  <li>Kartu kredit / debit Visa & Mastercard</li>
+                  <li>Indomaret & Alfamart</li>
+                </ul>
+              </div>
 
-          <Button size="lg" className="w-full" asChild>
-            <Link href="/auth/sign-up">
-              Daftar & Bayar {formatRupiah(plan.price)}
-            </Link>
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Kamu perlu akun untuk melanjutkan pembayaran.{" "}
-            <Link href="/auth/login" className="underline underline-offset-4">
-              Sudah punya akun? Masuk.
-            </Link>
-          </p>
+              <Button size="lg" className="w-full" asChild>
+                <Link href="/auth/sign-up">
+                  Daftar & Bayar {formatRupiah(plan.price)}
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Kamu perlu akun untuk melanjutkan pembayaran.{" "}
+                <Link href="/auth/login" className="underline underline-offset-4">
+                  Sudah punya akun? Masuk.
+                </Link>
+              </p>
+            </>
+          )}
 
           <div className="grid grid-cols-3 gap-2 pt-2">
             {["Lifetime Access", "Refund Policy", "Discord Support"].map((item) => (

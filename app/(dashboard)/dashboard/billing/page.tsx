@@ -30,6 +30,7 @@ import {
   isProPlan,
   syncExpiredSubscription,
 } from "@/lib/data/subscriptions";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -117,6 +118,15 @@ async function BillingContent() {
         />
       ) : null}
 
+      {billingFeature.enabled && !paymentsFeature.enabled ? (
+        <FeatureNotice
+          description={paymentsFeature.message}
+          missingEnv={paymentsFeature.missingEnv}
+          title={paymentsFeature.title}
+          toggleEnv={paymentsFeature.toggleEnv}
+        />
+      ) : null}
+
       <Separator />
 
       <Card>
@@ -139,11 +149,11 @@ async function BillingContent() {
           {sub?.current_period_end && (
             <p className="text-sm text-muted-foreground mb-4">
               Periode berakhir:{" "}
-              {new Intl.DateTimeFormat("id-ID", {
+              {formatDateInJakarta(sub.current_period_end, {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
-              }).format(new Date(sub.current_period_end))}
+              })}
             </p>
           )}
 

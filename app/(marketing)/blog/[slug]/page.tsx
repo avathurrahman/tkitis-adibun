@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import type { Metadata } from "next";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { createMetadata } from "@/lib/seo";
 
 type Props = {
@@ -61,18 +62,18 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="text-sm text-muted-foreground">
             {frontmatter.author && (
               <span className="font-medium text-foreground">
-                {frontmatter.author}
-              </span>
-            )}
-            {frontmatter.author && " · "}
-            {new Date(frontmatter.date).toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-            {" · "}
-            {frontmatter.readingTime} menit baca
-          </div>
+            {frontmatter.author}
+          </span>
+        )}
+        {frontmatter.author && " · "}
+        {formatDateInJakarta(frontmatter.date, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+        {" · "}
+        {frontmatter.readingTime} menit baca
+      </div>
         </div>
 
         {frontmatter.tags && frontmatter.tags.length > 0 && (

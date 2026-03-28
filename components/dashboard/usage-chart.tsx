@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDayMonthLabel } from "@/lib/format/date";
 
 export type UsageDataPoint = {
   date: string;
@@ -18,8 +19,7 @@ export type UsageDataPoint = {
 };
 
 function shortDate(iso: string) {
-  const d = new Date(iso);
-  return `${d.getDate()}/${d.getMonth() + 1}`;
+  return formatDayMonthLabel(iso);
 }
 
 function formatTokens(v: number) {

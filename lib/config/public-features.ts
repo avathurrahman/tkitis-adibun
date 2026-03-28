@@ -79,6 +79,10 @@ export const authFeatureEnabled =
 export const waitlistFeatureEnabled =
   publicFeatureFlags.waitlist && hasSupabasePublicEnv;
 
+export function getSupabaseConfigNoticeMessage() {
+  return "Login, signup, dan dashboard belum tersedia untuk app ini saat ini.";
+}
+
 export function getSupabaseConfigError() {
   return [
     "Supabase auth belum aktif.",

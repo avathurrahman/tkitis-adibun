@@ -14,15 +14,14 @@ export function SupabaseEnvNotice({
   if (compact) {
     return (
       <p className="text-sm text-muted-foreground">
-        Auth belum aktif. Isi env Supabase atau set{" "}
-        <code>{featureToggleEnv.auth}=false</code>.
+        Auth belum tersedia untuk app ini saat ini.
       </p>
     );
   }
 
   return (
     <FeatureNotice
-      description="Boilerplate tetap bisa dipakai tanpa auth. Saat kamu siap menyalakannya, isi env Supabase publik untuk login, signup, session, dan dashboard."
+      description="Login, signup, session, dan dashboard belum tersedia untuk app ini saat ini."
       missingEnv={[...supabasePublicEnvKeys]}
       title="Auth belum aktif"
       toggleEnv={featureToggleEnv.auth}

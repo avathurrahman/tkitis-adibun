@@ -2,7 +2,7 @@ import {
   authFeatureEnabled,
   featureToggleEnv,
   getMissingEnv,
-  getSupabaseConfigError,
+  getSupabaseConfigNoticeMessage,
   hasSupabasePublicEnv,
   publicFeatureFlags,
   supabasePublicEnvKeys,
@@ -84,8 +84,8 @@ function getServiceRoleMissingEnv() {
   return getMissingEnv(SERVICE_ROLE_ENV_KEYS);
 }
 
-function resolveDisabledMessage(label: string, toggleEnv: string) {
-  return `${label} dimatikan lewat ${toggleEnv}=false. Set kembali ke true kalau ingin mengaktifkannya lagi.`;
+function resolveDisabledMessage(label: string) {
+  return `${label} sedang tidak tersedia untuk app ini saat ini.`;
 }
 
 export function resolvePaymentProvider(
@@ -114,7 +114,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "auth",
-          message: resolveDisabledMessage("Auth", featureToggleEnv.auth),
+          message: resolveDisabledMessage("Auth"),
           title: "Auth dinonaktifkan",
           toggleEnv: featureToggleEnv.auth,
         });
@@ -124,7 +124,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createSupabaseMissingFeature(
           "auth",
           "Auth belum aktif",
-          getSupabaseConfigError(),
+          getSupabaseConfigNoticeMessage(),
           featureToggleEnv.auth,
         );
       }
@@ -143,7 +143,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "waitlist",
-          message: resolveDisabledMessage("Waitlist", featureToggleEnv.waitlist),
+          message: resolveDisabledMessage("Waitlist"),
           title: "Waitlist dinonaktifkan",
           toggleEnv: featureToggleEnv.waitlist,
         });
@@ -153,10 +153,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createSupabaseMissingFeature(
           "waitlist",
           "Waitlist belum aktif",
-          [
-            "Waitlist butuh Supabase public env dan tabel waitlist yang sudah dimigrasikan.",
-            `Isi ${supabasePublicEnvKeys.join(", ")} atau set ${featureToggleEnv.waitlist}=false kalau page ini belum dipakai.`,
-          ].join(" "),
+          "Waitlist belum tersedia untuk app ini saat ini.",
           featureToggleEnv.waitlist,
         );
       }
@@ -175,7 +172,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "contact",
-          message: resolveDisabledMessage("Form kontak", featureToggleEnv.contact),
+          message: resolveDisabledMessage("Form kontak"),
           title: "Form kontak dinonaktifkan",
           toggleEnv: featureToggleEnv.contact,
         });
@@ -186,11 +183,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "contact",
-          message: [
-            "Form kontak belum aktif.",
-            `Set ${missingEnv.join(", ")} untuk mengirim email dari halaman kontak.`,
-            `Kalau app kamu belum butuh form kontak, set ${featureToggleEnv.contact}=false.`,
-          ].join(" "),
+          message: "Form kontak belum tersedia untuk app ini saat ini.",
           missingEnv,
           title: "Form kontak belum aktif",
           toggleEnv: featureToggleEnv.contact,
@@ -211,10 +204,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "billing",
-          message: resolveDisabledMessage(
-            "Billing",
-            featureToggleEnv.payments,
-          ),
+          message: resolveDisabledMessage("Billing"),
           title: "Billing dinonaktifkan",
           toggleEnv: featureToggleEnv.payments,
         });
@@ -229,11 +219,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "billing",
-          message: [
-            "Aksi billing butuh auth Supabase dan akses server write.",
-            `Isi ${missingEnv.join(", ")} untuk mengaktifkan upgrade, cancel, dan resume subscription.`,
-            `Kalau app kamu belum memakai billing, set ${featureToggleEnv.payments}=false.`,
-          ].join(" "),
+          message: "Billing belum tersedia untuk app ini saat ini.",
           missingEnv,
           title: "Billing belum aktif",
           toggleEnv: featureToggleEnv.payments,
@@ -254,10 +240,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "payments",
-          message: resolveDisabledMessage(
-            "Pembayaran",
-            featureToggleEnv.payments,
-          ),
+          message: resolveDisabledMessage("Pembayaran"),
           title: "Pembayaran dinonaktifkan",
           toggleEnv: featureToggleEnv.payments,
         });
@@ -274,11 +257,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "payments",
-          message: [
-            `Checkout ${provider.toUpperCase()} belum aktif.`,
-            `Isi ${missingEnv.join(", ")} untuk mengaktifkan alur pembayaran end-to-end.`,
-            `Kalau app kamu belum butuh pembayaran, set ${featureToggleEnv.payments}=false.`,
-          ].join(" "),
+          message: `Checkout ${provider.toUpperCase()} belum tersedia untuk app ini saat ini.`,
           missingEnv,
           title: `Pembayaran ${provider.toUpperCase()} belum aktif`,
           toggleEnv: featureToggleEnv.payments,
@@ -299,10 +278,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "admin",
-          message: resolveDisabledMessage(
-            "Dashboard admin",
-            featureToggleEnv.admin,
-          ),
+          message: resolveDisabledMessage("Dashboard admin"),
           title: "Admin dinonaktifkan",
           toggleEnv: featureToggleEnv.admin,
         });
@@ -317,11 +293,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "admin",
-          message: [
-            "Dashboard admin butuh auth Supabase dan SUPABASE_SERVICE_ROLE_KEY.",
-            `Isi ${missingEnv.join(", ")} untuk mengaktifkan reporting, user management, dan audit log.`,
-            `Kalau app kamu belum butuh admin panel, set ${featureToggleEnv.admin}=false.`,
-          ].join(" "),
+          message: "Dashboard admin belum tersedia untuk app ini saat ini.",
           missingEnv,
           title: "Admin belum aktif",
           toggleEnv: featureToggleEnv.admin,
@@ -343,10 +315,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "profileWrites",
-          message: [
-            "Edit profil server-side belum aktif.",
-            `Isi ${missingEnv.join(", ")} untuk mengaktifkan simpan profil, role bootstrap, dan write lain yang memakai service role.`,
-          ].join(" "),
+          message: "Edit profil belum tersedia untuk app ini saat ini.",
           missingEnv,
           title: "Edit profil belum aktif",
         });
@@ -365,7 +334,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
           disabledByFlag: true,
           enabled: false,
           key: "ai",
-          message: resolveDisabledMessage("AI", featureToggleEnv.ai),
+          message: resolveDisabledMessage("AI"),
           title: "AI dinonaktifkan",
           toggleEnv: featureToggleEnv.ai,
         });
@@ -383,11 +352,7 @@ export function getFeatureAvailability(feature: FeatureKey): FeatureAvailability
         return createFeatureResult({
           enabled: false,
           key: "ai",
-          message: [
-            `Fitur AI (${provider}) belum aktif.`,
-            `Isi ${missingEnv.join(", ")} untuk membuka route AI dan usage tracking.`,
-            `Kalau AI belum dipakai, set ${featureToggleEnv.ai}=false.`,
-          ].join(" "),
+          message: `Fitur AI (${provider}) belum tersedia untuk app ini saat ini.`,
           missingEnv,
           title: "AI belum aktif",
           toggleEnv: featureToggleEnv.ai,

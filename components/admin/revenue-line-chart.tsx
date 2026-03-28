@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDayMonthLabel } from "@/lib/format/date";
 
 export type RevenuePoint = {
   date: string;
@@ -19,8 +20,7 @@ export type RevenuePoint = {
 };
 
 function shortDate(iso: string) {
-  const d = new Date(iso);
-  return `${d.getDate()}/${d.getMonth() + 1}`;
+  return formatDayMonthLabel(iso);
 }
 
 function formatRupiah(v: number) {

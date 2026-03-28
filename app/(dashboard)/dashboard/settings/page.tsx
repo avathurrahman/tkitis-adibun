@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { UpdatePasswordForm } from "@/components/update-password-form";
 import { getProfileForCurrentUser } from "@/lib/data/profiles";
 import { getUserRoleForCurrentUser } from "@/lib/data/user-roles";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -47,11 +48,11 @@ async function SettingsContent() {
   const displayName = profile?.full_name?.trim() || email;
   const initials = displayName.slice(0, 2).toUpperCase();
   const memberSince = profile?.created_at
-    ? new Intl.DateTimeFormat("id-ID", {
+    ? formatDateInJakarta(profile.created_at, {
         day: "numeric",
         month: "long",
         year: "numeric",
-      }).format(new Date(profile.created_at))
+      })
     : "Akun aktif";
 
   return (

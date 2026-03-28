@@ -98,7 +98,7 @@ export function ContactForm({ notice = null }: { notice?: ContactFormNotice }) {
       </div>
       <Button type="submit" disabled={loading || disabled} className="w-full">
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {disabled ? "Form Kontak Belum Aktif" : "Kirim Pesan"}
+        {disabled ? "Form Kontak Sementara Tidak Tersedia" : "Kirim Pesan"}
       </Button>
     </form>
   );

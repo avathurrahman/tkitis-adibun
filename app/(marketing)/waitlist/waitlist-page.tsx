@@ -177,11 +177,11 @@ export function WaitlistPageClient({
               </div>
               <Button type="submit" disabled={loading || disabled} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {disabled ? "Waitlist Belum Aktif" : "Daftar Waitlist — Gratis"}
+                {disabled ? "Waitlist Sementara Tidak Tersedia" : "Daftar Waitlist — Gratis"}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
                 {disabled
-                  ? "Aktifkan integrasi waitlist dulu, atau matikan halaman ini lewat feature toggle."
+                  ? "Pendaftaran waitlist belum tersedia untuk app ini saat ini."
                   : "Tidak ada spam. Hanya email launch dan promo early bird."}
               </p>
             </form>

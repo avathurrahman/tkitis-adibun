@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableToolbar } from "@/components/dashboard/data-table-toolbar";
 import { ExportButton, downloadFile, toCsv } from "@/components/dashboard/export-button";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { EyeIcon } from "lucide-react";
 
 export type UserRow = {
@@ -39,11 +40,11 @@ const roleVariant: Record<"member" | "admin", "outline" | "default"> = {
 };
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 const PAGE_SIZE = 10;

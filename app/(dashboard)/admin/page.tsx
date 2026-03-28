@@ -43,6 +43,7 @@ import {
 } from "@/lib/data/admin";
 import { isAdminUser } from "@/lib/data/user-roles";
 import { getRecentWebhookEvents } from "@/lib/data/webhook-events";
+import { formatDateInJakarta } from "@/lib/format/date";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -71,11 +72,11 @@ function formatRupiah(amount: number): string {
 }
 
 function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("id-ID", {
+  return formatDateInJakarta(iso, {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(new Date(iso));
+  });
 }
 
 async function AdminContent({ page }: { page: number }) {
@@ -113,6 +114,7 @@ async function AdminContent({ page }: { page: number }) {
   const paidSubs = metrics?.paid_subscriptions ?? 0;
   const freeSubs = metrics?.free_subscriptions ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const renderedAt = new Date().toISOString();
 
   return (
     <div className="flex flex-col gap-6">
@@ -175,7 +177,7 @@ async function AdminContent({ page }: { page: number }) {
             Lihat perubahan profil, aksi admin, dan event pembayaran terbaru tanpa inspect log manual.
           </p>
         </div>
-        <AuditLog entries={auditLogs} />
+        <AuditLog entries={auditLogs} referenceTime={renderedAt} />
       </div>
 
       <Separator />

@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { id } from "date-fns/locale";
 import {
   CreditCardIcon,
   LogInIcon,
@@ -16,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTableToolbar } from "@/components/dashboard/data-table-toolbar";
 import type { AuditEntry, AuditEventType } from "@/lib/data/audit-logs";
+import { formatRelativeTimeFromReference } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 
 export type { AuditEntry, AuditEventType };
@@ -52,7 +51,13 @@ const typeLabels: Record<AuditEventType, string> = {
 
 const PAGE_SIZE = 15;
 
-export function AuditLog({ entries }: { entries: AuditEntry[] }) {
+export function AuditLog({
+  entries,
+  referenceTime,
+}: {
+  entries: AuditEntry[];
+  referenceTime: string;
+}) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -124,10 +129,10 @@ export function AuditLog({ entries }: { entries: AuditEntry[] }) {
                       </span>
                       <span className="text-xs text-muted-foreground">·</span>
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(entry.created_at), {
-                          addSuffix: true,
-                          locale: id,
-                        })}
+                        {formatRelativeTimeFromReference(
+                          entry.created_at,
+                          referenceTime,
+                        )}
                       </span>
                     </div>
                   </div>

@@ -28,109 +28,39 @@ import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { PlanComparisonModal } from "@/components/dashboard/plan-comparison-modal";
 import { ProfileAvatar } from "@/components/dashboard/profile-avatar";
-import {
-  NotificationDropdown,
-  type Notification,
-} from "@/components/dashboard/notification-dropdown";
+import { NotificationDropdown } from "@/components/dashboard/notification-dropdown";
 import { CommandPalette } from "@/components/dashboard/command-palette";
-import {
-  OnboardingChecklist,
-  type OnboardingStep,
-} from "@/components/dashboard/onboarding-checklist";
+import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 import { AdminStatsCards } from "@/components/admin/stats-cards";
 import { UserTable, type UserRow } from "@/components/admin/user-table";
 import { UserDetailSheet } from "@/components/admin/user-detail-sheet";
-import {
-  SubscriptionPieChart,
-  type PlanDistribution,
-} from "@/components/admin/subscription-pie-chart";
-import { RevenueLineChart, type RevenuePoint } from "@/components/admin/revenue-line-chart";
+import { SubscriptionPieChart } from "@/components/admin/subscription-pie-chart";
+import { RevenueLineChart } from "@/components/admin/revenue-line-chart";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AuditLog, type AuditEntry } from "@/components/admin/audit-log";
-import { WaitlistTable, type WaitlistEntry } from "@/components/admin/waitlist-table";
+import { AuditLog } from "@/components/admin/audit-log";
+import { WaitlistTable } from "@/components/admin/waitlist-table";
 import type { DateRange } from "react-day-picker";
-import type { ActivityItem } from "@/components/dashboard/activity-feed";
+import {
+  createDashboardDemoData,
+  DASHBOARD_DEMO_REFERENCE_TIME,
+  shiftDemoTime,
+} from "@/lib/demo/dashboard-mocks";
 
 // ─── Mock Data ────────────────────────────────────────────
-
-const now = new Date();
-function daysAgo(n: number) {
-  const d = new Date(now);
-  d.setDate(d.getDate() - n);
-  return d.toISOString();
-}
-function hoursAgo(n: number) {
-  const d = new Date(now);
-  d.setHours(d.getHours() - n);
-  return d.toISOString();
-}
-
-const mockUsageData = Array.from({ length: 14 }, (_, i) => ({
-  date: daysAgo(13 - i).slice(0, 10),
-  tokens: Math.floor(Math.random() * 8000) + 1000,
-}));
-
-const mockActivities: ActivityItem[] = [
-  { id: "1", type: "login", title: "Login berhasil", description: "Chrome · macOS", created_at: hoursAgo(1) },
-  { id: "2", type: "payment", title: "Pembayaran Rp 99.000", description: "Upgrade ke Pro", created_at: hoursAgo(5) },
-  { id: "3", type: "ai_usage", title: "AI Chat — 1.240 token", description: "Model: GPT-4o", created_at: hoursAgo(12) },
-  { id: "4", type: "profile_update", title: "Profil diperbarui", description: "Nama lengkap diubah", created_at: daysAgo(1) },
-  { id: "5", type: "login", title: "Login berhasil", description: "Safari · iOS", created_at: daysAgo(2) },
-];
-
-const mockNotifications: Notification[] = [
-  { id: "1", title: "Pembayaran berhasil", body: "Paket Pro aktif hingga 17 Apr 2026.", read: false, created_at: hoursAgo(2) },
-  { id: "2", title: "Kuota hampir habis", body: "85% token AI sudah terpakai bulan ini.", read: false, created_at: hoursAgo(8) },
-  { id: "3", title: "Fitur baru: AI Generate", body: "Coba fitur text generation baru di dashboard.", read: true, created_at: daysAgo(3) },
-];
-
-const mockOnboardingSteps: OnboardingStep[] = [
-  { id: "1", label: "Buat akun", completed: true },
-  { id: "2", label: "Verifikasi email", description: "Cek inbox untuk link verifikasi", completed: true },
-  { id: "3", label: "Pilih paket", description: "Pilih paket yang sesuai kebutuhan kamu", href: "/#pricing", completed: false },
-  { id: "4", label: "Coba AI Chat", description: "Mulai percakapan pertama dengan AI", href: "/dashboard/chat", completed: false },
-  { id: "5", label: "Lengkapi profil", description: "Tambahkan nama dan foto profil", href: "/dashboard/settings", completed: false },
-];
-
-const mockUsers: UserRow[] = Array.from({ length: 25 }, (_, i) => ({
-  id: `user-${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  full_name: i % 3 === 0 ? null : `User ${i + 1}`,
-  plan: ["FREE", "BASIC", "PRO", "ULTIMATE"][i % 4],
-  role: i % 5 === 0 ? "admin" : "member",
-  status: "ACTIVE",
-  created_at: daysAgo(Math.floor(Math.random() * 90)),
-}));
-
-const mockPieData: PlanDistribution[] = [
-  { plan: "FREE", count: 120 },
-  { plan: "BASIC", count: 45 },
-  { plan: "PRO", count: 30 },
-  { plan: "ULTIMATE", count: 8 },
-];
-
-const mockRevenueComparison: RevenuePoint[] = Array.from({ length: 14 }, (_, i) => ({
-  date: daysAgo(13 - i).slice(0, 10),
-  current: Math.floor(Math.random() * 5_000_000) + 500_000,
-  previous: Math.floor(Math.random() * 4_000_000) + 300_000,
-}));
-
-const mockAuditEntries: AuditEntry[] = [
-  { id: "a1", type: "user.signup", actor_email: "new@example.com", description: "Pengguna baru mendaftar", created_at: hoursAgo(1) },
-  { id: "a2", type: "payment.success", actor_email: "pro@example.com", description: "Pembayaran Rp 99.000 berhasil", created_at: hoursAgo(3) },
-  { id: "a3", type: "subscription.change", actor_email: "pro@example.com", description: "Upgrade dari Basic ke Pro", created_at: hoursAgo(3) },
-  { id: "a4", type: "user.login", actor_email: "admin@kilatkoding.com", description: "Login dari 103.28.x.x", created_at: hoursAgo(6) },
-  { id: "a5", type: "admin.action", actor_email: "admin@kilatkoding.com", description: "Approve waitlist user@example.com", created_at: hoursAgo(8) },
-  { id: "a6", type: "payment.failed", actor_email: "fail@example.com", description: "Pembayaran Rp 49.000 gagal — kartu ditolak", created_at: daysAgo(1) },
-  { id: "a7", type: "user.signup", actor_email: "another@example.com", description: "Pengguna baru mendaftar", created_at: daysAgo(2) },
-];
-
-const mockWaitlist: WaitlistEntry[] = Array.from({ length: 18 }, (_, i) => ({
-  id: `wl-${i + 1}`,
-  email: `waitlist${i + 1}@example.com`,
-  name: i % 4 === 0 ? null : `Pendaftar ${i + 1}`,
-  created_at: daysAgo(Math.floor(Math.random() * 30)),
-}));
+const {
+  activities: mockActivities,
+  auditEntries: mockAuditEntries,
+  notifications: mockNotifications,
+  onboardingSteps: mockOnboardingSteps,
+  pieData: mockPieData,
+  revenueComparison: mockRevenueComparison,
+  usageData: mockUsageData,
+  users: mockUsers,
+  waitlistEntries: mockWaitlist,
+} = createDashboardDemoData({
+  userCount: 25,
+  waitlistCount: 18,
+});
 
 // ─── Section Wrapper ──────────────────────────────────────
 
@@ -188,10 +118,10 @@ export function ComponentShowcase() {
     ? {
         ...selectedUser,
         avatar_image_url: null,
-        current_period_end: daysAgo(-30),
+        current_period_end: shiftDemoTime({ days: -30 }),
         payments: [
-          { id: "p1", amount: 99_000, status: "PAID", provider: "midtrans", created_at: daysAgo(5) },
-          { id: "p2", amount: 49_000, status: "PAID", provider: "doku", created_at: daysAgo(35) },
+          { id: "p1", amount: 99_000, status: "PAID", provider: "midtrans", created_at: shiftDemoTime({ days: 5 }) },
+          { id: "p2", amount: 49_000, status: "PAID", provider: "doku", created_at: shiftDemoTime({ days: 35 }) },
         ],
       }
     : null;
@@ -360,7 +290,10 @@ export function ComponentShowcase() {
             description="Timeline of user events with relative timestamps."
           >
             <div className="max-w-md">
-              <ActivityFeed activities={mockActivities} />
+              <ActivityFeed
+                activities={mockActivities}
+                referenceTime={DASHBOARD_DEMO_REFERENCE_TIME}
+              />
             </div>
           </ShowcaseSection>
 
@@ -409,6 +342,7 @@ export function ComponentShowcase() {
                 notifications={notifications}
                 onMarkAllRead={handleMarkAllRead}
                 onMarkRead={handleMarkRead}
+                referenceTime={DASHBOARD_DEMO_REFERENCE_TIME}
               />
               <span className="text-xs text-muted-foreground">
                 ← Klik bell icon
@@ -496,7 +430,10 @@ export function ComponentShowcase() {
             title="AuditLog"
             description="Searchable event timeline with type badges."
           >
-            <AuditLog entries={mockAuditEntries} />
+            <AuditLog
+              entries={mockAuditEntries}
+              referenceTime={DASHBOARD_DEMO_REFERENCE_TIME}
+            />
           </ShowcaseSection>
 
           <ShowcaseSection
