@@ -53,7 +53,7 @@ export default function Home() {
             &quot;Semoga Allah Ta&apos;ala memberi kita kemudahan dalam mendidik anak menjadi anak yang sholeh dan sholehah, berakhlaq dan beradab dengan ajaran salafus shaleh.&quot;
           </blockquote>
           <div className="flex items-center justify-center gap-4 text-sm font-medium text-slate-500">
-            <span>Ustadzah Nabiilah Husniyyah</span>
+            <span>Ustadzah Devita</span>
             <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
             <span>Ustadzah Dian Ariestya</span>
           </div>
