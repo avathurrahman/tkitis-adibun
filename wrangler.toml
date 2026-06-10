@@ -1,2 +1,5 @@
 name = "tkitis-adibun"
 pages_build_output_dir = "out"
+
+[site]
+bucket = ".next"
