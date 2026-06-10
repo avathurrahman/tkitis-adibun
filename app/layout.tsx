@@ -1,78 +1,18 @@
+// Lokasi file: app/layout.tsx
+
 import type { Metadata } from "next";
-import {
-  Geist,
-  IBM_Plex_Sans,
-  JetBrains_Mono,
-  Manrope,
-  Playfair_Display,
-  Source_Serif_4,
-  Space_Grotesk,
-} from "next/font/google";
-import { ThemeProvider } from "next-themes";
-import { siteConfig } from "@/config/site";
-import { createMetadata } from "@/lib/seo";
-import { MarketingDesignProvider } from "@/components/marketing/design-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import "./globals.css";
-import "./marketing.css";
+// ... (Biarkan impor font bawaan boilerplate Anda tetap di sini, jangan dihapus) ...
+import "@/app/globals.css"; // Pastikan impor CSS ini tetap ada
 
+// 1. Impor komponen yang baru saja kita buat
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
+// 2. Anda bisa menyesuaikan metadata judul website di sini
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  ...createMetadata({
-    title: siteConfig.name,
-    description: siteConfig.description,
-    path: "/",
-  }),
+  title: "Kelas Adibun - TK IT Imam Syafi'i",
+  description: "Website kenangan dan perpisahan Kelas Adibun B4",
 };
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex-sans",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  weight: ["500", "600", "700", "800", "900"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  weight: ["400", "500", "700"],
-  display: "swap",
-  subsets: ["latin"],
-});
 
 export default function RootLayout({
   children,
@@ -80,31 +20,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" suppressHydrationWarning>
-      <body
-        className={[
-          geistSans.className,
-          geistSans.variable,
-          ibmPlexSans.variable,
-          jetBrainsMono.variable,
-          manrope.variable,
-          playfairDisplay.variable,
-          sourceSerif.variable,
-          spaceGrotesk.variable,
-          "antialiased",
-        ].join(" ")}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <MarketingDesignProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-            <Toaster richColors closeButton />
-          </MarketingDesignProvider>
-        </ThemeProvider>
+    <html lang="id">
+      {/* 3. Tambahkan kelas flex, flex-col, dan min-h-screen di body bawaan */}
+      <body className="flex flex-col min-h-screen bg-slate-50 antialiased">
+        
+        {/* 4. Pasang Header di atas */}
+        <Header />
+        
+        {/* 5. Bungkus children dengan tag main yang fleksibel agar footer terdorong ke bawah */}
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        {/* 6. Pasang Footer di bawah */}
+        <Footer />
+        
       </body>
     </html>
   );
