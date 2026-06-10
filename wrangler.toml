@@ -1,3 +1,5 @@
 # Lokasi file: wrangler.toml
+# Mode: situs statis. `next build` (output: export) menghasilkan folder `out/`,
+# dan Cloudflare Pages menyajikannya langsung sebagai aset statis.
 name = "tkitis-adibun"
 pages_build_output_dir = "out"
