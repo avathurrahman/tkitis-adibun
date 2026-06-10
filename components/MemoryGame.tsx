@@ -122,43 +122,37 @@ export default function MemoryGame() {
   );
 
   return (
-    <section className="illuminated rounded-[2rem] p-6 md:p-10">
+    <section className="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-slate-100">
       {/* Judul & info */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
         <div className="text-left">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-brand-gold">
-            Permainan Kenangan
-          </p>
-          <h3 className="mt-2 font-display text-2xl text-brand-ink md:text-3xl">
-            Tebak Pasangan Hijaiyah
+          <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            Tebak Pasangan Huruf Hijaiyah
           </h3>
-          <p className="mt-1 text-brand-muted">
-            Buka dua kartu, temukan huruf yang sama. Yuk asah ingatan!
+          <p className="text-slate-500 mt-1">
+            Buka dua kartu, temukan huruf yang sama. Yuk asah ingatan! ✦
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm font-semibold">
-          <span className="rounded-full border border-brand-line bg-brand-canvas/60 px-3 py-1.5 text-brand-muted">
-            Langkah <span className="text-brand-emerald">{moves}</span>
+        <div className="flex items-center gap-4 text-sm font-semibold text-slate-600">
+          <span className="px-3 py-1.5 rounded-full bg-slate-100">
+            Langkah: <span className="text-teal-600">{moves}</span>
           </span>
-          <span className="rounded-full border border-brand-line bg-brand-canvas/60 px-3 py-1.5 text-brand-muted">
-            Cocok{" "}
-            <span className="text-brand-emerald">
-              {matched.length}/{PAIR_COUNT}
-            </span>
+          <span className="px-3 py-1.5 rounded-full bg-slate-100">
+            Cocok: <span className="text-emerald-600">{matched.length}/{PAIR_COUNT}</span>
           </span>
         </div>
       </div>
 
       {/* Bar progres */}
-      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-brand-line/60">
+      <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden mb-6">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-brand-emerald to-brand-gold transition-all duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       {/* Papan kartu */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
         {deck.map((card) => {
           const isFaceUp =
             flipped.includes(card.uid) || matched.includes(card.letterId);
@@ -172,21 +166,21 @@ export default function MemoryGame() {
               aria-label={isFaceUp ? `Huruf ${card.nama}` : "Kartu tertutup"}
               disabled={isFaceUp || locked}
               className={cn(
-                "perspective aspect-square w-full rounded-2xl transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/40",
-                !isFaceUp && "cursor-pointer hover:scale-[1.03]",
+                "perspective aspect-square w-full rounded-2xl focus:outline-none focus:ring-4 focus:ring-teal-200 transition-transform",
+                !isFaceUp && "hover:scale-[1.03] cursor-pointer",
                 isMatched && "animate-card-pop"
               )}
             >
               <div
                 className={cn(
-                  "preserve-3d relative h-full w-full transition-transform duration-500",
+                  "relative h-full w-full preserve-3d transition-transform duration-500",
                   isFaceUp && "rotate-y-180"
                 )}
               >
-                {/* Sisi belakang (tertutup) — ornamen geometris, sesuai BLOK 2 */}
-                <div className="backface-hidden absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-brand-emerald to-brand-emerald-deep shadow-sm">
-                  <div className="flex h-1/2 w-1/2 rotate-45 items-center justify-center rounded-lg border border-brand-gold/50">
-                    <span className="-rotate-45 font-arabic text-2xl text-brand-gold/80">
+                {/* Sisi belakang (tertutup) — bentuk geometris, sesuai BLOK 2 */}
+                <div className="absolute inset-0 backface-hidden rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-sm">
+                  <div className="w-1/2 h-1/2 rounded-xl border-2 border-white/40 rotate-45 flex items-center justify-center">
+                    <span className="-rotate-45 text-white/80 text-2xl font-serif">
                       ✦
                     </span>
                   </div>
@@ -195,21 +189,21 @@ export default function MemoryGame() {
                 {/* Sisi depan (terbuka) — huruf hijaiyah + nama */}
                 <div
                   className={cn(
-                    "backface-hidden rotate-y-180 absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-2xl border shadow-sm",
+                    "absolute inset-0 backface-hidden rotate-y-180 rounded-2xl border-2 flex flex-col items-center justify-center gap-1 shadow-sm",
                     isMatched
-                      ? "border-brand-emerald/40 bg-brand-emerald/10"
-                      : "border-brand-line bg-brand-parchment"
+                      ? "bg-emerald-50 border-emerald-300"
+                      : "bg-white border-slate-200"
                   )}
                 >
                   <span
                     className={cn(
-                      "font-arabic text-4xl leading-none sm:text-5xl",
-                      isMatched ? "text-brand-emerald" : "text-brand-ink"
+                      "font-serif leading-none text-4xl sm:text-5xl",
+                      isMatched ? "text-emerald-700" : "text-slate-800"
                     )}
                   >
                     {card.char}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-muted/70 sm:text-xs">
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-slate-400">
                     {card.nama}
                   </span>
                 </div>
@@ -220,20 +214,20 @@ export default function MemoryGame() {
       </div>
 
       {/* Pesan menang & tombol main lagi */}
-      <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         {isWon ? (
-          <p className="animate-card-pop font-display text-lg italic text-brand-emerald">
-            Masya Allah — selesai dalam {moves} langkah!
+          <p className="text-lg font-bold text-emerald-600 animate-card-pop">
+            🎉 Masya Allah, semua pasangan ketemu dalam {moves} langkah!
           </p>
         ) : (
-          <p className="text-sm text-brand-muted/80">
+          <p className="text-sm text-slate-400">
             Klik kartu untuk mulai bermain.
           </p>
         )}
         <button
           type="button"
           onClick={resetGame}
-          className="inline-flex items-center justify-center rounded-full bg-brand-emerald px-6 py-3 text-sm font-semibold text-brand-parchment transition-all hover:bg-brand-emerald-deep hover:shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-gold/40"
+          className="inline-flex items-center justify-center px-6 py-3 text-sm font-bold text-white transition-all bg-teal-600 rounded-full hover:bg-teal-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-teal-200"
         >
           {isWon ? "Main Lagi" : "Acak Ulang Kartu"}
         </button>

@@ -12,47 +12,29 @@ export default {
   ],
   theme: {
     extend: {
-      // 1. Animasi sistem desain "Lentera Adibun"
+      // 1. Ekstensi Animasi Basyira/Adibun
       animation: {
         blob: "blob 7s infinite",
-        reveal: "reveal 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both",
-        "float-slow": "float-slow 9s ease-in-out infinite",
-        shimmer: "shimmer 3.5s ease-in-out infinite",
       },
-      // 2. Keyframes
+      // 2. Ekstensi Keyframes
       keyframes: {
         blob: {
-          "0%": { transform: "translate(0px, 0px) scale(1)" },
-          "33%": { transform: "translate(30px, -50px) scale(1.1)" },
-          "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
-          "100%": { transform: "translate(0px, 0px) scale(1)" },
-        },
-        reveal: {
-          from: { opacity: "0", transform: "translateY(18px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "float-slow": {
-          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
-          "50%": { transform: "translateY(-14px) rotate(2deg)" },
-        },
-        shimmer: {
-          "0%, 100%": { backgroundPosition: "-120% 0" },
-          "60%": { backgroundPosition: "220% 0" },
+          "0%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
+          "33%": {
+            transform: "translate(30px, -50px) scale(1.1)",
+          },
+          "66%": {
+            transform: "translate(-20px, 20px) scale(0.9)",
+          },
+          "100%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
         },
       },
-      // --- Token warna "Lentera Adibun" (referensi CSS variable) ---
+      // --- Konfigurasi Bawaan KilatKoding ---
       colors: {
-        brand: {
-          canvas: "var(--canvas)",
-          parchment: "var(--parchment)",
-          ink: "var(--ink)",
-          muted: "var(--ink-muted)",
-          emerald: "var(--emerald)",
-          "emerald-deep": "var(--emerald-deep)",
-          gold: "var(--gold)",
-          terra: "var(--terra)",
-          line: "var(--line)",
-        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -95,10 +77,25 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["var(--font-body)", "system-ui", "sans-serif"],
-        body: ["var(--font-body)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "Georgia", "ui-serif", "serif"],
-        arabic: ["var(--font-arabic)", "Georgia", "serif"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        body: [
+          "var(--marketing-font-body)",
+          "var(--font-geist-sans)",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: [
+          "var(--marketing-font-display)",
+          "var(--font-geist-sans)",
+          "ui-serif",
+          "serif",
+        ],
+        mono: [
+          "var(--marketing-font-mono)",
+          "var(--font-jetbrains-mono)",
+          "ui-monospace",
+          "monospace",
+        ],
       },
       borderRadius: {
         lg: "var(--radius)",

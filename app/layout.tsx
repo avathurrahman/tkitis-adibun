@@ -1,39 +1,17 @@
 // Lokasi file: app/layout.tsx
-import type { Metadata } from "next";
-import { Fraunces, Amiri, Mulish } from "next/font/google";
-import "@/app/globals.css";
 
+import type { Metadata } from "next";
+// ... (Biarkan impor font bawaan boilerplate Anda tetap di sini, jangan dihapus) ...
+import "@/app/globals.css"; // Pastikan impor CSS ini tetap ada
+
+// 1. Impor komponen yang baru saja kita buat
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-// Sistem tipografi "Lentera Adibun"
-// - Fraunces : display serif berkarakter (judul Latin)
-// - Amiri    : serif Arab klasik (teks hijaiyah & ornamen)
-// - Mulish   : sans hangat untuk teks tubuh
-const display = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  style: ["normal", "italic"],
-});
-
-const arabic = Amiri({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "700"],
-  variable: "--font-arabic",
-  display: "swap",
-});
-
-const body = Mulish({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
-
+// 2. Anda bisa menyesuaikan metadata judul website di sini
 export const metadata: Metadata = {
-  title: "Kelas Adibun B4 — TK IT Imam Syafi'i",
-  description:
-    "Monumen digital kenangan & perpisahan Kelas Adibun B4, TK IT Imam Syafi'i. Merangkai kenangan, merajut ukhuwah.",
+  title: "Kelas Adibun - TK IT Imam Syafi'i",
+  description: "Website kenangan dan perpisahan Kelas Adibun B4",
 };
 
 export default function RootLayout({
@@ -42,14 +20,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="id"
-      className={`${display.variable} ${arabic.variable} ${body.variable}`}
-    >
-      <body className="flex flex-col min-h-screen font-sans antialiased text-brand-ink selection:bg-brand-emerald/15">
+    <html lang="id">
+      {/* 3. Tambahkan kelas flex, flex-col, dan min-h-screen di body bawaan */}
+      <body className="flex flex-col min-h-screen bg-slate-50 antialiased">
+        
+        {/* 4. Pasang Header di atas */}
         <Header />
-        <main className="flex-grow">{children}</main>
+        
+        {/* 5. Bungkus children dengan tag main yang fleksibel agar footer terdorong ke bawah */}
+        <main className="flex-grow">
+          {children}
+        </main>
+        
+        {/* 6. Pasang Footer di bawah */}
         <Footer />
+        
       </body>
     </html>
   );
