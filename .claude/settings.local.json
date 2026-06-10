@@ -10,7 +10,18 @@
       "Bash(npx shadcn@latest add alert-dialog aspect-ratio calendar collapsible context-menu drawer resizable slider toggle toggle-group --overwrite)",
       "Bash(ls \"/Users/galpratama/Development/galpratama/kilatkoding-src/app/\\(marketing\\)/\")",
       "Bash(ls -la /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(marketing\\\\\\)/compare/)",
-      "Bash(ls /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(dashboard\\\\\\)/dashboard)"
+      "Bash(ls /Users/galpratama/Development/galpratama/kilatkoding-src/app/\\\\\\(dashboard\\\\\\)/dashboard)",
+      "Bash(git rm *)",
+      "Bash(ls data *)",
+      "Bash(grep -rl \"supabase\\\\|use-auth\\\\|useAuth\" components app/layout.tsx app/page.tsx app/profil)",
+      "Bash(grep -rl \"supabase\\\\|@/hooks\\\\|@/lib/data\\\\|@/lib/payments\\\\|@/lib/ai\" components/ui)",
+      "Bash(grep -rln \"marketing.css\" app components)",
+      "Bash(git check-ignore *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m '@ *)",
+      "Bash(git push *)",
+      "PowerShell(npm run *)",
+      "PowerShell(git *)"
     ]
   }
 }

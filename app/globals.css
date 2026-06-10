@@ -66,3 +66,44 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Penundaan animasi blob di landing page (agar tidak gerak serempak) */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Utilitas untuk efek balik kartu 3D pada MemoryGame */
+  .perspective {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Animasi "pop" saat pasangan kartu cocok */
+@keyframes card-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-card-pop {
+  animation: card-pop 0.4s ease-in-out;
+}

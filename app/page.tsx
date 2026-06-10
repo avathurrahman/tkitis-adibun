@@ -1,5 +1,6 @@
 // Lokasi file: app/page.tsx
 import Link from "next/link";
+import MemoryGame from "@/components/MemoryGame";
 
 export default function Home() {
   return (
@@ -41,6 +42,9 @@ export default function Home() {
             Berasal dari kata &quot;Adab&quot;, yang mencerminkan pribadi dengan pengetahuan luas, beradab mulia, berperilaku baik, dan jujur. Sebuah harapan agar anak-anak tumbuh menjadi generasi sholeh dan sholehah yang berpegang teguh pada Al-Qur&apos;an dan Sunnah.
           </p>
         </section>
+
+        {/* Permainan Memori Huruf Hijaiyah (BLOK 4) */}
+        <MemoryGame />
 
         {/* Pesan Guru Section */}
         <section className="space-y-6 pt-8 border-t border-slate-200">
